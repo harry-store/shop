@@ -745,7 +745,7 @@ function onAuth(res){
   if(res.active){
     ge('fab').style.display = 'flex';
     if (!res.found) {
-      showAlert('&#x1F389;', 'ยินดีต้อนรับสู่ Build Brand', 'คุณสามารถทดลองใช้งานระบบได้ 30 วัน<br>สำหรับบันทึกรับเข้า-เบิกออกวัตถุดิบอาหารและดูแดชบอร์ดสรุป', 'เริ่มใช้งาน');
+      showAlert('&#x1F389;', 'ยินดีต้อนรับสู่ Harry Store', 'คุณสามารถทดลองใช้งานระบบได้ 30 วัน<br>สำหรับบันทึกรับเข้า-เบิกออกวัตถุดิบอาหารและดูแดชบอร์ดสรุป', 'เริ่มใช้งาน');
     } else {
       checkExpireAlert(res.daysLeft, res.expireStr);
     }
