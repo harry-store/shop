@@ -396,6 +396,14 @@ select.fi {
       <div id="prod-list"></div>
     </div>
     
+    <div style="margin-top:20px; border-top:1px solid var(--border); padding-top:16px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+        <div class="set-sec-title" style="margin:0;border:none;padding:0">รายชื่อผู้บันทึก (พนักงาน)</div>
+        <button class="btn-sm btn-grn" onclick="openAddStaff()">+ เพิ่ม</button>
+      </div>
+      <div id="staff-list"></div>
+    </div>
+    
     <div style="margin-top:24px; text-align:center;">
       <button class="btn-login" style="background:var(--red); padding:12px; font-size:14px;" onclick="doLogout()">ออกจากระบบ</button>
     </div>
@@ -597,11 +605,13 @@ window.onload = function(){
     const cachedProds = localStorage.getItem('sp_prods_' + S.idshop);
     const cachedStore = localStorage.getItem('sp_store_' + S.idshop);
     const cachedLogs  = localStorage.getItem('sp_logs_' + S.idshop);
+    const cachedStaff = localStorage.getItem('sp_staff_' + S.idshop);
 
     if (cachedProds && cachedStore) {
       try {
         S.prods = JSON.parse(cachedProds);
         S.logs = cachedLogs ? JSON.parse(cachedLogs) : [];
+        S.staff = cachedStaff ? JSON.parse(cachedStaff) : [];
         const storeInfo = JSON.parse(cachedStore);
         
         ge('login-screen').classList.remove('show');
@@ -609,6 +619,7 @@ window.onload = function(){
         updateStoreUI(storeInfo, localStorage.getItem('sp_status_' + S.idshop) || 'Active');
         renderProds();
         renderLogs();
+        renderStaff();
       } catch (err) {
         console.warn('Cache parse error', err);
       }
@@ -725,8 +736,10 @@ function onAuth(res){
     S.staff = res.allData.staff || [];
     localStorage.setItem('sp_prods_' + S.idshop, JSON.stringify(S.prods));
     localStorage.setItem('sp_logs_' + S.idshop, JSON.stringify(S.logs));
+    localStorage.setItem('sp_staff_' + S.idshop, JSON.stringify(S.staff));
     renderLogs();
     renderProds();
+    renderStaff();
   }
   
   if(res.active){
@@ -755,6 +768,7 @@ function clearLocalCache() {
   if (S.idshop) {
     localStorage.removeItem('sp_prods_' + S.idshop);
     localStorage.removeItem('sp_logs_' + S.idshop);
+    localStorage.removeItem('sp_staff_' + S.idshop);
     localStorage.removeItem('sp_store_' + S.idshop);
     localStorage.removeItem('sp_ver_' + S.idshop);
   }
@@ -844,6 +858,7 @@ function switchPage(p){
    SETTINGS SLIDE-OUT
 ==================================================== */
 function openSettings(){
+  renderStaff();
   ge('settings').classList.add('show');
   ge('overlay').classList.add('show');
 }
@@ -1260,6 +1275,82 @@ function confirmDeleteProduct(id, name){
       localStorage.setItem('sp_prods_' + S.idshop, JSON.stringify(S.prods));
       renderProds();
       toast('ok', 'ลบสำเร็จ');
+    } catch(e) {
+      load(false);
+      showAlert('&#x274C;', 'ผิดพลาด', e.message);
+    }
+  });
+}
+
+/* ====================================================
+   STAFF MANAGEMENT (ผู้บันทึก/พนักงาน)
+==================================================== */
+function renderStaff(){
+  const el = ge('staff-list');
+  if(!el) return;
+  if(!S.staff || !S.staff.length){
+    el.innerHTML = '<p style="color:var(--txt3);font-size:13px;padding:8px 0;">ยังไม่มีรายชื่อพนักงาน (กด + เพิ่มได้เลย)</p>';
+    return;
+  }
+  let html = '';
+  for(let i = 0; i < S.staff.length; i++){
+    const st = S.staff[i];
+    html += '<div class="prod-card" style="padding:8px 12px; justify-content:space-between; align-items:center;">'
+      + '<div style="display:flex; align-items:center; gap:8px;">'
+      + '<span style="font-size:16px;">👤</span>'
+      + '<span style="font-weight:600; font-size:14px;">' + st + '</span>'
+      + '</div>'
+      + '<button class="btn-sm btn-del" style="padding:4px 10px; font-size:12px;" onclick="confirmDeleteStaff(\'' + st + '\')">ลบ</button>'
+      + '</div>';
+  }
+  el.innerHTML = html;
+}
+
+function openAddStaff(){
+  if(actionGuard()) { closeSettings(); return; }
+  closeSettings();
+  const body = '<label class="fl">ชื่อพนักงาน / ผู้บันทึก</label>'
+    + '<input class="fi" id="st-name" placeholder="เช่น เชฟต้น, น้องพลอย, แคชเชียร์บิว">';
+  const footer = '<button class="btn-cancel" onclick="closeModal()">ยกเลิก</button>'
+    + '<button class="btn-confirm" onclick="submitStaff()">บันทึก</button>';
+  openModal('เพิ่มรายชื่อพนักงาน', body, footer, null);
+  setTimeout(() => {
+    const inp = ge('st-name');
+    if(inp) inp.focus();
+  }, 50);
+}
+
+async function submitStaff(){
+  const name = ge('st-name') ? ge('st-name').value.trim() : '';
+  if(!name){ toast('warn', 'กรุณากรอกชื่อพนักงาน'); return; }
+  closeModal();
+  load(true, 'กำลังเพิ่มพนักงาน...');
+  try {
+    const res = await apiCall('addStaff', { idshop: S.idshop, name: name });
+    load(false);
+    const data = res.allData || res;
+    S.staff = data.staff || S.staff;
+    localStorage.setItem('sp_staff_' + S.idshop, JSON.stringify(S.staff));
+    renderStaff();
+    toast('ok', 'เพิ่มพนักงานเรียบร้อย');
+  } catch(e) {
+    load(false);
+    showAlert('&#x274C;', 'ผิดพลาด', e.message);
+  }
+}
+
+function confirmDeleteStaff(name){
+  showConfirm('👤', 'ลบรายชื่อพนักงาน', 'ต้องการลบพนักงาน "' + name + '" ?', 'ลบ', 'btn-del', async function(ok){
+    if(!ok) return;
+    load(true, 'กำลังลบ...');
+    try {
+      const res = await apiCall('deleteStaff', { idshop: S.idshop, name: name });
+      load(false);
+      const data = res.allData || res;
+      S.staff = data.staff || S.staff;
+      localStorage.setItem('sp_staff_' + S.idshop, JSON.stringify(S.staff));
+      renderStaff();
+      toast('ok', 'ลบพนักงานเรียบร้อย');
     } catch(e) {
       load(false);
       showAlert('&#x274C;', 'ผิดพลาด', e.message);
