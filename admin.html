@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Build Brand - ผู้ดูแลระบบ (Admin Panel)</title>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --pri: #1d75bb;
+  --bg: #f1f5f9;
+  --card: #ffffff;
+  --txt: #0f172a;
+  --txt2: #475569;
+  --txt3: #94a3b8;
+  --border: #e2e8f0;
+  --grn: #16a34a; --grn-l: #dcfce7;
+  --red: #dc2626; --red-l: #fee2e2;
+  --amb: #d97706; --amb-l: #fef3c7;
+  --nav-h: 60px;
+  --top-h: 56px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Sarabun', sans-serif; -webkit-tap-highlight-color: transparent; }
+body { background: var(--bg); color: var(--txt); font-size: 14px; overflow-x: hidden; }
+
+/* ── TOP HEADER ── */
+.header { position: fixed; top: 0; left: 0; right: 0; height: var(--top-h); background: #fff; display: flex; align-items: center; justify-content: space-between; padding: 0 16px; border-bottom: 1px solid var(--border); z-index: 40; }
+.header h1 { font-size: 18px; font-weight: 700; color: var(--pri); }
+.btn-icon { background: var(--bg); border: none; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; cursor: pointer; }
+
+/* ── BOTTOM NAV ── */
+.bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; height: var(--nav-h); background: #fff; border-top: 1px solid var(--border); display: flex; z-index: 40; padding-bottom: env(safe-area-inset-bottom); }
+.nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--txt3); font-size: 11px; font-weight: 600; gap: 4px; cursor: pointer; }
+.nav-item.active { color: var(--pri); }
+.nav-item .icon { font-size: 20px; }
+
+/* ── PAGES ── */
+.page { display: none; padding: calc(var(--top-h) + 16px) 16px calc(var(--nav-h) + 20px); min-height: 100vh; }
+.page.active { display: block; }
+
+/* ── UI COMPONENTS ── */
+.search-bar { width: 100%; padding: 12px 16px; border: 1.5px solid var(--border); border-radius: 12px; font-size: 14px; outline: none; margin-bottom: 16px; background: #fff; }
+.search-bar:focus { border-color: var(--pri); }
+
+/* SHOP LIST CARDS */
+.shop-card { background: var(--card); border-radius: 16px; padding: 16px; margin-bottom: 12px; display: flex; align-items: center; gap: 14px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); border: 1px solid var(--border); cursor: pointer; }
+.s-logo { width: 50px; height: 50px; border-radius: 12px; background: var(--bg); display: flex; align-items: center; justify-content: center; flex-shrink: 0; overflow: hidden; border: 1px solid var(--border); font-size: 18px; color: var(--pri); font-weight: bold; }
+.s-logo img { width: 100%; height: 100%; object-fit: cover; }
+.s-info { flex: 1; min-width: 0; }
+.s-name { font-size: 15px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.s-phone { font-size: 12px; color: var(--txt2); margin-top: 2px; }
+.badge { display: inline-block; padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: 600; margin-top: 6px; }
+.b-act { background: var(--grn-l); color: var(--grn); }
+.b-tri { background: var(--amb-l); color: var(--amb); }
+.b-exp { background: var(--red-l); color: var(--red); }
+
+/* LOG CARDS */
+.log-card { background: var(--card); border-radius: 12px; padding: 12px; margin-bottom: 10px; border: 1px solid var(--border); display: flex; gap: 12px; align-items: center; }
+.l-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+.l-icon.in { background: var(--grn-l); color: var(--grn); }
+.l-icon.out { background: var(--red-l); color: var(--red); }
+.l-body { flex: 1; min-width: 0; }
+.l-shop { font-size: 11px; color: var(--pri); font-weight: 600; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.l-item { font-size: 14px; font-weight: 600; }
+.l-time { font-size: 11px; color: var(--txt3); margin-top: 2px; }
+.l-right { text-align: right; flex-shrink: 0; }
+.l-qty { font-size: 15px; font-weight: 700; }
+.l-qty.in { color: var(--grn); }
+.l-qty.out { color: var(--red); }
+.l-staff { font-size: 11px; color: var(--txt2); margin-top: 2px; }
+
+/* PRODUCT CARDS */
+.pd-card { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border); }
+.pd-card:last-child { border-bottom: none; }
+.p-img { width: 44px; height: 44px; border-radius: 8px; background: var(--bg); object-fit: cover; border: 1px solid var(--border); flex-shrink: 0; }
+.p-info { flex: 1; }
+.p-name { font-size: 14px; font-weight: 600; }
+.p-price { font-size: 12px; color: var(--txt2); margin-top: 2px; }
+
+/* ── DETAIL OVERLAY (FULL SCREEN) ── */
+#shop-detail-view { position: fixed; inset: 0; background: var(--bg); z-index: 50; display: none; flex-direction: column; overflow: hidden; }
+#shop-detail-view.show { display: flex; }
+.det-header { height: var(--top-h); background: #fff; border-bottom: 1px solid var(--border); display: flex; align-items: center; padding: 0 16px; gap: 12px; position: sticky; top: 0; z-index: 10; }
+.btn-back { background: none; border: none; font-size: 20px; color: var(--pri); cursor: pointer; padding: 4px; display: flex; align-items: center; }
+.det-title { font-size: 16px; font-weight: 700; flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.det-content { flex: 1; overflow-y: auto; padding: 16px; }
+
+/* DETAIL BLOCKS */
+.d-block { background: #fff; border-radius: 16px; padding: 16px; border: 1px solid var(--border); margin-bottom: 16px; box-shadow: 0 1px 2px rgba(0,0,0,0.02); }
+.d-title { font-size: 15px; font-weight: 700; color: var(--pri); margin-bottom: 14px; padding-bottom: 8px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+.d-row { display: flex; flex-direction: column; gap: 4px; margin-bottom: 12px; }
+.d-row label { font-size: 12px; font-weight: 600; color: var(--txt3); }
+.d-row input, .d-row select { padding: 10px 12px; border: 1.5px solid var(--border); border-radius: 10px; font-size: 14px; outline: none; background: #fff; color: var(--txt); }
+.d-row input[readonly] { background: var(--bg); color: var(--txt2); border-color: transparent; }
+.d-row input:focus, .d-row select:focus { border-color: var(--pri); }
+
+.btn-primary { width: 100%; padding: 12px; background: var(--pri); color: #fff; font-size: 15px; font-weight: 700; border: none; border-radius: 12px; cursor: pointer; margin-top: 8px; }
+
+/* ── LOGIN OVERLAY ── */
+#login-overlay { position: fixed; inset: 0; background: var(--bg); z-index: 10000; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
+.login-card { background: #fff; width: 100%; max-width: 320px; padding: 30px 24px; border-radius: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); border: 1px solid var(--border); text-align: center; }
+.login-card h2 { color: var(--pri); margin-bottom: 8px; font-size: 20px; }
+.login-card p { color: var(--txt2); font-size: 13px; margin-bottom: 24px; }
+.login-input { width: 100%; padding: 14px 16px; border: 1.5px solid var(--border); border-radius: 12px; font-size: 16px; outline: none; margin-bottom: 16px; text-align: center; letter-spacing: 2px; }
+.login-input:focus { border-color: var(--pri); }
+.btn-login { width: 100%; padding: 14px; background: var(--pri); color: #fff; font-size: 16px; font-weight: 700; border: none; border-radius: 12px; cursor: pointer; transition: background 0.2s; }
+.btn-login:active { background: #0f172a; }
+
+/* LOADER */
+#loader { position: fixed; inset: 0; background: rgba(255,255,255,0.9); z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 12px; }
+.spinner { width: 36px; height: 36px; border: 3px solid var(--border); border-top-color: var(--pri); border-radius: 50%; animation: spin 0.8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+
+<div id="login-overlay" style="display: none;">
+  <div class="login-card">
+    <div style="margin-bottom: 12px; display: flex; justify-content: center;">
+      <img src="https://drive.google.com/thumbnail?id=13z-FagvA7V1BjXj4uO2sCRQRAw5lGRVU&sz=w400" style="width: 64px; height: 64px; object-fit: cover; border-radius: 16px; border: 1px solid var(--border);">
+    </div>
+    <h2>เข้าสู่ระบบ Admin</h2>
+    <p>กรุณากรอกรหัสผ่านเพื่อเข้าจัดการระบบ</p>
+    <input type="password" id="admin-pass" class="login-input" placeholder="••••••••">
+    <button class="btn-login" onclick="doAdminLogin()">เข้าสู่ระบบ</button>
+  </div>
+</div>
+
+<div id="confirm-overlay" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 10001; align-items: center; justify-content: center; padding: 20px;">
+  <div style="background: #fff; width: 100%; max-width: 320px; padding: 24px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); text-align: center;">
+    <div style="font-size: 44px; margin-bottom: 12px;">🚪</div>
+    <h3 style="color: var(--txt); margin-bottom: 8px; font-size: 18px; font-weight: 700;">ออกจากระบบ</h3>
+    <p style="color: var(--txt2); font-size: 14px; margin-bottom: 24px;">คุณต้องการออกจากระบบ Admin ใช่หรือไม่?</p>
+    <div style="display: flex; gap: 10px;">
+      <button onclick="closeConfirmLogout()" style="flex: 1; padding: 12px; border-radius: 12px; border: none; background: var(--bg); color: var(--txt2); font-weight: 700; cursor: pointer; font-size: 15px;">ยกเลิก</button>
+      <button onclick="confirmLogoutAction()" style="flex: 1; padding: 12px; border-radius: 12px; border: none; background: var(--red); color: #fff; font-weight: 700; cursor: pointer; font-size: 15px;">ออกจากระบบ</button>
+    </div>
+  </div>
+</div>
+
+<div id="loader"><div class="spinner"></div><div id="load-txt" style="font-weight:600; color:var(--txt2);">กำลังโหลดข้อมูล...</div></div>
+
+<div class="header">
+  <h1 id="main-title">จัดการร้านค้า</h1>
+  <div style="display:flex; gap:8px;">
+    <button class="btn-icon" onclick="fetchData()">🔄</button>
+    <button class="btn-icon" onclick="logoutAdmin()" style="color:var(--red);">🚪</button>
+  </div>
+</div>
+
+<div id="page-shops" class="page active">
+  <input type="text" class="search-bar" id="inp-search" placeholder="🔍 ค้นหาชื่อร้าน หรือ เบอร์โทร..." oninput="renderShops()">
+  <div id="shop-list-container"></div>
+</div>
+
+<div id="page-logs" class="page">
+  <select id="log-filter" class="search-bar" style="appearance:none;" onchange="renderGlobalLogs()">
+    <option value="ALL">แสดงความเคลื่อนไหวทุกร้าน</option>
+  </select>
+  <div id="global-log-container"></div>
+</div>
+
+<div class="bottom-nav">
+  <div class="nav-item active" id="nav-shops" onclick="switchPage('shops')">
+    <div class="icon">🏪</div><span>ร้านค้า</span>
+  </div>
+  <div class="nav-item" id="nav-logs" onclick="switchPage('logs')">
+    <div class="icon">🕒</div><span>ความเคลื่อนไหว</span>
+  </div>
+</div>
+
+<div id="shop-detail-view">
+  <div class="det-header">
+    <button class="btn-back" onclick="closeShopDetail()">&#x276E;</button>
+    <div class="det-title" id="det-title">รายละเอียดร้านค้า</div>
+  </div>
+  <div class="det-content" id="det-content"></div>
+</div>
+
+<script>
+/* ====================================================
+   CONFIGURATION & DUAL-ENGINE API CLIENT
+==================================================== */
+const GAS_API_URL = "https://script.google.com/macros/s/AKfycby3cI7KjXN611f7aL7yG8Z_e3lD6W9zX4yQ0/exec";
+
+// GLOBAL STATE
+let DB = { shops: [], products: [], logs: [] };
+let SELECTED_SHOP = null;
+
+const isGASNative = (typeof google !== 'undefined' && google.script && google.script.run && window.location.hostname.includes('google'));
+
+async function apiCall(action, payload = {}, method = 'POST') {
+  if (isGASNative) {
+    return new Promise((resolve, reject) => {
+      let runner = google.script.run
+        .withSuccessHandler(res => resolve(res))
+        .withFailureHandler(err => reject(err));
+
+      if (action === 'verifyAdminPassword') runner.verifyAdminPassword(payload.password);
+      else if (action === 'getAdminData') runner.getAdminData();
+      else if (action === 'updateShopLicense') runner.updateShopLicense(payload.idshop, payload.expireDate, payload.status, payload.type);
+      else reject(new Error('Unknown action: ' + action));
+    });
+  } else {
+    try {
+      const url = new URL(GAS_API_URL);
+      let options = {};
+
+      if (method === 'GET') {
+        url.searchParams.append('action', action);
+        Object.keys(payload).forEach(k => {
+          if (payload[k] !== undefined && payload[k] !== null) url.searchParams.append(k, payload[k]);
+        });
+        options = { method: 'GET', mode: 'cors' };
+      } else {
+        const bodyObj = { action, ...payload };
+        options = {
+          method: 'POST',
+          mode: 'cors',
+          body: JSON.stringify(bodyObj),
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' }
+        };
+      }
+
+      const res = await fetch(url.toString(), options);
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const json = await res.json();
+      return json;
+    } catch(err) {
+      console.error('Admin API Error (' + action + '):', err);
+      throw err;
+    }
+  }
+}
+
+window.onload = () => { 
+  const savedPass = localStorage.getItem('admin_pass');
+  if(savedPass) {
+    verifyLogin(savedPass);
+  } else {
+    document.getElementById('login-overlay').style.display = 'flex';
+  }
+};
+
+function doAdminLogin() {
+  const pass = document.getElementById('admin-pass').value.trim();
+  if(!pass) { alert('กรุณากรอกรหัสผ่าน'); return; }
+  
+  document.getElementById('login-overlay').style.display = 'none';
+  showLoad(true, 'กำลังตรวจสอบสิทธิ์...');
+  verifyLogin(pass);
+}
+
+async function verifyLogin(pass) {
+  showLoad(true, 'กำลังตรวจสอบสิทธิ์...');
+  try {
+    const res = await apiCall('verifyAdminPassword', { password: pass });
+    const isValid = (res && res.isValid !== undefined) ? res.isValid : res;
+
+    if(isValid) {
+      localStorage.setItem('admin_pass', pass);
+      document.getElementById('login-overlay').style.display = 'none';
+      fetchData();
+    } else {
+      showLoad(false);
+      alert('รหัสผ่านไม่ถูกต้อง!');
+      localStorage.removeItem('admin_pass');
+      document.getElementById('login-overlay').style.display = 'flex';
+      document.getElementById('admin-pass').value = '';
+    }
+  } catch(e) {
+    showLoad(false);
+    alert('Error: ' + e.message);
+    document.getElementById('login-overlay').style.display = 'flex';
+  }
+}
+
+function logoutAdmin() {
+  document.getElementById('confirm-overlay').style.display = 'flex';
+}
+
+function closeConfirmLogout() {
+  document.getElementById('confirm-overlay').style.display = 'none';
+}
+
+function confirmLogoutAction() {
+  localStorage.removeItem('admin_pass');
+  location.reload();
+}
+
+function showLoad(show, txt='กำลังโหลด...') {
+  document.getElementById('loader').style.display = show ? 'flex' : 'none';
+  document.getElementById('load-txt').textContent = txt;
+}
+
+async function fetchData() {
+  showLoad(true, 'ซิงค์ข้อมูลกับระบบหลังบ้าน...');
+  try {
+    const res = await apiCall('getAdminData');
+    showLoad(false);
+    DB = res.adminData || res;
+    renderShops();
+    updateLogFilterOptions();
+    if(SELECTED_SHOP) openShopDetail(SELECTED_SHOP.idshop);
+  } catch(e) {
+    showLoad(false);
+    alert('Error: ' + e.message);
+  }
+}
+
+/* ── SWITCH PAGES ── */
+function switchPage(pageId) {
+  document.getElementById('page-shops').classList.remove('active');
+  document.getElementById('page-logs').classList.remove('active');
+  document.getElementById('nav-shops').classList.remove('active');
+  document.getElementById('nav-logs').classList.remove('active');
+  
+  document.getElementById('page-' + pageId).classList.add('active');
+  document.getElementById('nav-' + pageId).classList.add('active');
+  
+  document.getElementById('main-title').textContent = pageId === 'shops' ? 'จัดการร้านค้า' : 'ความเคลื่อนไหวทั้งหมด';
+  
+  if(pageId === 'logs') renderGlobalLogs();
+}
+
+/* ── 1. RENDER SHOP LIST ── */
+function renderShops() {
+  const query = document.getElementById('inp-search').value.toLowerCase().trim();
+  const container = document.getElementById('shop-list-container');
+  container.innerHTML = '';
+  
+  const filtered = DB.shops.filter(s => s.storeName.toLowerCase().includes(query) || s.phone.includes(query) || s.idshop.toLowerCase().includes(query));
+  
+  if(filtered.length === 0) {
+    container.innerHTML = '<div style="text-align:center; padding:20px; color:var(--txt3);">ไม่พบข้อมูลที่ค้นหา</div>';
+    return;
+  }
+  
+  filtered.forEach(s => {
+    let bClass = 'b-exp', bText = 'หมดอายุ';
+    if(s.status === 'Active') { bClass = 'b-act'; bText = 'ใช้งานปกติ'; }
+    else if(s.status === 'trial') { bClass = 'b-tri'; bText = 'ทดลองใช้'; }
+    else if(s.status === 'Pending') { bClass = 'b-exp'; bText = 'รออนุมัติ'; }
+
+    const initL = s.storeName.charAt(0).toUpperCase();
+    const logoHtml = s.logo ? `<img src="${s.logo}" onerror="this.parentNode.innerHTML='${initL}'">` : initL;
+
+    const div = document.createElement('div');
+    div.className = 'shop-card';
+    div.onclick = () => openShopDetail(s.idshop);
+    div.innerHTML = `
+      <div class="s-logo">${logoHtml}</div>
+      <div class="s-info">
+        <div class="s-name">${s.storeName}</div>
+        <div class="s-phone">📞 ${s.phone}</div>
+        <div class="badge ${bClass}">${bText}</div>
+      </div>
+    `;
+    container.appendChild(div);
+  });
+}
+
+/* ── 2. OPEN SHOP DETAIL OVERLAY ── */
+function openShopDetail(idshop) {
+  const s = DB.shops.find(x => x.idshop === idshop);
+  if(!s) return;
+  SELECTED_SHOP = s;
+  
+  document.getElementById('det-title').textContent = s.storeName;
+  const content = document.getElementById('det-content');
+  
+  const initL = s.storeName.charAt(0).toUpperCase();
+  const lgHtml = s.logo ? `<img src="${s.logo}" style="width:60px;height:60px;border-radius:12px;object-fit:cover;border:1px solid var(--border);">` 
+                        : `<div style="width:60px;height:60px;border-radius:12px;background:var(--bg);display:flex;align-items:center;justify-content:center;font-size:24px;color:var(--pri);font-weight:700;border:1px solid var(--border);">${initL}</div>`;
+  
+  const b1 = `
+    <div class="d-block">
+      <div class="d-title"><span>👤 ข้อมูลร้านค้า</span></div>
+      <div style="display:flex; gap:14px; margin-bottom:16px; align-items:center;">
+        ${lgHtml}
+        <div>
+          <div style="font-size:16px;font-weight:700;">${s.storeName}</div>
+          <div style="font-size:12px;color:var(--txt3);">ID: ${s.idshop}</div>
+        </div>
+      </div>
+      
+      <div class="d-row"><label>เบอร์โทรศัพท์ (เข้าสู่ระบบ)</label><input type="text" value="${s.phone}" readonly></div>
+      <div class="d-row"><label>รหัสผ่าน</label><input type="text" value="${s.password}" readonly></div>
+      <div class="d-row"><label>วันที่สมัคร</label><input type="text" value="${s.startDate}" readonly></div>
+      
+      <div class="d-row" style="margin-top:16px;"><label style="color:var(--pri);">วันหมดอายุ (แก้ไขได้)</label><input type="date" id="ed-exp" value="${s.expireDateRaw}"></div>
+      <div class="d-row"><label style="color:var(--pri);">สถานะ (แก้ไขได้)</label>
+        <select id="ed-status">
+          <option value="trial" ${s.status==='trial'?'selected':''}>ทดลองใช้ (trial)</option>
+          <option value="Active" ${s.status==='Active'?'selected':''}>ใช้งานปกติ (Active)</option>
+          <option value="Pending" ${s.status==='Pending'?'selected':''}>รออนุมัติ (Pending)</option>
+          <option value="Expired" ${s.status==='Expired'?'selected':''}>ระงับ/หมดอายุ (Expired)</option>
+        </select>
+      </div>
+      <button class="btn-primary" onclick="saveShopData('${s.idshop}')">บันทึกสิทธิ์การใช้งาน</button>
+    </div>
+  `;
+
+  // -- HTML BLOCK 2: สินค้า --
+  const pds = DB.products.filter(p => p.idshop === idshop);
+  let pList = '';
+  if(pds.length===0) pList = '<div style="text-align:center;color:var(--txt3);font-size:13px;padding:10px;">ไม่มีสินค้า</div>';
+  else {
+    pds.forEach(p => {
+      const img = p.img ? `<img src="${p.img}" class="p-img">` : `<div class="p-img" style="display:flex;align-items:center;justify-content:center;font-size:20px;">📦</div>`;
+      pList += `
+        <div class="pd-card">
+          ${img}
+          <div class="p-info">
+            <div class="p-name">${p.name}</div>
+            <div class="p-price">${p.price.toLocaleString()} บ. / ${p.unit}</div>
+          </div>
+        </div>
+      `;
+    });
+  }
+  const b2 = `<div class="d-block"><div class="d-title"><span>📦 รายการสินค้า (${pds.length})</span></div>${pList}</div>`;
+
+  // -- HTML BLOCK 3: ประวัติ LOG ของร้านนี้ --
+  const lgs = DB.logs.filter(l => l.idshop === idshop).slice(0, 30);
+  let lList = '';
+  if(lgs.length===0) lList = '<div style="text-align:center;color:var(--txt3);font-size:13px;padding:10px;">ยังไม่มีความเคลื่อนไหว</div>';
+  else {
+    lgs.forEach(l => {
+      const isIn = l.type === 'IN';
+      const imgHtml = l.img ? `<img src="${l.img}" style="width:100%; height:100%; object-fit:cover; border-radius:8px;">` : (isIn ? '📥' : '📤');
+      
+      lList += `
+        <div class="log-card" style="box-shadow:none; padding:8px 0; border:none; border-bottom:1px solid var(--border); border-radius:0;">
+          <div class="l-icon ${isIn?'in':'out'}" style="width:36px;height:36px;font-size:16px;">${imgHtml}</div>
+          <div class="l-body">
+            <div class="l-item">${l.item}</div>
+            <div class="l-time">${l.timestamp} | 👤 ${l.staff}</div>
+          </div>
+          <div class="l-right">
+            <div class="l-qty ${isIn?'in':'out'}">${isIn?'+':'-'}${l.qty}</div>
+          </div>
+        </div>
+      `;
+    });
+  }
+  const b3 = `<div class="d-block"><div class="d-title"><span>🕒 ความเคลื่อนไหวล่าสุด</span></div>${lList}</div>`;
+
+  content.innerHTML = b1 + b2 + b3;
+  document.getElementById('shop-detail-view').classList.add('show');
+}
+
+function closeShopDetail() {
+  document.getElementById('shop-detail-view').classList.remove('show');
+  SELECTED_SHOP = null;
+}
+
+async function saveShopData(idshop) {
+  const exp = document.getElementById('ed-exp').value;
+  const stat = document.getElementById('ed-status').value;
+  showLoad(true, 'กำลังบันทึก...');
+  try {
+    const res = await apiCall('updateShopLicense', {
+      idshop: idshop,
+      expireDate: exp,
+      status: stat,
+      type: 'admin_updated'
+    });
+    if(res.success) {
+      alert('บันทึกสำเร็จ');
+      fetchData();
+    } else {
+      showLoad(false);
+      alert('Error: ' + res.msg);
+    }
+  } catch(e) {
+    showLoad(false);
+    alert('Error: ' + e.message);
+  }
+}
+
+/* ── 3. RENDER GLOBAL LOGS ── */
+function updateLogFilterOptions() {
+  const sel = document.getElementById('log-filter');
+  sel.innerHTML = '<option value="ALL">แสดงความเคลื่อนไหวทุกร้าน</option>';
+  DB.shops.forEach(s => {
+    sel.innerHTML += `<option value="${s.idshop}">${s.storeName}</option>`;
+  });
+}
+
+function renderGlobalLogs() {
+  const filter = document.getElementById('log-filter').value;
+  const container = document.getElementById('global-log-container');
+  container.innerHTML = '';
+  
+  let targetLogs = DB.logs;
+  if(filter !== 'ALL') targetLogs = targetLogs.filter(l => l.idshop === filter);
+  
+  if(targetLogs.length === 0) {
+    container.innerHTML = '<div style="text-align:center; padding:30px; color:var(--txt3);">ไม่มีความเคลื่อนไหวในช่วงนี้</div>';
+    return;
+  }
+  
+  const shopNames = {};
+  DB.shops.forEach(s => { shopNames[s.idshop] = s.storeName; });
+  
+  targetLogs.slice(0, 100).forEach(l => {
+    const isIn = l.type === 'IN';
+    const sName = shopNames[l.idshop] || l.idshop;
+    const imgHtml = l.img ? `<img src="${l.img}" style="width:100%; height:100%; object-fit:cover; border-radius:8px;">` : (isIn ? '📥' : '📤');
+    
+    const div = document.createElement('div');
+    div.className = 'log-card';
+    div.innerHTML = `
+      <div class="l-icon ${isIn?'in':'out'}">${imgHtml}</div>
+      <div class="l-body">
+        <div class="l-shop">🏪 ${sName}</div>
+        <div class="l-item">${l.item}</div>
+        <div class="l-time">${l.timestamp}</div>
+      </div>
+      <div class="l-right">
+        <div class="l-qty ${isIn?'in':'out'}">${isIn?'+':'-'}${l.qty}</div>
+        <div class="l-staff">👤 ${l.staff}</div>
+      </div>
+    `;
+    container.appendChild(div);
+  });
+}
+</script>
+</body>
+</html>
