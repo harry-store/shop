@@ -1695,38 +1695,41 @@ function submitStore(){
 function openEditProduct(id){
   if(actionGuard()) { closeSettings(); return; }
   closeSettings();
+  const cleanId = (id === 'null' || id === 'undefined' || !id) ? '' : id;
   let p = null;
-  for(let i = 0; i < S.prods.length; i++) if(S.prods[i].id === id){ p = S.prods[i]; break; }
+  for(let i = 0; i < S.prods.length; i++) if(S.prods[i].id === cleanId){ p = S.prods[i]; break; }
   if(!p) p = { id: '', name: '', img: '', price: '', unit: '' };
-  const isNew = !id;
+  const isNew = !cleanId;
   const prevHtml = p.img ? '<img class="prod-prev-img" src="' + p.img + '" onerror="this.style.display=\'none\'">' : '';
 
   const body = '<label class="fl">' + t('prodNameLabel') + '</label>'
-    + '<input class="fi" id="p-name" value="' + p.name + '" placeholder="' + t('prodNamePlaceholder') + '">'
+    + '<input class="fi" id="p-name" value="' + (p.name || '').replace(/"/g, '&quot;') + '" placeholder="' + t('prodNamePlaceholder') + '">'
     + '<div class="f2">'
     + '<div><label class="fl">' + t('prodPriceLabel') + '</label><input class="fi" id="p-price" type="number" value="' + (p.price || '') + '" inputmode="decimal"></div>'
-    + '<div><label class="fl">' + t('prodUnitLabel') + '</label><input class="fi" id="p-unit" value="' + (p.unit || '') + '" placeholder="' + t('prodUnitPlaceholder') + '"></div>'
+    + '<div><label class="fl">' + t('prodUnitLabel') + '</label><input class="fi" id="p-unit" value="' + (p.unit || '').replace(/"/g, '&quot;') + '" placeholder="' + t('prodUnitPlaceholder') + '"></div>'
     + '</div>'
     + '<label class="fl">' + t('prodImgLabel') + '</label>'
     + prevHtml
     + '<input class="fi fi-file" type="file" id="p-img" accept="image/*">';
     
+  const safeName = (p.name || '').replace(/'/g, "\\'");
   const footer = '<button class="btn-cancel" onclick="closeModal()">' + t('btnCancel') + '</button>'
-    + (isNew ? '<button class="btn-confirm" onclick="submitProduct(\'' + id + '\')">' + t('btnSave') + '</button>'
-             : '<button class="btn-del" onclick="confirmDeleteProduct(\'' + id + '\',\'' + p.name + '\')">' + t('btnDelete') + '</button>'
-             + '<button class="btn-confirm" onclick="submitProduct(\'' + id + '\')">' + t('btnSave') + '</button>');
+    + (isNew ? '<button class="btn-confirm" onclick="submitProduct(\'\')">' + t('btnSave') + '</button>'
+             : '<button class="btn-del" onclick="confirmDeleteProduct(\'' + cleanId + '\',\'' + safeName + '\')">' + t('btnDelete') + '</button>'
+             + '<button class="btn-confirm" onclick="submitProduct(\'' + cleanId + '\')">' + t('btnSave') + '</button>');
   openModal(isNew ? t('newProdTitle') : t('editProdTitle'), body, footer, null);
 }
 
 function submitProduct(id){
+  const cleanId = (id === 'null' || id === 'undefined' || !id) ? '' : id;
   const name = ge('p-name') ? ge('p-name').value.trim() : '';
   if(!name){ toast('warn', t('toastProdNameRequired')); return; }
   const file = ge('p-img') ? ge('p-img').files[0] : null;
   let p = null;
-  for(let i = 0; i < S.prods.length; i++) if(S.prods[i].id === id){ p = S.prods[i]; break; }
+  for(let i = 0; i < S.prods.length; i++) if(S.prods[i].id === cleanId){ p = S.prods[i]; break; }
   const existImg = p ? p.img || '' : '';
 
-  const obj = { id: id, name: name, price: Number(ge('p-price').value) || 0, unit: ge('p-unit').value, img: existImg };
+  const obj = { id: cleanId, name: name, price: Number(ge('p-price').value) || 0, unit: ge('p-unit').value, img: existImg };
   closeModal();
 
   if(file){
@@ -1750,7 +1753,7 @@ function submitProduct(id){
         localStorage.setItem('sp_prods_' + S.idshop, JSON.stringify(S.prods));
         renderProds();
         renderLogs();
-        toast('ok', id ? t('toastEditSuccess') : t('toastAddSuccess'));
+        toast('ok', cleanId ? t('toastEditSuccess') : t('toastAddSuccess'));
       } catch(e) {
         load(false);
         showAlert('&#x274C;', t('alertErrorShort'), e.message);
@@ -1768,7 +1771,7 @@ function submitProduct(id){
         localStorage.setItem('sp_prods_' + S.idshop, JSON.stringify(S.prods));
         renderProds();
         renderLogs();
-        toast('ok', id ? t('toastEditSuccess') : t('toastAddSuccess'));
+        toast('ok', cleanId ? t('toastEditSuccess') : t('toastAddSuccess'));
       })
       .catch(e => {
         load(false);
