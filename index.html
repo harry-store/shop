@@ -1599,7 +1599,7 @@ function openAddLog(){
     + '<div style="text-align:center;margin:-6px 0 12px">' + prevHtml + '</div>'
     + '<div class="f2">'
     + '<div><label class="fl">' + t('logQtyLabel') + '</label><input class="fi" id="m-qty" type="number" min="1" placeholder="0" inputmode="numeric"></div>'
-    + '<div><label class="fl">' + t('logPriceLabel') + '</label><input class="fi" id="m-price" type="number" min="0" placeholder="0" inputmode="decimal"></div>'
+    + '<div><label class="fl">' + t('logPriceLabel') + '</label><input class="fi" id="m-price" type="number" readonly style="background:var(--bg); color:var(--txt2); cursor:not-allowed;" placeholder="0"></div>'
     + '</div>';
 
   const footer = '<button class="btn-cancel modal-footer-btn" onclick="closeModal()">' + t('btnCancel') + '</button>'
@@ -1627,34 +1627,21 @@ function onProdChange(sel){
   } else if(prev && prev.tagName === 'IMG') {
     prev.style.display = 'none';
   }
-  if(priceEl && opt) priceEl.value = opt.getAttribute('data-price') || '';
+  if(priceEl && opt) priceEl.value = opt.getAttribute('data-price') || '0';
 }
 
 function onTypeChange() {
-  const typeEl = ge('m-type');
   const priceEl = ge('m-price');
-  if(!typeEl || !priceEl) return;
+  if(!priceEl) return;
+  priceEl.readOnly = true;
+  priceEl.style.backgroundColor = 'var(--bg)';
+  priceEl.style.color = 'var(--txt2)';
+  priceEl.style.cursor = 'not-allowed';
   
-  if(typeEl.value === 'OUT') {
-    priceEl.readOnly = true;
-    priceEl.style.backgroundColor = 'var(--bg)';
-    priceEl.style.color = 'var(--txt2)';
-    const sel = ge('m-item');
-    if(sel && sel.selectedIndex >= 0){
-      const opt = sel.options[sel.selectedIndex];
-      if(opt) priceEl.value = opt.getAttribute('data-price') || '0';
-    }
-  } else {
-    priceEl.readOnly = false;
-    priceEl.style.backgroundColor = '#fff';
-    priceEl.style.color = 'var(--txt)';
-    if(typeEl.value === 'IN'){
-      const sel = ge('m-item');
-      if(sel && sel.selectedIndex >= 0){
-        const opt = sel.options[sel.selectedIndex];
-        if(opt && !priceEl.value) priceEl.value = opt.getAttribute('data-price') || '';
-      }
-    }
+  const sel = ge('m-item');
+  if(sel && sel.selectedIndex >= 0){
+    const opt = sel.options[sel.selectedIndex];
+    if(opt) priceEl.value = opt.getAttribute('data-price') || '0';
   }
 }
 
@@ -1668,11 +1655,8 @@ async function submitLog(){
   const qty = ge('m-qty') ? ge('m-qty').value.trim() : '';
   if(!qty || isNaN(Number(qty)) || Number(qty) <= 0){ toast('warn', t('toastQtyInvalid')); return; }
 
-  const priceVal = ge('m-price') ? ge('m-price').value.trim() : '';
-  if(priceVal === '' || isNaN(Number(priceVal)) || Number(priceVal) < 0){
-    toast('warn', t('toastLogPriceRequired'));
-    return;
-  }
+  const priceVal = ge('m-price') ? ge('m-price').value.trim() : '0';
+  const finalPrice = (priceVal !== '' && !isNaN(Number(priceVal))) ? Number(priceVal) : 0;
   
   const submitBtn = ge('btn-submit-log');
   if (submitBtn) submitBtn.disabled = true;
@@ -1683,7 +1667,7 @@ async function submitLog(){
     item:  item,
     type:  type,
     qty:   Number(qty),
-    price: Number(priceVal),
+    price: finalPrice,
     staff: staffNameVal
   };
   
