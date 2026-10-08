@@ -310,7 +310,7 @@ select.fi {
         <button class="lang-btn active" id="hd-lang-th" onclick="setLanguage('th')">TH</button>
         <button class="lang-btn" id="hd-lang-en" onclick="setLanguage('en')">EN</button>
       </div>
-      <button class="hd-btn" onclick="openSettings()" title="Settings">
+      <button class="hd-btn" id="btn-open-settings" onclick="openSettings()" title="Settings">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M19.14 12.94c.04-.3.06-.61.06-.94s-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54A.484.484 0 0 0 14 2h-4a.484.484 0 0 0-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h4c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.57 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
       </button>
     </div>
@@ -579,8 +579,19 @@ const I18N = {
     addStaffTitle: "เพิ่มรายชื่อพนักงาน",
     staffNameLabel: "ชื่อพนักงาน / ผู้บันทึก",
     staffNamePlaceholder: "เช่น เชฟต้น, น้องพลอย, แคชเชียร์บิว",
+    staffPwLabel: "รหัสผ่านพนักงาน (สำหรับเข้าสู่ระบบ)",
+    staffPwPlaceholder: "กำหนดรหัสผ่าน (ไม่ซ้ำกับคนอื่น)",
     confirmDelStaffTitle: "ลบรายชื่อพนักงาน",
     confirmDelStaffMsg: 'ต้องการลบพนักงาน "{0}" ?',
+    
+    prodHistoryTitle: "ประวัติการใช้วัตถุดิบ",
+    prodHistoryEmpty: "ยังไม่มีประวัติการรับเข้าหรือเบิกออกสำหรับสินค้านี้",
+    clickForHistory: "แตะเพื่อดูประวัติ",
+    roleOwnerBadge: "(เจ้าของร้าน)",
+    roleStaffBadge: "(พนักงาน: {0})",
+    staffPwTag: "รหัสผ่าน: ",
+    dashInCountCard: "รับเข้าวัตถุดิบ",
+    dashOutCountCard: "เบิกไปทำอาหาร",
     
     btnOk: "ตกลง",
     btnCloseModal: "ปิดหน้าต่าง",
@@ -607,6 +618,7 @@ const I18N = {
     toastStoreNameRequired: "กรุณากรอกชื่อร้าน",
     toastProdNameRequired: "กรุณากรอกชื่อสินค้า",
     toastStaffNameRequired: "กรุณากรอกชื่อพนักงาน",
+    toastStaffPwRequired: "กรุณากำหนดรหัสผ่านให้พนักงาน",
     toastSaved: "บันทึกเรียบร้อย",
     toastSavedSuccess: "บันทึกสำเร็จ",
     toastEditSuccess: "แก้ไขสำเร็จ",
@@ -758,8 +770,19 @@ const I18N = {
     addStaffTitle: "Add Staff Member",
     staffNameLabel: "Staff Name",
     staffNamePlaceholder: "e.g. Chef Ton, Ploy, Cashier",
+    staffPwLabel: "Staff Password (for login)",
+    staffPwPlaceholder: "Set password (must be unique)",
     confirmDelStaffTitle: "Delete Staff Member",
     confirmDelStaffMsg: 'Delete staff member "{0}"?',
+    
+    prodHistoryTitle: "Stock Movement History",
+    prodHistoryEmpty: "No transaction history for this item yet",
+    clickForHistory: "Tap to view history",
+    roleOwnerBadge: "(Owner)",
+    roleStaffBadge: "(Staff: {0})",
+    staffPwTag: "Password: ",
+    dashInCountCard: "Stock In",
+    dashOutCountCard: "Stock Out",
     
     btnOk: "OK",
     btnCloseModal: "Close",
@@ -786,6 +809,7 @@ const I18N = {
     toastStoreNameRequired: "Please enter store name",
     toastProdNameRequired: "Please enter product name",
     toastStaffNameRequired: "Please enter staff name",
+    toastStaffPwRequired: "Please enter staff password",
     toastSaved: "Saved successfully",
     toastSavedSuccess: "Saved successfully",
     toastEditSuccess: "Updated successfully",
@@ -930,7 +954,8 @@ const GAS_API_URL = "https://script.google.com/macros/s/AKfycbzlfVhF7P9_pUB4ShIj
 
 // Global State
 const S = {
-  idshop: '', phone: '', password: '', active: false, daysLeft: 0, expireStr: '',
+  idshop: '', phone: '', password: '', role: 'owner', staffName: '',
+  active: false, daysLeft: 0, expireStr: '',
   prods: [], logs: [], staff: [],
   filterType: 'ALL', filterDate: '',
   blockUI: false,
@@ -959,7 +984,7 @@ async function apiCall(action, payload = {}, method = 'POST') {
       else if (action === 'updateStore') runner.updateStore(payload.idshop, payload.name, payload.logo);
       else if (action === 'uploadFile') runner.uploadFile(payload.base64Data, payload.fileName);
       else if (action === 'getDashboard') runner.getDashboard(payload.idshop, payload.range);
-      else if (action === 'addStaff') runner.addStaff(payload.idshop, payload.name);
+      else if (action === 'addStaff') runner.addStaff(payload.idshop, payload.name, payload.password);
       else if (action === 'deleteStaff') runner.deleteStaff(payload.idshop, payload.name);
       else if (action === 'checkVersion') {
         try { runner.getProductVersion(payload.idshop); } catch(e) { resolve({ success:true, version: Date.now().toString() }); }
@@ -1102,6 +1127,13 @@ function resizeImg(file, cb){
   reader.readAsDataURL(file);
 }
 
+function updateRoleUI() {
+  const setBtn = ge('btn-open-settings');
+  if (setBtn) {
+    setBtn.style.display = (S.role === 'owner') ? 'inline-flex' : 'none';
+  }
+}
+
 /* ====================================================
    BOOT, LOCAL STORAGE CACHING & FAST VERSION CHECK
 ==================================================== */
@@ -1111,11 +1143,16 @@ window.onload = function(){
   const savedPhone = localStorage.getItem('sp_phone');
   const savedPw = localStorage.getItem('sp_pw');
   const savedIdShop = localStorage.getItem('sp_idshop');
+  const savedRole = localStorage.getItem('sp_role') || 'owner';
+  const savedStaffName = localStorage.getItem('sp_staff_name') || '';
 
   if (savedPhone && savedPw) {
     S.phone = savedPhone;
     S.password = savedPw;
     S.idshop = savedIdShop || '';
+    S.role = savedRole;
+    S.staffName = savedStaffName;
+    updateRoleUI();
 
     // 1. INSTANT LOAD: Load cached master data immediately if available
     const cachedProds = localStorage.getItem('sp_prods_' + S.idshop);
@@ -1227,6 +1264,8 @@ function onAuth(res){
   }
   
   S.idshop    = res.idshop;
+  S.role      = res.role || 'owner';
+  S.staffName = res.staffName || (S.role === 'staff' ? 'พนักงาน' : 'เจ้าของร้าน');
   S.active    = res.active;
   S.daysLeft  = res.daysLeft || 0;
   S.expireStr = res.expireStr || '-';
@@ -1235,6 +1274,8 @@ function onAuth(res){
   // Save credentials and cache
   localStorage.setItem('sp_phone', S.phone);
   localStorage.setItem('sp_pw', S.password);
+  localStorage.setItem('sp_role', S.role);
+  localStorage.setItem('sp_staff_name', S.staffName);
   localStorage.setItem('sp_idshop', S.idshop);
   localStorage.setItem('sp_status_' + S.idshop, res.status || '');
   if (res.storeInfo) localStorage.setItem('sp_store_' + S.idshop, JSON.stringify(res.storeInfo));
@@ -1243,6 +1284,7 @@ function onAuth(res){
   ge('login-screen').classList.remove('show');
   ge('app').classList.add('show');
   
+  updateRoleUI();
   updateStoreUI(res.storeInfo, res.status);
   updateExpireBadge();
   
@@ -1280,6 +1322,8 @@ function onAuth(res){
 function clearLocalCache() {
   localStorage.removeItem('sp_phone');
   localStorage.removeItem('sp_pw');
+  localStorage.removeItem('sp_role');
+  localStorage.removeItem('sp_staff_name');
   localStorage.removeItem('sp_idshop');
   if (S.idshop) {
     localStorage.removeItem('sp_prods_' + S.idshop);
@@ -1343,12 +1387,13 @@ function updateStoreUI(si, status){
 
   const statusEl = ge('set-store-status');
   if (statusEl) {
+    let roleText = (S.role === 'staff') ? t('roleStaffBadge', S.staffName) : t('roleOwnerBadge');
     if (status === 'trial' || status === 'Trial') {
-      statusEl.innerHTML = '<span style="color:var(--red); font-weight:normal;">' + t('trialBadge') + '</span>';
+      statusEl.innerHTML = '<span style="color:var(--red); font-weight:normal;">' + t('trialBadge') + ' ' + roleText + '</span>';
     } else if (status === 'Active' || status === 'active') {
-      statusEl.innerHTML = '<span style="color:var(--grn); font-weight:normal;">' + t('activeBadge') + '</span>';
+      statusEl.innerHTML = '<span style="color:var(--grn); font-weight:normal;">' + t('activeBadge') + ' ' + roleText + '</span>';
     } else {
-      statusEl.innerHTML = '';
+      statusEl.innerHTML = '<span style="color:var(--txt2); font-weight:normal;">' + roleText + '</span>';
     }
   }
 }
@@ -1374,6 +1419,10 @@ function switchPage(p){
    SETTINGS SLIDE-OUT
 ==================================================== */
 function openSettings(){
+  if(S.role === 'staff'){
+    showAlert('&#x1F512;', t('alertBlockedTitle'), 'พนักงานไม่มีสิทธิ์เข้าถึงเมนูตั้งค่า');
+    return;
+  }
   renderStaff();
   ge('settings').classList.add('show');
   ge('overlay').classList.add('show');
@@ -1475,7 +1524,7 @@ function renderLogs(){
       + '</div>'
       + '<div class="log-body">'
       + '<div class="log-name">' + l.item + '</div>'
-      + '<div class="log-meta">' + l.date + (l.staff ? ' &middot; ' + l.staff : '') + '</div>'
+      + '<div class="log-meta">' + l.date + (l.staff ? ' &middot; <span style="color:var(--txt); font-weight:600;">👤 ' + l.staff + '</span>' : '') + '</div>'
       + '</div>'
       + '<div class="log-right">'
       + '<div class="log-qty ' + (isIn ? 'in' : 'out') + '">' + (isIn ? '+' : '-') + fmtNum(l.qty) + '</div>'
@@ -1520,8 +1569,6 @@ function openAddLog(){
     const p = S.prods[i];
     prodOpts += '<option value="' + p.name + '" data-price="' + p.price + '" data-img="' + (p.img || '') + '">' + p.name + ' (' + (p.unit || '-') + ')</option>';
   }
-  let staffOpts = '<option value="">-</option>';
-  for(let k = 0; k < S.staff.length; k++) staffOpts += '<option>' + S.staff[k] + '</option>';
 
   const firstImg = S.prods[0] && S.prods[0].img ? S.prods[0].img : '';
   const prevHtml = firstImg ? '<img id="m-prev" class="prod-prev-img" src="' + firstImg + '" onerror="this.style.display=\'none\'">' : '<div id="m-prev"></div>';
@@ -1534,9 +1581,7 @@ function openAddLog(){
     + '<div class="f2">'
     + '<div><label class="fl">' + t('logQtyLabel') + '</label><input class="fi" id="m-qty" type="number" min="1" placeholder="0" inputmode="numeric"></div>'
     + '<div><label class="fl">' + t('logPriceLabel') + '</label><input class="fi" id="m-price" type="number" min="0" placeholder="0" inputmode="decimal"></div>'
-    + '</div>'
-    + '<label class="fl">' + t('logStaffLabel') + '</label>'
-    + '<select class="fi" id="m-staff">' + staffOpts + '</select>';
+    + '</div>';
 
   const footer = '<button class="btn-cancel modal-footer-btn" onclick="closeModal()">' + t('btnCancel') + '</button>'
     + '<button class="btn-confirm modal-footer-btn" id="btn-submit-log" onclick="submitLog()">' + t('btnSubmitLog') + '</button>';
@@ -1589,12 +1634,14 @@ async function submitLog(){
   const submitBtn = ge('btn-submit-log');
   if (submitBtn) submitBtn.disabled = true;
 
+  const staffNameVal = S.staffName || (S.role === 'staff' ? 'พนักงาน' : 'เจ้าของร้าน');
+
   const obj = {
     item:  ge('m-item').value,
     type:  ge('m-type').value,
     qty:   Number(qty),
     price: Number(ge('m-price').value) || 0,
-    staff: ge('m-staff').value
+    staff: staffNameVal
   };
   
   closeModal();
@@ -1830,12 +1877,19 @@ function renderStaff(){
   let html = '';
   for(let i = 0; i < S.staff.length; i++){
     const st = S.staff[i];
-    html += '<div class="prod-card" style="padding:8px 12px; justify-content:space-between; align-items:center;">'
+    const sName = (typeof st === 'object' && st.name) ? st.name : st.toString();
+    const sPw = (typeof st === 'object' && st.password) ? st.password : '';
+    const safeName = sName.replace(/'/g, "\\'");
+    
+    html += '<div class="prod-card" style="padding:10px 14px; justify-content:space-between; align-items:center; margin-bottom:8px;">'
+      + '<div style="display:flex; flex-direction:column; gap:2px;">'
       + '<div style="display:flex; align-items:center; gap:8px;">'
       + '<span style="font-size:16px;">👤</span>'
-      + '<span style="font-weight:600; font-size:14px;">' + st + '</span>'
+      + '<span style="font-weight:700; font-size:14px; color:var(--txt);">' + sName + '</span>'
       + '</div>'
-      + '<button class="btn-sm btn-del" style="padding:4px 10px; font-size:12px;" onclick="confirmDeleteStaff(\'' + st + '\')">' + t('btnDelete') + '</button>'
+      + (sPw ? '<div style="font-size:12px; color:var(--txt2); margin-left:24px;">🔑 ' + t('staffPwTag') + '<b style="color:var(--pri); font-family:monospace; font-size:13px;">' + sPw + '</b></div>' : '')
+      + '</div>'
+      + '<button class="btn-sm btn-del" style="padding:6px 12px; font-size:12px;" onclick="confirmDeleteStaff(\'' + safeName + '\')">' + t('btnDelete') + '</button>'
       + '</div>';
   }
   el.innerHTML = html;
@@ -1845,7 +1899,9 @@ function openAddStaff(){
   if(actionGuard()) { closeSettings(); return; }
   closeSettings();
   const body = '<label class="fl">' + t('staffNameLabel') + '</label>'
-    + '<input class="fi" id="st-name" placeholder="' + t('staffNamePlaceholder') + '">';
+    + '<input class="fi" id="st-name" placeholder="' + t('staffNamePlaceholder') + '">'
+    + '<label class="fl">' + t('staffPwLabel') + '</label>'
+    + '<input class="fi" id="st-pw" type="text" placeholder="' + t('staffPwPlaceholder') + '">';
   const footer = '<button class="btn-cancel" onclick="closeModal()">' + t('btnCancel') + '</button>'
     + '<button class="btn-confirm" onclick="submitStaff()">' + t('btnSave') + '</button>';
   openModal(t('addStaffTitle'), body, footer, null);
@@ -1857,12 +1913,19 @@ function openAddStaff(){
 
 async function submitStaff(){
   const name = ge('st-name') ? ge('st-name').value.trim() : '';
+  const pw = ge('st-pw') ? ge('st-pw').value.trim() : '';
   if(!name){ toast('warn', t('toastStaffNameRequired')); return; }
+  if(!pw){ toast('warn', t('toastStaffPwRequired')); return; }
+  
   closeModal();
   load(true, t('loadingAddStaff'));
   try {
-    const res = await apiCall('addStaff', { idshop: S.idshop, name: name });
+    const res = await apiCall('addStaff', { idshop: S.idshop, name: name, password: pw });
     load(false);
+    if(res && res.success === false){
+      showAlert('&#x274C;', t('alertErrorShort'), res.msg || 'ไม่สามารถเพิ่มพนักงานได้');
+      return;
+    }
     const data = res.allData || res;
     S.staff = data.staff || S.staff;
     localStorage.setItem('sp_staff_' + S.idshop, JSON.stringify(S.staff));
@@ -1995,13 +2058,17 @@ function renderDashData(d){
     const pct = Math.max(0, Math.min(100, Math.round(st.stock / maxStock * 100)));
     const clr = st.stock <= 0 ? 'var(--red)' : st.stock < 5 ? 'var(--amb)' : 'var(--grn)';
     const simg = st.img ? (st.img.indexOf('?') >= 0 ? st.img + '&t=' + Date.now() : st.img + '?t=' + Date.now()) : 'https://via.placeholder.com/38';
+    const safeName = st.name.replace(/'/g, "\\'");
     
-    stockHtml += '<div class="stock-row">'
+    stockHtml += '<div class="stock-row" onclick="openProductHistory(\'' + safeName + '\')" style="cursor:pointer;" title="' + t('clickForHistory') + '">'
       + '<img class="stock-thumb" src="' + simg + '" onerror="this.src=\'https://via.placeholder.com/38\'">'
       + '<div class="sbw">'
-      + '<div class="sbl"><span>' + st.name + '</span><span style="color:' + clr + '">' + t('stockRemaining') + fmtNum(st.stock) + ' ' + (st.unit || '') + '</span></div>'
+      + '<div class="sbl"><span style="font-weight:600;">' + st.name + '</span><span style="color:' + clr + '">' + t('stockRemaining') + fmtNum(st.stock) + ' ' + (st.unit || '') + '</span></div>'
       + '<div class="sbb"><div class="sbf" style="width:' + pct + '%;background:' + clr + '"></div></div>'
-      + '<div style="font-size:11px;color:var(--txt3);margin-top:3px">' + t('stockUsedCooking') + fmtNum(st.outFreq) + ' ' + (st.unit || '') + '</div>'
+      + '<div style="display:flex; justify-content:space-between; align-items:center; font-size:11px; color:var(--txt3); margin-top:3px;">'
+      + '<span>' + t('stockUsedCooking') + fmtNum(st.outFreq) + ' ' + (st.unit || '') + '</span>'
+      + '<span style="color:var(--pri); font-weight:600;">🔍 ' + t('clickForHistory') + '</span>'
+      + '</div>'
       + '</div>'
       + '</div>';
   }
@@ -2013,32 +2080,105 @@ function renderDashData(d){
     + '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg></button>'
     + '</div></div>';
 
+  const isOwner = (S.role === 'owner');
+
+  let topCardsHtml = '';
+  if (isOwner) {
+    // เจ้าของร้าน: แสดงยอดเงินบาท + จำนวนรายการ + ปุ่มดูกราฟ
+    topCardsHtml = '<div class="dash-grid">'
+      + '<div class="dash-card">'
+      + '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:6px;margin-bottom:6px;">'
+      + '<h4 style="margin:0;font-size:11px;font-weight:600;color:var(--txt2);text-transform:uppercase;letter-spacing:.4px;line-height:1.3;flex:1;">' + t('dashInCard') + '</h4>'
+      + '<button onclick="openChart(\'IN\')" style="background:var(--pri-l);color:var(--pri);border:none;padding:4px 8px;border-radius:6px;font-size:11px;font-weight:700;white-space:nowrap;flex-shrink:0;cursor:pointer;">' + t('viewChart') + '</button>'
+      + '</div>'
+      + '<div class="dash-big c-pri">' + fmtNum(d.costIn) + ' <span style="font-size:16px;font-weight:400;color:var(--txt3)">' + t('currBaht') + '</span></div>'
+      + '<div class="dash-sub">' + t('dashTotalPrefix') + fmtNum(d.totIn) + t('dashTotalSuffix') + '</div>'
+      + '</div>'
+      + '<div class="dash-card">'
+      + '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:6px;margin-bottom:6px;">'
+      + '<h4 style="margin:0;font-size:11px;font-weight:600;color:var(--txt2);text-transform:uppercase;letter-spacing:.4px;line-height:1.3;flex:1;">' + t('dashOutCard') + '</h4>'
+      + '<button onclick="openChart(\'OUT\')" style="background:var(--red-l);color:var(--red);border:none;padding:4px 8px;border-radius:6px;font-size:11px;font-weight:700;white-space:nowrap;flex-shrink:0;cursor:pointer;">' + t('viewChart') + '</button>'
+      + '</div>'
+      + '<div class="dash-big c-red">' + fmtNum(d.costOut) + ' <span style="font-size:16px;font-weight:400;color:var(--txt3)">' + t('currBaht') + '</span></div>'
+      + '<div class="dash-sub">' + t('dashTotalPrefix') + fmtNum(d.totOut) + t('dashTotalSuffix') + '</div>'
+      + '</div>'
+      + '</div>';
+  } else {
+    // พนักงาน: แสดงเฉพาะจำนวนรายการ (ไม่แสดงยอดเงิน และไม่แสดงปุ่มกราฟมูลค่าเงิน)
+    topCardsHtml = '<div class="dash-grid">'
+      + '<div class="dash-card">'
+      + '<h4 style="margin:0 0 6px;font-size:12px;font-weight:600;color:var(--txt2);text-transform:uppercase;letter-spacing:.4px;">📥 ' + t('dashInCountCard') + '</h4>'
+      + '<div class="dash-big c-pri">' + fmtNum(d.totIn) + ' <span style="font-size:16px;font-weight:400;color:var(--txt3)">' + t('itemsUnit') + '</span></div>'
+      + '<div class="dash-sub">' + t('dashTotalPrefix') + fmtNum(d.totIn) + t('dashTotalSuffix') + '</div>'
+      + '</div>'
+      + '<div class="dash-card">'
+      + '<h4 style="margin:0 0 6px;font-size:12px;font-weight:600;color:var(--txt2);text-transform:uppercase;letter-spacing:.4px;">📤 ' + t('dashOutCountCard') + '</h4>'
+      + '<div class="dash-big c-red">' + fmtNum(d.totOut) + ' <span style="font-size:16px;font-weight:400;color:var(--txt3)">' + t('itemsUnit') + '</span></div>'
+      + '<div class="dash-sub">' + t('dashTotalPrefix') + fmtNum(d.totOut) + t('dashTotalSuffix') + '</div>'
+      + '</div>'
+      + '</div>';
+  }
+
   ge('dash-body').innerHTML =
-    '<div class="dash-grid">'
-    + '<div class="dash-card">'
-    + '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:6px;margin-bottom:6px;">'
-    + '<h4 style="margin:0;font-size:11px;font-weight:600;color:var(--txt2);text-transform:uppercase;letter-spacing:.4px;line-height:1.3;flex:1;">' + t('dashInCard') + '</h4>'
-    + '<button onclick="openChart(\'IN\')" style="background:var(--pri-l);color:var(--pri);border:none;padding:4px 8px;border-radius:6px;font-size:11px;font-weight:700;white-space:nowrap;flex-shrink:0;cursor:pointer;">' + t('viewChart') + '</button>'
-    + '</div>'
-    + '<div class="dash-big c-pri">' + fmtNum(d.costIn) + ' <span style="font-size:16px;font-weight:400;color:var(--txt3)">' + t('currBaht') + '</span></div>'
-    + '<div class="dash-sub">' + t('dashTotalPrefix') + fmtNum(d.totIn) + t('dashTotalSuffix') + '</div>'
-    + '</div>'
-    + '<div class="dash-card">'
-    + '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:6px;margin-bottom:6px;">'
-    + '<h4 style="margin:0;font-size:11px;font-weight:600;color:var(--txt2);text-transform:uppercase;letter-spacing:.4px;line-height:1.3;flex:1;">' + t('dashOutCard') + '</h4>'
-    + '<button onclick="openChart(\'OUT\')" style="background:var(--red-l);color:var(--red);border:none;padding:4px 8px;border-radius:6px;font-size:11px;font-weight:700;white-space:nowrap;flex-shrink:0;cursor:pointer;">' + t('viewChart') + '</button>'
-    + '</div>'
-    + '<div class="dash-big c-red">' + fmtNum(d.costOut) + ' <span style="font-size:16px;font-weight:400;color:var(--txt3)">' + t('currBaht') + '</span></div>'
-    + '<div class="dash-sub">' + t('dashTotalPrefix') + fmtNum(d.totOut) + t('dashTotalSuffix') + '</div>'
-    + '</div>'
-    + '</div>'
+    topCardsHtml
     + sugHtml
     + stockHeaderHtml
     + sortButtonsHtml
     + stockHtml;
 }
 
+/* ====================================================
+   PRODUCT TRANSACTION HISTORY POPUP MODAL
+==================================================== */
+function openProductHistory(prodName){
+  const prod = S.prods.find(p => p.name && p.name.trim() === prodName.trim()) || { name: prodName, unit: '', img: '' };
+  const prodLogs = S.logs.filter(l => (l.item || '').trim() === prodName.trim());
+  
+  const isOwner = (S.role === 'owner');
+  const prodImg = prod.img ? `<img src="${prod.img}" style="width:50px;height:50px;border-radius:10px;object-fit:cover;border:1px solid var(--border);">` : '<div style="width:50px;height:50px;border-radius:10px;background:var(--bg);display:flex;align-items:center;justify-content:center;font-size:22px;border:1px solid var(--border);">📦</div>';
+
+  let logsHtml = '';
+  if(!prodLogs.length){
+    logsHtml = '<div style="text-align:center; padding:24px 10px; color:var(--txt3); font-size:14px;">' + t('prodHistoryEmpty') + '</div>';
+  } else {
+    for(let i = 0; i < prodLogs.length; i++){
+      const l = prodLogs[i];
+      const isIn = l.type === 'IN';
+      const staffBadge = l.staff ? `<span style="font-size:12px; color:var(--txt); font-weight:600;">👤 ${l.staff}</span>` : '';
+      const priceText = (isOwner && l.price) ? `<div style="font-size:12px; color:var(--txt3);">${fmtNum(l.price)} ${t('costPerUnit')}</div>` : '';
+
+      logsHtml += `<div style="display:flex; align-items:center; justify-content:space-between; padding:10px 0; border-bottom:1px solid var(--border);">`
+        + `<div style="display:flex; align-items:center; gap:10px;">`
+        + `<div class="log-ic ${isIn ? 'in' : 'out'}" style="width:34px; height:34px; font-size:16px;">${isIn ? '📥' : '📤'}</div>`
+        + `<div>`
+        + `<div style="font-size:13px; font-weight:600; color:var(--txt);">${isIn ? t('filterIn') : t('filterOut')} ${fmtNum(l.qty)} ${prod.unit || ''}</div>`
+        + `<div style="font-size:11px; color:var(--txt3);">${l.date} ${staffBadge ? '&middot; ' + staffBadge : ''}</div>`
+        + `</div>`
+        + `</div>`
+        + `<div style="text-align:right;">`
+        + `<div style="font-size:14px; font-weight:700; color:${isIn ? 'var(--pri)' : 'var(--red)'};">${isIn ? '+' : '-'}${fmtNum(l.qty)}</div>`
+        + priceText
+        + `</div>`
+        + `</div>`;
+    }
+  }
+
+  const headerSummary = `<div style="display:flex; align-items:center; gap:12px; padding:12px; background:var(--bg); border-radius:12px; margin-bottom:14px;">`
+    + prodImg
+    + `<div>`
+    + `<div style="font-size:15px; font-weight:700; color:var(--txt);">${prod.name}</div>`
+    + `<div style="font-size:12px; color:var(--txt2);">${t('historyTitle')} (${prodLogs.length} ${t('itemsUnit')})</div>`
+    + `</div>`
+    + `</div>`;
+
+  const body = headerSummary + `<div style="max-height:300px; overflow-y:auto; padding-right:4px;">` + logsHtml + `</div>`;
+  const footer = `<button class="btn-cancel" style="width:100%;" onclick="closeModal()">${t('btnCloseModal')}</button>`;
+
+  openModal(t('prodHistoryTitle'), body, footer, null);
+}
+
 function openChart(type) {
+  if(S.role === 'staff') return;
   const d = S.dashCache;
   if(!d || !d.chart) return;
   ge('chart-title').textContent = type === 'IN' ? t('chartInTitle') : t('chartOutTitle');
