@@ -678,7 +678,7 @@ async function doLogin(){
       } else {
         isNewAccount = true;
         ge('lbl-pw').textContent = 'ตั้งรหัสผ่านสำหรับบัญชีใหม่';
-        ge('login-status-msg').textContent = 'ไม่พบเบอร์นี้ในระบบ กรุณาตั้งรหัสผ่านเพื่อสมัครใช้งานใหม่';
+        ge('login-status-msg').textContent = 'กรุณาตั้งรหัสผ่าน เพื่อสมัครใช้งานใหม่';
         ge('login-status-msg').style.color = 'var(--amb)';
         ge('btn-login-action').textContent = 'สร้างบัญชีผู้ใช้ใหม่';
       }
