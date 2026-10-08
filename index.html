@@ -3,14 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Harry Store-จัดการสต็อกสินค้าและวัตถุดิบ</title>
+<title id="page-title">Harry Store-จัดการสต็อกสินค้าและวัตถุดิบ</title>
 <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="favicon.png">  
 
-  
 <style>
 :root{
   --pri:#1d75bb;--pri2:#155a96;--pri-l:#dbeafe;
@@ -35,10 +34,16 @@ button{cursor:pointer;font-family:'Sarabun',sans-serif}
 @keyframes spin{to{transform:rotate(360deg)}}
 #loader p{color:var(--txt2);font-size:14px;font-weight:500}
 
+/* LANGUAGE SWITCHER */
+.lang-toggle{display:inline-flex;align-items:center;background:var(--bg);border:1px solid var(--border);border-radius:20px;padding:2px;gap:2px;flex-shrink:0}
+.lang-btn{border:none;background:transparent;padding:3px 9px;font-size:11px;font-weight:700;border-radius:16px;color:var(--txt3);cursor:pointer;transition:all .15s ease;line-height:1.2}
+.lang-btn.active{background:var(--pri);color:#fff;box-shadow:0 1px 3px rgba(0,0,0,.15)}
+
 /* LOGIN */
-#login-screen{display:none;min-height:100vh;align-items:center;justify-content:center;padding:24px;flex-direction:column;background:linear-gradient(135deg,#155a96 0%,#1d75bb 100%)}
+#login-screen{display:none;min-height:100vh;align-items:center;justify-content:center;padding:24px;flex-direction:column;background:linear-gradient(135deg,#155a96 0%,#1d75bb 100%);position:relative}
 #login-screen.show{display:flex}
-.login-card{background:#fff;border-radius:24px;padding:36px 24px;width:100%;max-width:360px;box-shadow:0 20px 60px rgba(0,0,0,.2)}
+.login-card{background:#fff;border-radius:24px;padding:36px 24px;width:100%;max-width:360px;box-shadow:0 20px 60px rgba(0,0,0,.2);position:relative}
+.login-lang-box{display:flex;justify-content:flex-end;margin-bottom:12px}
 .app-logo{width:150px;height:150px;background:var(--pri);border-radius:18px;display:flex;align-items:center;justify-content:center;margin:0 auto 18px}
 .login-card h1{font-size:22px;font-weight:700;text-align:center;margin-bottom:4px}
 .login-sub{font-size:14px;color:var(--txt2);text-align:center;margin-bottom:24px}
@@ -60,6 +65,7 @@ button{cursor:pointer;font-family:'Sarabun',sans-serif}
 .store-av img{width:100%;height:100%;object-fit:cover}
 .store-av span{color:#fff;font-weight:700;font-size:15px}
 .hd-name{font-size:16px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hd-actions{display:flex;align-items:center;gap:8px}
 .hd-btn{width:38px;height:38px;border:none;background:var(--bg);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--txt2)}
 .expire-badge{font-size:11px;font-weight:600;padding:3px 8px;border-radius:20px;white-space:nowrap;flex-shrink:0;display:none}
 .expire-badge.ok{background:var(--grn-l);color:var(--grn);display:inline}
@@ -264,14 +270,20 @@ select.fi {
 <!-- ════════ LOGIN SCREEN ════════ -->
 <div id="login-screen">
   <div class="login-card">
+    <div class="login-lang-box">
+      <div class="lang-toggle">
+        <button class="lang-btn active" id="login-lang-th" onclick="setLanguage('th')">TH</button>
+        <button class="lang-btn" id="login-lang-en" onclick="setLanguage('en')">EN</button>
+      </div>
+    </div>
     <div class="app-logo" style="background:transparent; padding:0;">
       <img src="https://drive.google.com/thumbnail?id=16Lub5ejZNh0SKnbwvDp9YzIR1bhZqLOM&sz=w400" style="width:100%;height:100%;object-fit:cover;border-radius:18px;">
     </div>
-    <h1>Harry Store</h1>
-    <p class="login-sub">ระบบจัดการสต็อกวัตถุดิบและสินค้า</p>
+    <h1 id="txt-login-title">Harry Store</h1>
+    <p class="login-sub" id="txt-login-sub">ระบบจัดการสต็อกวัตถุดิบและสินค้า</p>
     
     <div class="iw" id="phone-wrapper">
-      <label>เบอร์โทรศัพท์เข้าสู่ระบบ หรือ เบอร์โทรศัพท์สมัครใช้งาน</label>
+      <label id="lbl-phone">เบอร์โทรศัพท์เข้าสู่ระบบ หรือ เบอร์โทรศัพท์สมัครใช้งาน</label>
       <input type="tel" id="inp-phone" maxlength="10" placeholder="0XX-XXX-XXXX" inputmode="numeric">
     </div>
     
@@ -293,9 +305,15 @@ select.fi {
       <div class="hd-name" id="store-name">ร้านค้า</div>
     </div>
     <div id="expire-badge" class="expire-badge"></div>
-    <button class="hd-btn" onclick="openSettings()">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M19.14 12.94c.04-.3.06-.61.06-.94s-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54A.484.484 0 0 0 14 2h-4a.484.484 0 0 0-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h4c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.57 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
-    </button>
+    <div class="hd-actions">
+      <div class="lang-toggle">
+        <button class="lang-btn active" id="hd-lang-th" onclick="setLanguage('th')">TH</button>
+        <button class="lang-btn" id="hd-lang-en" onclick="setLanguage('en')">EN</button>
+      </div>
+      <button class="hd-btn" onclick="openSettings()" title="Settings">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M19.14 12.94c.04-.3.06-.61.06-.94s-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54A.484.484 0 0 0 14 2h-4a.484.484 0 0 0-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h4c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.57 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+      </button>
+    </div>
   </div>
 
   <!-- Page 1: Stock Transactions -->
@@ -304,12 +322,12 @@ select.fi {
       <div class="stat in" id="stat-in" onclick="filterByType('IN')">
         <div class="stat-lbl" id="lbl-in">รับเข้าวันนี้</div>
         <div class="stat-num" id="sum-in">0</div>
-        <div class="stat-sub">รายการ</div>
+        <div class="stat-sub" id="lbl-sub-in">รายการ</div>
       </div>
       <div class="stat out" id="stat-out" onclick="filterByType('OUT')">
         <div class="stat-lbl" id="lbl-out">เบิกออกวันนี้</div>
         <div class="stat-num" id="sum-out">0</div>
-        <div class="stat-sub">รายการ</div>
+        <div class="stat-sub" id="lbl-sub-out">รายการ</div>
       </div>
     </div>
     <div class="filter-bar">
@@ -319,10 +337,10 @@ select.fi {
         <option value="OUT">เบิกออก</option>
       </select>
       <input type="date" id="f-date" onchange="applyFilter()">
-      <button class="btn-reset" onclick="clearFilter()">รีเซ็ต</button>
+      <button class="btn-reset" id="btn-reset-filter" onclick="clearFilter()">รีเซ็ต</button>
     </div>
     <div class="sec-hd">
-      <h3>ประวัติรายการ</h3>
+      <h3 id="txt-history-hd">ประวัติรายการ</h3>
       <span id="log-count"></span>
     </div>
     <div id="log-list"></div>
@@ -338,7 +356,7 @@ select.fi {
         <option value="7days">7 วันที่ผ่านมา</option>
         <option value="30days">30 วันที่ผ่านมา</option>
       </select>
-      <button class="btn-reset" onclick="resetDashFilter()">รีเซ็ต</button>
+      <button class="btn-reset" id="btn-reset-dash" onclick="resetDashFilter()">รีเซ็ต</button>
     </div>
     <div id="dash-body"></div>
   </div>
@@ -363,10 +381,10 @@ select.fi {
   
   <nav class="nav">
     <button class="nav-item on" id="nav-stock" onclick="switchPage('stock')">
-      <span class="nav-icon">&#x1F4CB;</span><span>รายการ</span><div class="nav-bar"></div>
+      <span class="nav-icon">&#x1F4CB;</span><span id="nav-txt-stock">รายการ</span><div class="nav-bar"></div>
     </button>
     <button class="nav-item" id="nav-dash" onclick="switchPage('dash')">
-      <span class="nav-icon">&#x1F4CA;</span><span>Dashboard</span><div class="nav-bar"></div>
+      <span class="nav-icon">&#x1F4CA;</span><span id="nav-txt-dash">Dashboard</span><div class="nav-bar"></div>
     </button>
   </nav>
 </div>
@@ -375,13 +393,27 @@ select.fi {
 <div id="overlay" onclick="closeSettings()"></div>
 <div id="settings">
   <div class="set-hd">
-    <h2>ตั้งค่าระบบ</h2>
+    <h2 id="txt-set-title">ตั้งค่าระบบ</h2>
     <button class="set-close" onclick="closeSettings()">&#x2715;</button>
   </div>
   <div class="set-body">
+    <!-- Language Settings Row -->
+    <div style="margin-bottom:16px;">
+      <div class="set-sec-title">
+        <span id="txt-set-lang-title">ภาษา / Language</span>
+      </div>
+      <div class="set-row">
+        <div class="set-row-l" id="txt-set-lang-desc">เลือกภาษาแสดงผล</div>
+        <div class="lang-toggle">
+          <button class="lang-btn active" id="set-lang-th" onclick="setLanguage('th')">TH</button>
+          <button class="lang-btn" id="set-lang-en" onclick="setLanguage('en')">EN</button>
+        </div>
+      </div>
+    </div>
+
     <div style="margin-bottom:20px">
       <div class="set-sec-title" style="display:flex; justify-content:space-between; align-items:center;">
-        <span>ข้อมูลร้านค้า</span>
+        <span id="txt-set-store-title">ข้อมูลร้านค้า</span>
         <span id="set-store-status" style="font-size:12px;"></span>
       </div>
       <div class="set-row">
@@ -389,33 +421,506 @@ select.fi {
           <div class="set-row-l" id="set-store-name">-</div>
           <div class="set-row-sub" id="set-expire-txt">-</div>
         </div>
-        <button class="btn-sm btn-ghost" onclick="openEditStore()">แก้ไข</button>
+        <button class="btn-sm btn-ghost" id="btn-edit-store" onclick="openEditStore()">แก้ไข</button>
       </div>
     </div>
     
     <div>
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-        <div class="set-sec-title" style="margin:0;border:none;padding:0">รายการวัตถุดิบ/สินค้า</div>
-        <button class="btn-sm btn-grn" onclick="openEditProduct(null)">+ เพิ่ม</button>
+        <div class="set-sec-title" id="txt-set-prod-title" style="margin:0;border:none;padding:0">รายการวัตถุดิบ/สินค้า</div>
+        <button class="btn-sm btn-grn" id="btn-add-prod" onclick="openEditProduct(null)">+ เพิ่ม</button>
       </div>
       <div id="prod-list"></div>
     </div>
     
     <div style="margin-top:20px; border-top:1px solid var(--border); padding-top:16px;">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-        <div class="set-sec-title" style="margin:0;border:none;padding:0">รายชื่อผู้บันทึก (พนักงาน)</div>
-        <button class="btn-sm btn-grn" onclick="openAddStaff()">+ เพิ่ม</button>
+        <div class="set-sec-title" id="txt-set-staff-title" style="margin:0;border:none;padding:0">รายชื่อผู้บันทึก (พนักงาน)</div>
+        <button class="btn-sm btn-grn" id="btn-add-staff" onclick="openAddStaff()">+ เพิ่ม</button>
       </div>
       <div id="staff-list"></div>
     </div>
     
     <div style="margin-top:24px; text-align:center;">
-      <button class="btn-login" style="background:var(--red); padding:12px; font-size:14px;" onclick="doLogout()">ออกจากระบบ</button>
+      <button class="btn-login" id="btn-logout" style="background:var(--red); padding:12px; font-size:14px;" onclick="doLogout()">ออกจากระบบ</button>
     </div>
   </div>
 </div>
 
 <script>
+/* ====================================================
+   I18N / MULTI-LANGUAGE TRANSLATION SYSTEM
+==================================================== */
+const I18N = {
+  th: {
+    appTitle: "Harry Store-จัดการสต็อกสินค้าและวัตถุดิบ",
+    loginTitle: "Harry Store",
+    loginSub: "ระบบจัดการสต็อกวัตถุดิบและสินค้า",
+    phoneLabel: "เบอร์โทรศัพท์เข้าสู่ระบบ หรือ เบอร์โทรศัพท์สมัครใช้งาน",
+    phonePlaceholder: "0XX-XXX-XXXX",
+    pwLabel: "รหัสผ่านสำหรับเข้าสู่ระบบ",
+    pwLabelExist: "ใส่รหัสผ่านเพื่อเข้าใช้งาน",
+    pwLabelNew: "ตั้งรหัสผ่านสำหรับบัญชีใหม่",
+    pwPlaceholder: "กรอกรหัสผ่านของคุณ",
+    loginStatusExist: "พบเบอร์โทรศัพท์ในระบบ กรุณากรอกรหัสผ่าน",
+    loginStatusNew: "กรุณาตั้งรหัสผ่าน เพื่อสมัครใช้งานใหม่",
+    btnNext: "ถัดไป",
+    btnLogin: "เข้าสู่ระบบ",
+    btnRegister: "สร้างบัญชีผู้ใช้ใหม่",
+    
+    navStock: "รายการ",
+    navDash: "Dashboard",
+    
+    defaultStoreName: "ร้านค้า",
+    inToday: "รับเข้าวันนี้",
+    outToday: "เบิกออกวันนี้",
+    datePrefix: "วันที่ ",
+    itemsUnit: "รายการ",
+    
+    filterAll: "ทุกประเภท",
+    filterIn: "รับเข้า",
+    filterOut: "เบิกออก",
+    btnReset: "รีเซ็ต",
+    
+    historyTitle: "ประวัติรายการ",
+    noLogs: "ไม่มีรายการ",
+    costPerUnit: "บ./หน่วย",
+    currBaht: "บ.",
+    
+    dashRangeThisMonth: "เดือนนี้",
+    dashRangeToday: "วันนี้",
+    dashRangeYesterday: "เมื่อวาน",
+    dashRange7Days: "7 วันที่ผ่านมา",
+    dashRange30Days: "30 วันที่ผ่านมา",
+    
+    dashInCard: "รับเข้า (ซื้อเข้า)",
+    dashOutCard: "เบิกออก (ใช้ทำอาหาร)",
+    dashTotalPrefix: "รวม ",
+    dashTotalSuffix: " รายการ",
+    viewChart: "ดูกราฟ",
+    
+    suggestTitle: "⚠️ แนะนำสั่งซื้อ",
+    suggestStock: "คงเหลือ ",
+    suggestRec: "แนะนำ +",
+    
+    stockTitle: "📦 สต็อกวัตถุดิบคงเหลือ",
+    sortByStock: "วัตถุดิบคงเหลือ",
+    sortByOut: "เบิกใช้บ่อยสุด",
+    stockRemaining: "คงเหลือ ",
+    stockUsedCooking: "เบิกไปทำอาหาร ",
+    
+    chartSummary: "กราฟสรุปยอด",
+    chartInTitle: "กราฟมูลค่าซื้อวัตถุดิบรับเข้า",
+    chartOutTitle: "กราฟมูลค่าเบิกวัตถุดิบไปใช้",
+    chartValLabel: "มูลค่า (บาท)",
+    
+    helpSuggestTitle: "ℹ️ ข้อมูลแนะนำสั่งซื้อ",
+    helpSuggestBody: '<div style="font-size:14px; line-height:1.6; color:var(--txt2);">' +
+      '<p style="margin-bottom:12px;"><strong style="color:var(--txt); font-size:15px;">เกณฑ์การแสดงผล</strong><br>ระบบจะแสดงวัตถุดิบที่ <span style="color:var(--pri); font-weight:bold;">สต็อกคงเหลือน้อยกว่า 2 เท่า</span> ของยอดที่ถูกเบิกออกไปทำอาหารในช่วงเวลาที่คุณเลือก</p>' +
+      '<p><strong style="color:var(--txt); font-size:15px;">ตัวเลข "แนะนำ +..."</strong><br>คือจำนวนขั้นต่ำที่ระบบแนะนำให้สั่งซื้อมาเติมสต็อก เพื่อให้เพียงพอกับอัตราการใช้ในรอบถัดไป</p>' +
+      '</div>',
+    
+    helpStockTitle: "ℹ️ ข้อมูลสต็อกคงเหลือ",
+    helpStockBody: '<div style="font-size:14px; line-height:1.6; color:var(--txt2);">' +
+      '<p style="margin-bottom:12px;"><strong style="color:var(--txt); font-size:15px;">ความหมายของแถบสี</strong><br>' +
+      '<span style="color:var(--grn); font-size:18px;">&#x25A0;</span> <strong style="color:var(--grn)">สีเขียว:</strong> ปลอดภัย (มี 5 หน่วยขึ้นไป)<br>' +
+      '<span style="color:var(--amb); font-size:18px;">&#x25A0;</span> <strong style="color:var(--amb)">สีเหลือง:</strong> ใกล้หมด (น้อยกว่า 5 หน่วย)<br>' +
+      '<span style="color:var(--red); font-size:18px;">&#x25A0;</span> <strong style="color:var(--red)">สีแดง:</strong> หมดสต็อก (0 หน่วยหรือติดลบ)</p>' +
+      '<p><strong style="color:var(--txt); font-size:15px;">ความยาวของแถบ</strong><br>วัดสัดส่วนเปรียบเทียบกับวัตถุดิบที่มีปริมาณในสต็อกมากที่สุดในร้าน</p>' +
+      '</div>',
+    
+    settingsTitle: "ตั้งค่าระบบ",
+    langSettingTitle: "ภาษา / Language",
+    langSettingDesc: "เลือกภาษาแสดงผล",
+    storeInfoTitle: "ข้อมูลร้านค้า",
+    btnEdit: "แก้ไข",
+    expirePrefix: "หมดอายุ: ",
+    daysUnit: "วัน",
+    trialBadge: "(บัญชีทดลอง)",
+    activeBadge: "(ใช้งานปกติ)",
+    
+    prodSectionTitle: "รายการวัตถุดิบ/สินค้า",
+    btnAdd: "+ เพิ่ม",
+    noProdsYet: "ยังไม่มีสินค้า/วัตถุดิบ",
+    
+    staffSectionTitle: "รายชื่อผู้บันทึก (พนักงาน)",
+    noStaffYet: "ยังไม่มีรายชื่อพนักงาน (กด + เพิ่มได้เลย)",
+    btnLogout: "ออกจากระบบ",
+    
+    addLogTitle: "บันทึกรับเข้า / เบิกออก",
+    logTypeLabel: "ประเภทรายการ",
+    logTypeInOpt: "📥 รับเข้า (ซื้อวัตถุดิบ)",
+    logTypeOutOpt: "📤 เบิกออก (ทำอาหาร)",
+    logItemLabel: "เลือกวัตถุดิบ / สินค้า",
+    logQtyLabel: "จำนวน",
+    logPriceLabel: "ราคาต้นทุน/หน่วย",
+    logStaffLabel: "ผู้บันทึก (พนักงาน)",
+    btnCancel: "ยกเลิก",
+    btnSubmitLog: "บันทึกรายการ",
+    
+    editStoreTitle: "แก้ไขข้อมูลร้านค้า",
+    storeNameLabel: "ชื่อร้านค้า",
+    storeLogoLabel: "โลโก้ร้าน (รูปภาพ)",
+    btnSave: "บันทึก",
+    
+    newProdTitle: "เพิ่มวัตถุดิบใหม่",
+    editProdTitle: "แก้ไขวัตถุดิบ",
+    prodNameLabel: "ชื่อวัตถุดิบ / สินค้า",
+    prodNamePlaceholder: "เช่น สันคอหมู, นมสด, ไข่ไก่",
+    prodPriceLabel: "ราคาต้นทุน (บาท)",
+    prodUnitLabel: "หน่วยนับ",
+    prodUnitPlaceholder: "กก./ฟอง/ขวด",
+    prodImgLabel: "รูปสินค้า",
+    btnDelete: "ลบ",
+    
+    confirmDelTitle: "ยืนยันการลบ",
+    confirmDelProdMsg: 'ลบสินค้า "{0}" ?',
+    
+    addStaffTitle: "เพิ่มรายชื่อพนักงาน",
+    staffNameLabel: "ชื่อพนักงาน / ผู้บันทึก",
+    staffNamePlaceholder: "เช่น เชฟต้น, น้องพลอย, แคชเชียร์บิว",
+    confirmDelStaffTitle: "ลบรายชื่อพนักงาน",
+    confirmDelStaffMsg: 'ต้องการลบพนักงาน "{0}" ?',
+    
+    btnOk: "ตกลง",
+    btnCloseModal: "ปิดหน้าต่าง",
+    btnConfirm: "ยืนยัน",
+    
+    loadingDefault: "กำลังโหลด...",
+    loadingConnect: "กำลังเชื่อมต่อระบบ...",
+    loadingCheckPhone: "กำลังตรวจสอบบัญชี...",
+    loadingAuth: "กำลังยืนยันตัวตน...",
+    loadingLogout: "กำลังออกจากระบบ...",
+    loadingSaveLog: "กำลังบันทึกรายการ...",
+    loadingUploadLogo: "กำลังอัปโหลดโลโก้...",
+    loadingSave: "กำลังบันทึก...",
+    loadingUploadImg: "กำลังอัปโหลดรูป...",
+    loadingDel: "กำลังลบ...",
+    loadingAddStaff: "กำลังเพิ่มพนักงาน...",
+    loadingDash: "กำลังวิเคราะห์ข้อมูลสต็อก...",
+    
+    toastOffline: "โหมดออฟไลน์: กำลังใช้ข้อมูลที่บันทึกไว้",
+    toastPhoneInvalid: "กรุณากรอกเบอร์โทรให้ครบ",
+    toastPwRequired: "กรุณากรอกรหัสผ่าน",
+    toastQtyInvalid: "กรุณากรอกจำนวนให้ถูกต้อง",
+    toastAddProdFirst: "กรุณาเพิ่มรายการวัตถุดิบในตั้งค่าก่อน",
+    toastStoreNameRequired: "กรุณากรอกชื่อร้าน",
+    toastProdNameRequired: "กรุณากรอกชื่อสินค้า",
+    toastStaffNameRequired: "กรุณากรอกชื่อพนักงาน",
+    toastSaved: "บันทึกเรียบร้อย",
+    toastSavedSuccess: "บันทึกสำเร็จ",
+    toastEditSuccess: "แก้ไขสำเร็จ",
+    toastAddSuccess: "เพิ่มสำเร็จ",
+    toastDelSuccess: "ลบสำเร็จ",
+    toastStaffAdded: "เพิ่มพนักงานเรียบร้อย",
+    toastStaffDeleted: "ลบพนักงานเรียบร้อย",
+    
+    alertErrorTitle: "เกิดข้อผิดพลาด",
+    alertErrorShort: "ผิดพลาด",
+    alertLoginFailed: "ล็อกอินไม่สำเร็จ",
+    alertWelcomeTitle: "ยินดีต้อนรับสู่ Harry Store",
+    alertWelcomeMsg: "คุณสามารถทดลองใช้งานระบบได้ 30 วัน<br>สำหรับบันทึกรับเข้า-เบิกออกวัตถุดิบอาหารและดูแดชบอร์ดสรุป",
+    alertStartBtn: "เริ่มใช้งาน",
+    alertExpTitle: "แจ้งเตือนการหมดอายุ",
+    alertExpToday: "รหัสของคุณจะหมดอายุ<b>วันนี้</b>!",
+    alertExpDays: "รหัสจะหมดอายุใน <b>{0} วัน</b> ({1})",
+    alertExpAck: "รับทราบ",
+    alertBlockedTitle: "ไม่สามารถใช้งานได้",
+    alertBlockedMsg: "สิทธิ์ของคุณหมดอายุแล้ว<br>สามารถดูข้อมูลได้ แต่ไม่สามารถแก้ไขหรือเพิ่มข้อมูลได้",
+    alertPendingTitle: "รอการอนุมัติ",
+    alertPendingMsg: "เบอร์ของคุณยังไม่ได้รับการเปิดใช้งาน<br>กรุณาติดต่อผู้ดูแลระบบ",
+    alertUploadFailed: "อัปโหลดไม่สำเร็จ"
+  },
+  en: {
+    appTitle: "Harry Store - Stock & Ingredient Management",
+    loginTitle: "Harry Store",
+    loginSub: "Stock & Ingredient Management System",
+    phoneLabel: "Phone Number to Login or Register",
+    phonePlaceholder: "0XX-XXX-XXXX",
+    pwLabel: "Account Password",
+    pwLabelExist: "Enter Password to Sign In",
+    pwLabelNew: "Set Password for New Account",
+    pwPlaceholder: "Enter your password",
+    loginStatusExist: "Phone number found. Please enter your password.",
+    loginStatusNew: "Please set a password to create a new account.",
+    btnNext: "Next",
+    btnLogin: "Log In",
+    btnRegister: "Create New Account",
+    
+    navStock: "Transactions",
+    navDash: "Dashboard",
+    
+    defaultStoreName: "My Store",
+    inToday: "Stock In Today",
+    outToday: "Stock Out Today",
+    datePrefix: "Date: ",
+    itemsUnit: "items",
+    
+    filterAll: "All Types",
+    filterIn: "Stock In",
+    filterOut: "Stock Out",
+    btnReset: "Reset",
+    
+    historyTitle: "Transaction History",
+    noLogs: "No transactions found",
+    costPerUnit: "THB/unit",
+    currBaht: "THB",
+    
+    dashRangeThisMonth: "This Month",
+    dashRangeToday: "Today",
+    dashRangeYesterday: "Yesterday",
+    dashRange7Days: "Past 7 Days",
+    dashRange30Days: "Past 30 Days",
+    
+    dashInCard: "Stock In (Purchases)",
+    dashOutCard: "Stock Out (Cooking Usage)",
+    dashTotalPrefix: "Total ",
+    dashTotalSuffix: " items",
+    viewChart: "View Chart",
+    
+    suggestTitle: "⚠️ Reorder Suggestions",
+    suggestStock: "Stock: ",
+    suggestRec: "Suggest +",
+    
+    stockTitle: "📦 Remaining Stock",
+    sortByStock: "Remaining Stock",
+    sortByOut: "Most Used",
+    stockRemaining: "Stock: ",
+    stockUsedCooking: "Used for cooking: ",
+    
+    chartSummary: "Summary Chart",
+    chartInTitle: "Stock In Purchase Value",
+    chartOutTitle: "Stock Out Cooking Usage Value",
+    chartValLabel: "Value (THB)",
+    
+    helpSuggestTitle: "ℹ️ Reorder Suggestions Guide",
+    helpSuggestBody: '<div style="font-size:14px; line-height:1.6; color:var(--txt2);">' +
+      '<p style="margin-bottom:12px;"><strong style="color:var(--txt); font-size:15px;">Display Criteria</strong><br>Displays ingredients where <span style="color:var(--pri); font-weight:bold;">remaining stock is less than 2x</span> the amount used during the selected timeframe.</p>' +
+      '<p><strong style="color:var(--txt); font-size:15px;">"Suggest +..." Figure</strong><br>The recommended minimum quantity to purchase to cover upcoming usage rate.</p>' +
+      '</div>',
+    
+    helpStockTitle: "ℹ️ Remaining Stock Guide",
+    helpStockBody: '<div style="font-size:14px; line-height:1.6; color:var(--txt2);">' +
+      '<p style="margin-bottom:12px;"><strong style="color:var(--txt); font-size:15px;">Color Bar Legend</strong><br>' +
+      '<span style="color:var(--grn); font-size:18px;">&#x25A0;</span> <strong style="color:var(--grn)">Green:</strong> Safe level (5+ units)<br>' +
+      '<span style="color:var(--amb); font-size:18px;">&#x25A0;</span> <strong style="color:var(--amb)">Yellow:</strong> Low stock (less than 5 units)<br>' +
+      '<span style="color:var(--red); font-size:18px;">&#x25A0;</span> <strong style="color:var(--red)">Red:</strong> Out of stock (0 or negative)</p>' +
+      '<p><strong style="color:var(--txt); font-size:15px;">Bar Length</strong><br>Proportional comparison to the highest-stocked ingredient in the store.</p>' +
+      '</div>',
+    
+    settingsTitle: "Settings",
+    langSettingTitle: "Language / ภาษา",
+    langSettingDesc: "Select display language",
+    storeInfoTitle: "Store Information",
+    btnEdit: "Edit",
+    expirePrefix: "Expires: ",
+    daysUnit: "days",
+    trialBadge: "(Trial Account)",
+    activeBadge: "(Active)",
+    
+    prodSectionTitle: "Ingredients & Products",
+    btnAdd: "+ Add",
+    noProdsYet: "No ingredients or products yet",
+    
+    staffSectionTitle: "Staff Members",
+    noStaffYet: "No staff members yet (Click + Add)",
+    btnLogout: "Log Out",
+    
+    addLogTitle: "Record Stock In / Out",
+    logTypeLabel: "Transaction Type",
+    logTypeInOpt: "📥 Stock In (Purchase)",
+    logTypeOutOpt: "📤 Stock Out (Cooking / Usage)",
+    logItemLabel: "Select Ingredient / Product",
+    logQtyLabel: "Quantity",
+    logPriceLabel: "Cost Price / Unit",
+    logStaffLabel: "Staff Member",
+    btnCancel: "Cancel",
+    btnSubmitLog: "Save Record",
+    
+    editStoreTitle: "Edit Store Info",
+    storeNameLabel: "Store Name",
+    storeLogoLabel: "Store Logo (Image)",
+    btnSave: "Save",
+    
+    newProdTitle: "Add New Ingredient",
+    editProdTitle: "Edit Ingredient",
+    prodNameLabel: "Ingredient / Item Name",
+    prodNamePlaceholder: "e.g. Pork Neck, Milk, Eggs",
+    prodPriceLabel: "Cost Price (THB)",
+    prodUnitLabel: "Unit",
+    prodUnitPlaceholder: "kg/pcs/bottle",
+    prodImgLabel: "Item Image",
+    btnDelete: "Delete",
+    
+    confirmDelTitle: "Confirm Deletion",
+    confirmDelProdMsg: 'Delete item "{0}"?',
+    
+    addStaffTitle: "Add Staff Member",
+    staffNameLabel: "Staff Name",
+    staffNamePlaceholder: "e.g. Chef Ton, Ploy, Cashier",
+    confirmDelStaffTitle: "Delete Staff Member",
+    confirmDelStaffMsg: 'Delete staff member "{0}"?',
+    
+    btnOk: "OK",
+    btnCloseModal: "Close",
+    btnConfirm: "Confirm",
+    
+    loadingDefault: "Loading...",
+    loadingConnect: "Connecting to system...",
+    loadingCheckPhone: "Checking account...",
+    loadingAuth: "Authenticating...",
+    loadingLogout: "Logging out...",
+    loadingSaveLog: "Saving transaction...",
+    loadingUploadLogo: "Uploading logo...",
+    loadingSave: "Saving...",
+    loadingUploadImg: "Uploading image...",
+    loadingDel: "Deleting...",
+    loadingAddStaff: "Adding staff...",
+    loadingDash: "Analyzing stock data...",
+    
+    toastOffline: "Offline Mode: Using cached data",
+    toastPhoneInvalid: "Please enter a valid phone number",
+    toastPwRequired: "Please enter your password",
+    toastQtyInvalid: "Please enter a valid quantity",
+    toastAddProdFirst: "Please add ingredient items in Settings first",
+    toastStoreNameRequired: "Please enter store name",
+    toastProdNameRequired: "Please enter product name",
+    toastStaffNameRequired: "Please enter staff name",
+    toastSaved: "Saved successfully",
+    toastSavedSuccess: "Saved successfully",
+    toastEditSuccess: "Updated successfully",
+    toastAddSuccess: "Added successfully",
+    toastDelSuccess: "Deleted successfully",
+    toastStaffAdded: "Staff added successfully",
+    toastStaffDeleted: "Staff deleted successfully",
+    
+    alertErrorTitle: "Error",
+    alertErrorShort: "Error",
+    alertLoginFailed: "Login Failed",
+    alertWelcomeTitle: "Welcome to Harry Store",
+    alertWelcomeMsg: "You can try the system free for 30 days<br>to track stock in/out and view summary dashboards.",
+    alertStartBtn: "Get Started",
+    alertExpTitle: "Expiration Notice",
+    alertExpToday: "Your account will expire <b>today</b>!",
+    alertExpDays: "Your account will expire in <b>{0} days</b> ({1})",
+    alertExpAck: "Got It",
+    alertBlockedTitle: "Access Unavailable",
+    alertBlockedMsg: "Your subscription has expired.<br>You can view data, but cannot add or edit.",
+    alertPendingTitle: "Pending Approval",
+    alertPendingMsg: "Your account has not been activated yet.<br>Please contact administrator.",
+    alertUploadFailed: "Upload Failed"
+  }
+};
+
+function t(key, ...args) {
+  const lang = S.lang || 'th';
+  const dict = I18N[lang] || I18N.th;
+  let str = dict[key] || I18N.th[key] || key;
+  if (args && args.length) {
+    for (let i = 0; i < args.length; i++) {
+      str = str.replace(new RegExp('\\{' + i + '\\}', 'g'), args[i]);
+    }
+  }
+  return str;
+}
+
+function setLanguage(lang) {
+  if (lang !== 'th' && lang !== 'en') lang = 'th';
+  S.lang = lang;
+  localStorage.setItem('sp_lang', lang);
+  document.documentElement.lang = lang;
+
+  // Update Toggle Buttons
+  const thBtns = ['login-lang-th', 'hd-lang-th', 'set-lang-th'];
+  const enBtns = ['login-lang-en', 'hd-lang-en', 'set-lang-en'];
+  thBtns.forEach(id => { const el = ge(id); if (el) el.classList.toggle('active', lang === 'th'); });
+  enBtns.forEach(id => { const el = ge(id); if (el) el.classList.toggle('active', lang === 'en'); });
+
+  // Update Page Title
+  if (ge('page-title')) ge('page-title').textContent = t('appTitle');
+
+  // Update Login Screen
+  if (ge('txt-login-title')) ge('txt-login-title').textContent = t('loginTitle');
+  if (ge('txt-login-sub')) ge('txt-login-sub').textContent = t('loginSub');
+  if (ge('lbl-phone')) ge('lbl-phone').textContent = t('phoneLabel');
+  if (ge('inp-phone')) ge('inp-phone').placeholder = t('phonePlaceholder');
+  if (ge('inp-pw')) ge('inp-pw').placeholder = t('pwPlaceholder');
+  
+  if (currentLoginStep === 1) {
+    if (ge('btn-login-action')) ge('btn-login-action').textContent = t('btnNext');
+  } else if (currentLoginStep === 2) {
+    if (isNewAccount) {
+      if (ge('lbl-pw')) ge('lbl-pw').textContent = t('pwLabelNew');
+      if (ge('login-status-msg')) ge('login-status-msg').textContent = t('loginStatusNew');
+      if (ge('btn-login-action')) ge('btn-login-action').textContent = t('btnRegister');
+    } else {
+      if (ge('lbl-pw')) ge('lbl-pw').textContent = t('pwLabelExist');
+      if (ge('login-status-msg')) ge('login-status-msg').textContent = t('loginStatusExist');
+      if (ge('btn-login-action')) ge('btn-login-action').textContent = t('btnLogin');
+    }
+  }
+
+  // Update Navigation Bar
+  if (ge('nav-txt-stock')) ge('nav-txt-stock').textContent = t('navStock');
+  if (ge('nav-txt-dash')) ge('nav-txt-dash').textContent = t('navDash');
+
+  // Update Stock Page Stat Subtitles & Reset Button
+  if (ge('lbl-sub-in')) ge('lbl-sub-in').textContent = t('itemsUnit');
+  if (ge('lbl-sub-out')) ge('lbl-sub-out').textContent = t('itemsUnit');
+  if (ge('btn-reset-filter')) ge('btn-reset-filter').textContent = t('btnReset');
+  if (ge('txt-history-hd')) ge('txt-history-hd').textContent = t('historyTitle');
+
+  // Update Filter Select Options
+  const fType = ge('f-type');
+  if (fType && fType.options && fType.options.length >= 3) {
+    fType.options[0].text = t('filterAll');
+    fType.options[1].text = t('filterIn');
+    fType.options[2].text = t('filterOut');
+  }
+
+  // Update Dashboard Range Select Options
+  const dRange = ge('d-range');
+  if (dRange && dRange.options && dRange.options.length >= 5) {
+    dRange.options[0].text = t('dashRangeThisMonth');
+    dRange.options[1].text = t('dashRangeToday');
+    dRange.options[2].text = t('dashRangeYesterday');
+    dRange.options[3].text = t('dashRange7Days');
+    dRange.options[4].text = t('dashRange30Days');
+  }
+  if (ge('btn-reset-dash')) ge('btn-reset-dash').textContent = t('btnReset');
+
+  // Update Settings Panel
+  if (ge('txt-set-title')) ge('txt-set-title').textContent = t('settingsTitle');
+  if (ge('txt-set-lang-title')) ge('txt-set-lang-title').textContent = t('langSettingTitle');
+  if (ge('txt-set-lang-desc')) ge('txt-set-lang-desc').textContent = t('langSettingDesc');
+  if (ge('txt-set-store-title')) ge('txt-set-store-title').textContent = t('storeInfoTitle');
+  if (ge('btn-edit-store')) ge('btn-edit-store').textContent = t('btnEdit');
+  if (ge('txt-set-prod-title')) ge('txt-set-prod-title').textContent = t('prodSectionTitle');
+  if (ge('btn-add-prod')) ge('btn-add-prod').textContent = t('btnAdd');
+  if (ge('txt-set-staff-title')) ge('txt-set-staff-title').textContent = t('staffSectionTitle');
+  if (ge('btn-add-staff')) ge('btn-add-staff').textContent = t('btnAdd');
+  if (ge('btn-logout')) ge('btn-logout').textContent = t('btnLogout');
+
+  // Update Alert / Confirm Buttons
+  if (ge('alert-logout-btn')) ge('alert-logout-btn').textContent = t('btnLogout');
+  if (ge('confirm-cancel')) ge('confirm-cancel').textContent = t('btnCancel');
+
+  // Re-render Dynamic Content
+  renderLogs();
+  renderProds();
+  renderStaff();
+  if (S.dashCache) {
+    renderDashData(S.dashCache);
+  }
+  
+  const savedStore = localStorage.getItem('sp_store_' + S.idshop);
+  if (savedStore) {
+    try {
+      updateStoreUI(JSON.parse(savedStore), localStorage.getItem('sp_status_' + S.idshop) || 'Active');
+    } catch(e){}
+  }
+}
+
 /* ====================================================
    CONFIGURATION & DUAL-ENGINE API CLIENT
    (Works on GitHub Pages & Google Apps Script Web App)
@@ -429,7 +934,8 @@ const S = {
   prods: [], logs: [], staff: [],
   filterType: 'ALL', filterDate: '',
   blockUI: false,
-  dashCache: null
+  dashCache: null,
+  lang: localStorage.getItem('sp_lang') || 'th'
 };
 
 // Check if running inside native Google Apps Script HtmlService
@@ -453,8 +959,9 @@ async function apiCall(action, payload = {}, method = 'POST') {
       else if (action === 'updateStore') runner.updateStore(payload.idshop, payload.name, payload.logo);
       else if (action === 'uploadFile') runner.uploadFile(payload.base64Data, payload.fileName);
       else if (action === 'getDashboard') runner.getDashboard(payload.idshop, payload.range);
+      else if (action === 'addStaff') runner.addStaff(payload.idshop, payload.name);
+      else if (action === 'deleteStaff') runner.deleteStaff(payload.idshop, payload.name);
       else if (action === 'checkVersion') {
-        // Fallback for native GAS
         try { runner.getProductVersion(payload.idshop); } catch(e) { resolve({ success:true, version: Date.now().toString() }); }
       }
       else reject(new Error('Unknown native GAS action: ' + action));
@@ -502,6 +1009,7 @@ function ge(id){ return document.getElementById(id); }
 function load(show, txt){
   ge('loader').style.display = show ? 'flex' : 'none';
   if(txt) ge('loader-txt').textContent = txt;
+  else ge('loader-txt').textContent = t('loadingDefault');
 }
 
 let _toastTimer = null;
@@ -513,7 +1021,7 @@ function toast(type, msg){
   _toastTimer = setTimeout(() => { el.className = 'toast'; }, 2500);
 }
 
-function fmtNum(n){ return Number(n || 0).toLocaleString('th-TH'); }
+function fmtNum(n){ return Number(n || 0).toLocaleString(S.lang === 'en' ? 'en-US' : 'th-TH'); }
 
 function imgUrl(url){
   if(!url) return '';
@@ -527,10 +1035,11 @@ function showAlert(icon, title, msg, btnTxt, onClose){
   
   const logoutBtn = ge('alert-logout-btn');
   if(logoutBtn) {
-    logoutBtn.style.display = (title.includes('ไม่สามารถใช้งาน') || title.includes('รอการอนุมัติ')) ? 'block' : 'none';
+    const isBlocked = (title.includes('ไม่สามารถใช้งาน') || title.includes('รอการอนุมัติ') || title.includes('Access Unavailable') || title.includes('Pending Approval'));
+    logoutBtn.style.display = isBlocked ? 'block' : 'none';
   }
   
-  ge('alert-btn').textContent = btnTxt || 'ตกลง';
+  ge('alert-btn').textContent = btnTxt || t('btnOk');
   ge('alert-wrap').classList.add('show');
   ge('alert-wrap')._onClose = onClose || null;
 }
@@ -546,7 +1055,7 @@ function showConfirm(icon, title, msg, okTxt, okClass, cb){
   ge('confirm-icon').textContent = icon;
   ge('confirm-title').textContent = title;
   ge('confirm-msg').innerHTML = msg || '';
-  ge('confirm-ok').textContent = okTxt || 'ยืนยัน';
+  ge('confirm-ok').textContent = okTxt || t('btnConfirm');
   ge('confirm-ok').className = okClass || 'btn-confirm';
   ge('confirm-wrap').classList.add('show');
   _confirmCb = cb || null;
@@ -597,6 +1106,8 @@ function resizeImg(file, cb){
    BOOT, LOCAL STORAGE CACHING & FAST VERSION CHECK
 ==================================================== */
 window.onload = function(){
+  setLanguage(S.lang);
+
   const savedPhone = localStorage.getItem('sp_phone');
   const savedPw = localStorage.getItem('sp_pw');
   const savedIdShop = localStorage.getItem('sp_idshop');
@@ -631,7 +1142,7 @@ window.onload = function(){
     }
 
     // 2. BACKGROUND VALIDATION / AUTH & VERSION CHECK
-    load(!cachedProds, 'กำลังเชื่อมต่อระบบ...');
+    load(!cachedProds, t('loadingConnect'));
     apiCall('checkPhoneStep2', { phone: savedPhone, password: savedPw, autoCreate: false })
       .then(res => {
         load(false);
@@ -640,10 +1151,10 @@ window.onload = function(){
       .catch(err => {
         load(false);
         if (!cachedProds) {
-          showAlert('&#x274C;', 'เกิดข้อผิดพลาด', err.message);
+          showAlert('&#x274C;', t('alertErrorTitle'), err.message);
           ge('login-screen').classList.add('show');
         } else {
-          toast('warn', 'โหมดออฟไลน์: กำลังใช้ข้อมูลที่บันทึกไว้');
+          toast('warn', t('toastOffline'));
         }
       });
   } else {
@@ -659,10 +1170,10 @@ let isNewAccount = false;
 
 async function doLogin(){
   const phoneInput = ge('inp-phone').value.replace(/\D/g, '');
-  if(phoneInput.length < 9){ toast('warn', 'กรุณากรอกเบอร์โทรให้ครบ'); return; }
+  if(phoneInput.length < 9){ toast('warn', t('toastPhoneInvalid')); return; }
   
   if (currentLoginStep === 1) {
-    load(true, 'กำลังตรวจสอบบัญชี...');
+    load(true, t('loadingCheckPhone'));
     try {
       const res = await apiCall('checkPhoneStep1', { phone: phoneInput });
       load(false);
@@ -671,36 +1182,36 @@ async function doLogin(){
       
       if (res.exists) {
         isNewAccount = false;
-        ge('lbl-pw').textContent = 'ใส่รหัสผ่านเพื่อเข้าใช้งาน';
-        ge('login-status-msg').textContent = 'พบเบอร์โทรศัพท์ในระบบ กรุณากรอกรหัสผ่าน';
+        ge('lbl-pw').textContent = t('pwLabelExist');
+        ge('login-status-msg').textContent = t('loginStatusExist');
         ge('login-status-msg').style.color = 'var(--pri)';
-        ge('btn-login-action').textContent = 'เข้าสู่ระบบ';
+        ge('btn-login-action').textContent = t('btnLogin');
       } else {
         isNewAccount = true;
-        ge('lbl-pw').textContent = 'ตั้งรหัสผ่านสำหรับบัญชีใหม่';
-        ge('login-status-msg').textContent = 'กรุณาตั้งรหัสผ่าน เพื่อสมัครใช้งานใหม่';
+        ge('lbl-pw').textContent = t('pwLabelNew');
+        ge('login-status-msg').textContent = t('loginStatusNew');
         ge('login-status-msg').style.color = 'var(--amb)';
-        ge('btn-login-action').textContent = 'สร้างบัญชีผู้ใช้ใหม่';
+        ge('btn-login-action').textContent = t('btnRegister');
       }
       currentLoginStep = 2;
       setTimeout(() => { ge('inp-pw').focus(); }, 100);
     } catch(e) {
       load(false);
-      showAlert('&#x274C;', 'เกิดข้อผิดพลาด', e.message);
+      showAlert('&#x274C;', t('alertErrorTitle'), e.message);
     }
   } else if (currentLoginStep === 2) {
     const pwInput = ge('inp-pw').value.trim();
-    if(!pwInput){ toast('warn', 'กรุณากรอกรหัสผ่าน'); return; }
+    if(!pwInput){ toast('warn', t('toastPwRequired')); return; }
     
     S.phone = phoneInput;
     S.password = pwInput;
-    load(true, 'กำลังยืนยันตัวตน...');
+    load(true, t('loadingAuth'));
     try {
       const res = await apiCall('checkPhoneStep2', { phone: phoneInput, password: pwInput, autoCreate: isNewAccount });
       onAuth(res);
     } catch(e) {
       load(false);
-      showAlert('&#x274C;', 'เกิดข้อผิดพลาด', e.message);
+      showAlert('&#x274C;', t('alertErrorTitle'), e.message);
     }
   }
 }
@@ -708,8 +1219,8 @@ async function doLogin(){
 function onAuth(res){
   load(false);
   if (res.success === false) {
-    showAlert('&#x274C;', 'ล็อกอินไม่สำเร็จ', res.msg);
-    if (res.msg && res.msg.includes('ถูกลบแล้ว')) {
+    showAlert('&#x274C;', t('alertLoginFailed'), res.msg);
+    if (res.msg && (res.msg.includes('ถูกลบแล้ว') || res.msg.includes('deleted'))) {
       clearLocalCache();
     }
     return;
@@ -750,17 +1261,17 @@ function onAuth(res){
   if(res.active){
     ge('fab').style.display = 'flex';
     if (!res.found) {
-      showAlert('&#x1F389;', 'ยินดีต้อนรับสู่ Harry Store', 'คุณสามารถทดลองใช้งานระบบได้ 30 วัน<br>สำหรับบันทึกรับเข้า-เบิกออกวัตถุดิบอาหารและดูแดชบอร์ดสรุป', 'เริ่มใช้งาน');
+      showAlert('&#x1F389;', t('alertWelcomeTitle'), t('alertWelcomeMsg'), t('alertStartBtn'));
     } else {
       checkExpireAlert(res.daysLeft, res.expireStr);
     }
   } else {
     ge('fab').style.display = 'none';
-    let alertTitle = 'ไม่สามารถใช้งานได้';
-    let alertMsg = 'สิทธิ์ของคุณหมดอายุแล้ว<br>สามารถดูข้อมูลได้ แต่ไม่สามารถแก้ไขหรือเพิ่มข้อมูลได้';
+    let alertTitle = t('alertBlockedTitle');
+    let alertMsg = t('alertBlockedMsg');
     if (res.status === 'Pending') {
-      alertTitle = 'รอการอนุมัติ';
-      alertMsg = 'เบอร์ของคุณยังไม่ได้รับการเปิดใช้งาน<br>กรุณาติดต่อผู้ดูแลระบบ';
+      alertTitle = t('alertPendingTitle');
+      alertMsg = t('alertPendingMsg');
     }
     showAlert('&#x1F512;', alertTitle, alertMsg);
   }
@@ -781,7 +1292,7 @@ function clearLocalCache() {
 
 function doLogout() {
   clearLocalCache();
-  load(true, 'กำลังออกจากระบบ...');
+  load(true, t('loadingLogout'));
   setTimeout(() => {
     window.location.reload();
   }, 300);
@@ -789,7 +1300,7 @@ function doLogout() {
 
 function actionGuard(){
   if(S.blockUI){
-    showAlert('&#x1F512;', 'ไม่สามารถใช้งานได้', 'สิทธิ์ของคุณหมดอายุแล้ว ไม่สามารถแก้ไขหรือเพิ่มข้อมูลได้');
+    showAlert('&#x1F512;', t('alertBlockedTitle'), t('alertBlockedMsg'));
     return true;
   }
   return false;
@@ -798,10 +1309,10 @@ function actionGuard(){
 function checkExpireAlert(days, expStr){
   if(days <= 0) return;
   let icon, msg;
-  if(days === 1)     { icon = '&#x26A0;&#xFE0F;'; msg = 'รหัสของคุณจะหมดอายุ<b>วันนี้</b>!'; }
-  else if(days <= 3) { icon = '&#x26A0;&#xFE0F;'; msg = 'รหัสจะหมดอายุใน <b>' + days + ' วัน</b> (' + expStr + ')'; }
-  else if(days <= 7) { icon = '&#x2139;&#xFE0F;';  msg = 'รหัสจะหมดอายุใน <b>' + days + ' วัน</b> (' + expStr + ')'; }
-  if(msg) setTimeout(() => { showAlert(icon, 'แจ้งเตือนการหมดอายุ', msg, 'รับทราบ'); }, 800);
+  if(days === 1)     { icon = '&#x26A0;&#xFE0F;'; msg = t('alertExpToday'); }
+  else if(days <= 3) { icon = '&#x26A0;&#xFE0F;'; msg = t('alertExpDays', days, expStr); }
+  else if(days <= 7) { icon = '&#x2139;&#xFE0F;';  msg = t('alertExpDays', days, expStr); }
+  if(msg) setTimeout(() => { showAlert(icon, t('alertExpTitle'), msg, t('alertExpAck')); }, 800);
 }
 
 function updateExpireBadge(){
@@ -813,10 +1324,10 @@ function updateExpireBadge(){
 ==================================================== */
 function updateStoreUI(si, status){
   if(!si) return;
-  const nm = si.name || 'ร้านอาหารของฉัน';
+  const nm = si.name || t('defaultStoreName');
   if(ge('store-name')) ge('store-name').textContent = nm;
   if(ge('set-store-name')) ge('set-store-name').textContent = nm;
-  if(ge('set-expire-txt')) ge('set-expire-txt').textContent = 'หมดอายุ: ' + S.expireStr + (S.daysLeft > 0 ? ' (' + S.daysLeft + ' วัน)' : '');
+  if(ge('set-expire-txt')) ge('set-expire-txt').textContent = t('expirePrefix') + S.expireStr + (S.daysLeft > 0 ? ' (' + S.daysLeft + ' ' + t('daysUnit') + ')' : '');
   const init = nm.charAt(0).toUpperCase();
   const initEl = ge('store-init');
   if(initEl) initEl.textContent = init;
@@ -833,9 +1344,9 @@ function updateStoreUI(si, status){
   const statusEl = ge('set-store-status');
   if (statusEl) {
     if (status === 'trial' || status === 'Trial') {
-      statusEl.innerHTML = '<span style="color:var(--red); font-weight:normal;">(บัญชีทดลอง)</span>';
+      statusEl.innerHTML = '<span style="color:var(--red); font-weight:normal;">' + t('trialBadge') + '</span>';
     } else if (status === 'Active' || status === 'active') {
-      statusEl.innerHTML = '<span style="color:var(--grn); font-weight:normal;">(ใช้งานปกติ)</span>';
+      statusEl.innerHTML = '<span style="color:var(--grn); font-weight:normal;">' + t('activeBadge') + '</span>';
     } else {
       statusEl.innerHTML = '';
     }
@@ -875,8 +1386,8 @@ function closeSettings(){
 /* ====================================================
    TRANSACTION LOG FILTERS
 ==================================================== */
-function filterByType(t){
-  S.filterType = S.filterType === t ? 'ALL' : t;
+function filterByType(t_type){
+  S.filterType = S.filterType === t_type ? 'ALL' : t_type;
   ge('f-type').value = S.filterType;
   
   if (S.filterType !== 'ALL' && !S.filterDate) {
@@ -917,15 +1428,15 @@ function renderLogs(){
   const targetDateObj = S.filterDate ? new Date(S.filterDate) : new Date();
   const targetMatch = targetDateObj.toDateString();
   
-  let lblStr = 'วันนี้';
+  let lblStr = S.lang === 'en' ? 'Today' : 'วันนี้';
   if(S.filterDate) {
     const dd = ('0' + targetDateObj.getDate()).slice(-2);
     const mm = ('0' + (targetDateObj.getMonth() + 1)).slice(-2);
     lblStr = dd + '/' + mm + '/' + targetDateObj.getFullYear();
   }
   
-  ge('lbl-in').textContent = S.filterDate ? 'วันที่ ' + lblStr : 'รับเข้าวันนี้';
-  ge('lbl-out').textContent = S.filterDate ? 'วันที่ ' + lblStr : 'เบิกออกวันนี้';
+  ge('lbl-in').textContent = S.filterDate ? (t('datePrefix') + lblStr) : t('inToday');
+  ge('lbl-out').textContent = S.filterDate ? (t('datePrefix') + lblStr) : t('outToday');
 
   let sIn = 0, sOut = 0;
   for(let i = 0; i < S.logs.length; i++){
@@ -945,10 +1456,10 @@ function renderLogs(){
     rows = rows.filter(l => l.rawDate && new Date(l.rawDate).toDateString() === fd);
   }
 
-  ge('log-count').textContent = rows.length ? rows.length + ' รายการ' : '';
+  ge('log-count').textContent = rows.length ? rows.length + ' ' + t('itemsUnit') : '';
   const el = ge('log-list');
   if(!rows.length){
-    el.innerHTML = '<div class="empty"><div class="empty-ic">&#x1F4CB;</div><p>ไม่มีรายการ</p></div>';
+    el.innerHTML = '<div class="empty"><div class="empty-ic">&#x1F4CB;</div><p>' + t('noLogs') + '</p></div>';
     return;
   }
   
@@ -967,7 +1478,7 @@ function renderLogs(){
       + '</div>'
       + '<div class="log-right">'
       + '<div class="log-qty ' + (isIn ? 'in' : 'out') + '">' + (isIn ? '+' : '-') + fmtNum(l.qty) + '</div>'
-      + (l.price ? '<div class="log-price">' + fmtNum(l.price) + ' บ./หน่วย</div>' : '')
+      + (l.price ? '<div class="log-price">' + fmtNum(l.price) + ' ' + t('costPerUnit') + '</div>' : '')
       + '</div>'
       + '</div>';
   }
@@ -979,7 +1490,7 @@ function renderLogs(){
 ==================================================== */
 function renderProds(){
   const el = ge('prod-list');
-  if(!S.prods.length){ el.innerHTML = '<p style="color:var(--txt3);font-size:14px;">ยังไม่มีสินค้า/วัตถุดิบ</p>'; return; }
+  if(!S.prods.length){ el.innerHTML = '<p style="color:var(--txt3);font-size:14px;">' + t('noProdsYet') + '</p>'; return; }
   let html = '';
   for(let i = 0; i < S.prods.length; i++){
     const p = S.prods[i];
@@ -988,9 +1499,9 @@ function renderProds(){
       + '<img class="prod-thumb" src="' + _pi + '" onerror="this.src=\'https://via.placeholder.com/44\'">'
       + '<div class="prod-info">'
       + '<div class="prod-nm">' + p.name + '</div>'
-      + '<div class="prod-sub-txt">' + fmtNum(p.price) + ' บ. / ' + (p.unit || '-') + '</div>'
+      + '<div class="prod-sub-txt">' + fmtNum(p.price) + ' ' + t('currBaht') + ' / ' + (p.unit || '-') + '</div>'
       + '</div>'
-      + '<button class="btn-sm btn-ghost" onclick="openEditProduct(\'' + p.id + '\')">แก้ไข</button>'
+      + '<button class="btn-sm btn-ghost" onclick="openEditProduct(\'' + p.id + '\')">' + t('btnEdit') + '</button>'
       + '</div>';
   }
   el.innerHTML = html;
@@ -1001,7 +1512,7 @@ function renderProds(){
 ==================================================== */
 function openAddLog(){
   if(actionGuard()) return;
-  if(!S.prods.length){ toast('warn', 'กรุณาเพิ่มรายการวัตถุดิบในตั้งค่าก่อน'); return; }
+  if(!S.prods.length){ toast('warn', t('toastAddProdFirst')); return; }
 
   let prodOpts = '';
   for(let i = 0; i < S.prods.length; i++){
@@ -1014,22 +1525,22 @@ function openAddLog(){
   const firstImg = S.prods[0] && S.prods[0].img ? S.prods[0].img : '';
   const prevHtml = firstImg ? '<img id="m-prev" class="prod-prev-img" src="' + firstImg + '" onerror="this.style.display=\'none\'">' : '<div id="m-prev"></div>';
   
-  const body = '<label class="fl">ประเภทรายการ</label>'
-    + '<select class="fi" id="m-type" onchange="onTypeChange()"><option value="IN">&#x1F4E5; รับเข้า (ซื้อวัตถุดิบ)</option><option value="OUT">&#x1F4E4; เบิกออก (ทำอาหาร)</option></select>'
-    + '<label class="fl">เลือกวัตถุดิบ / สินค้า</label>'
+  const body = '<label class="fl">' + t('logTypeLabel') + '</label>'
+    + '<select class="fi" id="m-type" onchange="onTypeChange()"><option value="IN">' + t('logTypeInOpt') + '</option><option value="OUT">' + t('logTypeOutOpt') + '</option></select>'
+    + '<label class="fl">' + t('logItemLabel') + '</label>'
     + '<select class="fi" id="m-item" onchange="onProdChange(this)">' + prodOpts + '</select>'
     + '<div style="text-align:center;margin:-6px 0 12px">' + prevHtml + '</div>'
     + '<div class="f2">'
-    + '<div><label class="fl">จำนวน</label><input class="fi" id="m-qty" type="number" min="1" placeholder="0" inputmode="numeric"></div>'
-    + '<div><label class="fl">ราคาต้นทุน/หน่วย</label><input class="fi" id="m-price" type="number" min="0" placeholder="0" inputmode="decimal"></div>'
+    + '<div><label class="fl">' + t('logQtyLabel') + '</label><input class="fi" id="m-qty" type="number" min="1" placeholder="0" inputmode="numeric"></div>'
+    + '<div><label class="fl">' + t('logPriceLabel') + '</label><input class="fi" id="m-price" type="number" min="0" placeholder="0" inputmode="decimal"></div>'
     + '</div>'
-    + '<label class="fl">ผู้บันทึก (พนักงาน)</label>'
+    + '<label class="fl">' + t('logStaffLabel') + '</label>'
     + '<select class="fi" id="m-staff">' + staffOpts + '</select>';
 
-  const footer = '<button class="btn-cancel modal-footer-btn" onclick="closeModal()">ยกเลิก</button>'
-    + '<button class="btn-confirm modal-footer-btn" id="btn-submit-log" onclick="submitLog()">บันทึกรายการ</button>';
+  const footer = '<button class="btn-cancel modal-footer-btn" onclick="closeModal()">' + t('btnCancel') + '</button>'
+    + '<button class="btn-confirm modal-footer-btn" id="btn-submit-log" onclick="submitLog()">' + t('btnSubmitLog') + '</button>';
 
-  openModal('บันทึกรับเข้า / เบิกออก', body, footer, null);
+  openModal(t('addLogTitle'), body, footer, null);
   setTimeout(() => {
     const sel = ge('m-item');
     if(sel) onProdChange(sel);
@@ -1072,7 +1583,7 @@ function onTypeChange() {
 
 async function submitLog(){
   const qty = ge('m-qty') ? ge('m-qty').value : '';
-  if(!qty || Number(qty) <= 0){ toast('warn', 'กรุณากรอกจำนวนให้ถูกต้อง'); return; }
+  if(!qty || Number(qty) <= 0){ toast('warn', t('toastQtyInvalid')); return; }
   
   const submitBtn = ge('btn-submit-log');
   if (submitBtn) submitBtn.disabled = true;
@@ -1086,7 +1597,7 @@ async function submitLog(){
   };
   
   closeModal();
-  load(true, 'กำลังบันทึกรายการ...');
+  load(true, t('loadingSaveLog'));
 
   try {
     const d = await apiCall('saveLog', { idshop: S.idshop, log: obj });
@@ -1099,10 +1610,10 @@ async function submitLog(){
 
     localStorage.setItem('sp_logs_' + S.idshop, JSON.stringify(S.logs));
     renderLogs();
-    toast('ok', 'บันทึกเรียบร้อย');
+    toast('ok', t('toastSaved'));
   } catch(e) {
     load(false);
-    showAlert('&#x274C;', 'ผิดพลาด', e.message);
+    showAlert('&#x274C;', t('alertErrorShort'), e.message);
   }
 }
 
@@ -1121,24 +1632,24 @@ function openEditStore(){
       ? '<img src="' + currentLogoSrc + '" style="width:60px;height:60px;border-radius:12px;object-fit:cover;margin-bottom:12px;border:1px solid var(--border);display:block;">'
       : '<div style="width:60px;height:60px;border-radius:12px;background:var(--pri-l);color:var(--pri);display:flex;align-items:center;justify-content:center;font-size:26px;margin-bottom:12px;border:1px solid var(--border);">&#x1F3EA;</div>';
 
-  const body = '<label class="fl">ชื่อร้านค้า</label>'
+  const body = '<label class="fl">' + t('storeNameLabel') + '</label>'
     + '<input class="fi" id="s-name" value="' + curName + '">'
-    + '<label class="fl">โลโก้ร้าน (รูปภาพ)</label>'
+    + '<label class="fl">' + t('storeLogoLabel') + '</label>'
     + logoPreview
     + '<input class="fi fi-file" type="file" id="s-logo" accept="image/*">';
-  const footer = '<button class="btn-cancel" onclick="closeModal()">ยกเลิก</button>'
-    + '<button class="btn-confirm" onclick="submitStore()">บันทึก</button>';
-  openModal('แก้ไขข้อมูลร้านค้า', body, footer, null);
+  const footer = '<button class="btn-cancel" onclick="closeModal()">' + t('btnCancel') + '</button>'
+    + '<button class="btn-confirm" onclick="submitStore()">' + t('btnSave') + '</button>';
+  openModal(t('editStoreTitle'), body, footer, null);
 }
 
 function submitStore(){
   const name = ge('s-name') ? ge('s-name').value.trim() : '';
-  if(!name){ toast('warn', 'กรุณากรอกชื่อร้าน'); return; }
+  if(!name){ toast('warn', t('toastStoreNameRequired')); return; }
   const file = ge('s-logo') ? ge('s-logo').files[0] : null;
   closeModal();
 
   if(file){
-    load(true, 'กำลังอัปโหลดโลโก้...');
+    load(true, t('loadingUploadLogo'));
     resizeImg(file, async function(b64){
       try {
         if(ge('store-av')) ge('store-av').innerHTML = '<img src="' + b64 + '" style="width:100%;height:100%;object-fit:cover;">';
@@ -1146,7 +1657,7 @@ function submitStore(){
         const url = upRes.url || upRes;
         if(typeof url === 'string' && url.indexOf('error') === 0){
           load(false);
-          showAlert('&#x274C;', 'อัปโหลดไม่สำเร็จ', url);
+          showAlert('&#x274C;', t('alertUploadFailed'), url);
           return;
         }
         
@@ -1155,25 +1666,25 @@ function submitStore(){
         const storeInfo = r.storeInfo || r;
         localStorage.setItem('sp_store_' + S.idshop, JSON.stringify(storeInfo));
         updateStoreUI({ name: storeInfo.name, logo: imgUrl(storeInfo.logo) });
-        toast('ok', 'บันทึกสำเร็จ');
+        toast('ok', t('toastSavedSuccess'));
       } catch(e) {
         load(false);
-        showAlert('&#x274C;', 'ผิดพลาด', e.message);
+        showAlert('&#x274C;', t('alertErrorShort'), e.message);
       }
     });
   } else {
-    load(true, 'กำลังบันทึก...');
+    load(true, t('loadingSave'));
     apiCall('updateStore', { idshop: S.idshop, name: name, logo: '' })
       .then(r => {
         load(false);
         const storeInfo = r.storeInfo || r;
         localStorage.setItem('sp_store_' + S.idshop, JSON.stringify(storeInfo));
         updateStoreUI({ name: storeInfo.name, logo: storeInfo.logo });
-        toast('ok', 'บันทึกสำเร็จ');
+        toast('ok', t('toastSavedSuccess'));
       })
       .catch(e => {
         load(false);
-        showAlert('&#x274C;', 'ผิดพลาด', e.message);
+        showAlert('&#x274C;', t('alertErrorShort'), e.message);
       });
   }
 }
@@ -1190,26 +1701,26 @@ function openEditProduct(id){
   const isNew = !id;
   const prevHtml = p.img ? '<img class="prod-prev-img" src="' + p.img + '" onerror="this.style.display=\'none\'">' : '';
 
-  const body = '<label class="fl">ชื่อวัตถุดิบ / สินค้า</label>'
-    + '<input class="fi" id="p-name" value="' + p.name + '" placeholder="เช่น สันคอหมู, นมสด, ไข่ไก่">'
+  const body = '<label class="fl">' + t('prodNameLabel') + '</label>'
+    + '<input class="fi" id="p-name" value="' + p.name + '" placeholder="' + t('prodNamePlaceholder') + '">'
     + '<div class="f2">'
-    + '<div><label class="fl">ราคาต้นทุน (บาท)</label><input class="fi" id="p-price" type="number" value="' + (p.price || '') + '" inputmode="decimal"></div>'
-    + '<div><label class="fl">หน่วยนับ</label><input class="fi" id="p-unit" value="' + (p.unit || '') + '" placeholder="กก./ฟอง/ขวด"></div>'
+    + '<div><label class="fl">' + t('prodPriceLabel') + '</label><input class="fi" id="p-price" type="number" value="' + (p.price || '') + '" inputmode="decimal"></div>'
+    + '<div><label class="fl">' + t('prodUnitLabel') + '</label><input class="fi" id="p-unit" value="' + (p.unit || '') + '" placeholder="' + t('prodUnitPlaceholder') + '"></div>'
     + '</div>'
-    + '<label class="fl">รูปสินค้า</label>'
+    + '<label class="fl">' + t('prodImgLabel') + '</label>'
     + prevHtml
     + '<input class="fi fi-file" type="file" id="p-img" accept="image/*">';
     
-  const footer = '<button class="btn-cancel" onclick="closeModal()">ยกเลิก</button>'
-    + (isNew ? '<button class="btn-confirm" onclick="submitProduct(\'' + id + '\')">บันทึก</button>'
-             : '<button class="btn-del" onclick="confirmDeleteProduct(\'' + id + '\',\'' + p.name + '\')">ลบ</button>'
-             + '<button class="btn-confirm" onclick="submitProduct(\'' + id + '\')">บันทึก</button>');
-  openModal(isNew ? 'เพิ่มวัตถุดิบใหม่' : 'แก้ไขวัตถุดิบ', body, footer, null);
+  const footer = '<button class="btn-cancel" onclick="closeModal()">' + t('btnCancel') + '</button>'
+    + (isNew ? '<button class="btn-confirm" onclick="submitProduct(\'' + id + '\')">' + t('btnSave') + '</button>'
+             : '<button class="btn-del" onclick="confirmDeleteProduct(\'' + id + '\',\'' + p.name + '\')">' + t('btnDelete') + '</button>'
+             + '<button class="btn-confirm" onclick="submitProduct(\'' + id + '\')">' + t('btnSave') + '</button>');
+  openModal(isNew ? t('newProdTitle') : t('editProdTitle'), body, footer, null);
 }
 
 function submitProduct(id){
   const name = ge('p-name') ? ge('p-name').value.trim() : '';
-  if(!name){ toast('warn', 'กรุณากรอกชื่อสินค้า'); return; }
+  if(!name){ toast('warn', t('toastProdNameRequired')); return; }
   const file = ge('p-img') ? ge('p-img').files[0] : null;
   let p = null;
   for(let i = 0; i < S.prods.length; i++) if(S.prods[i].id === id){ p = S.prods[i]; break; }
@@ -1219,14 +1730,14 @@ function submitProduct(id){
   closeModal();
 
   if(file){
-    load(true, 'กำลังอัปโหลดรูป...');
+    load(true, t('loadingUploadImg'));
     resizeImg(file, async function(b64){
       try {
         const upRes = await apiCall('uploadFile', { base64Data: b64, fileName: file.name });
         const url = upRes.url || upRes;
         if(typeof url === 'string' && url.indexOf('error') === 0){
           load(false);
-          showAlert('&#x274C;', 'อัปโหลดไม่สำเร็จ', url);
+          showAlert('&#x274C;', t('alertUploadFailed'), url);
           return;
         }
         obj.img = url;
@@ -1239,14 +1750,14 @@ function submitProduct(id){
         localStorage.setItem('sp_prods_' + S.idshop, JSON.stringify(S.prods));
         renderProds();
         renderLogs();
-        toast('ok', id ? 'แก้ไขสำเร็จ' : 'เพิ่มสำเร็จ');
+        toast('ok', id ? t('toastEditSuccess') : t('toastAddSuccess'));
       } catch(e) {
         load(false);
-        showAlert('&#x274C;', 'ผิดพลาด', e.message);
+        showAlert('&#x274C;', t('alertErrorShort'), e.message);
       }
     });
   } else {
-    load(true, 'กำลังบันทึก...');
+    load(true, t('loadingSave'));
     apiCall('saveProduct', { idshop: S.idshop, product: obj })
       .then(res => {
         load(false);
@@ -1257,20 +1768,20 @@ function submitProduct(id){
         localStorage.setItem('sp_prods_' + S.idshop, JSON.stringify(S.prods));
         renderProds();
         renderLogs();
-        toast('ok', id ? 'แก้ไขสำเร็จ' : 'เพิ่มสำเร็จ');
+        toast('ok', id ? t('toastEditSuccess') : t('toastAddSuccess'));
       })
       .catch(e => {
         load(false);
-        showAlert('&#x274C;', 'ผิดพลาด', e.message);
+        showAlert('&#x274C;', t('alertErrorShort'), e.message);
       });
   }
 }
 
 function confirmDeleteProduct(id, name){
   closeModal();
-  showConfirm('&#x1F5D1;', 'ยืนยันการลบ', 'ลบสินค้า "' + name + '" ?', 'ลบ', 'btn-del', async function(ok){
+  showConfirm('&#x1F5D1;', t('confirmDelTitle'), t('confirmDelProdMsg', name), t('btnDelete'), 'btn-del', async function(ok){
     if(!ok) return;
-    load(true, 'กำลังลบ...');
+    load(true, t('loadingDel'));
     try {
       const res = await apiCall('deleteProduct', { idshop: S.idshop, id: id });
       load(false);
@@ -1279,10 +1790,10 @@ function confirmDeleteProduct(id, name){
       S.dashCache = null;
       localStorage.setItem('sp_prods_' + S.idshop, JSON.stringify(S.prods));
       renderProds();
-      toast('ok', 'ลบสำเร็จ');
+      toast('ok', t('toastDelSuccess'));
     } catch(e) {
       load(false);
-      showAlert('&#x274C;', 'ผิดพลาด', e.message);
+      showAlert('&#x274C;', t('alertErrorShort'), e.message);
     }
   });
 }
@@ -1294,7 +1805,7 @@ function renderStaff(){
   const el = ge('staff-list');
   if(!el) return;
   if(!S.staff || !S.staff.length){
-    el.innerHTML = '<p style="color:var(--txt3);font-size:13px;padding:8px 0;">ยังไม่มีรายชื่อพนักงาน (กด + เพิ่มได้เลย)</p>';
+    el.innerHTML = '<p style="color:var(--txt3);font-size:13px;padding:8px 0;">' + t('noStaffYet') + '</p>';
     return;
   }
   let html = '';
@@ -1305,7 +1816,7 @@ function renderStaff(){
       + '<span style="font-size:16px;">👤</span>'
       + '<span style="font-weight:600; font-size:14px;">' + st + '</span>'
       + '</div>'
-      + '<button class="btn-sm btn-del" style="padding:4px 10px; font-size:12px;" onclick="confirmDeleteStaff(\'' + st + '\')">ลบ</button>'
+      + '<button class="btn-sm btn-del" style="padding:4px 10px; font-size:12px;" onclick="confirmDeleteStaff(\'' + st + '\')">' + t('btnDelete') + '</button>'
       + '</div>';
   }
   el.innerHTML = html;
@@ -1314,11 +1825,11 @@ function renderStaff(){
 function openAddStaff(){
   if(actionGuard()) { closeSettings(); return; }
   closeSettings();
-  const body = '<label class="fl">ชื่อพนักงาน / ผู้บันทึก</label>'
-    + '<input class="fi" id="st-name" placeholder="เช่น เชฟต้น, น้องพลอย, แคชเชียร์บิว">';
-  const footer = '<button class="btn-cancel" onclick="closeModal()">ยกเลิก</button>'
-    + '<button class="btn-confirm" onclick="submitStaff()">บันทึก</button>';
-  openModal('เพิ่มรายชื่อพนักงาน', body, footer, null);
+  const body = '<label class="fl">' + t('staffNameLabel') + '</label>'
+    + '<input class="fi" id="st-name" placeholder="' + t('staffNamePlaceholder') + '">';
+  const footer = '<button class="btn-cancel" onclick="closeModal()">' + t('btnCancel') + '</button>'
+    + '<button class="btn-confirm" onclick="submitStaff()">' + t('btnSave') + '</button>';
+  openModal(t('addStaffTitle'), body, footer, null);
   setTimeout(() => {
     const inp = ge('st-name');
     if(inp) inp.focus();
@@ -1327,9 +1838,9 @@ function openAddStaff(){
 
 async function submitStaff(){
   const name = ge('st-name') ? ge('st-name').value.trim() : '';
-  if(!name){ toast('warn', 'กรุณากรอกชื่อพนักงาน'); return; }
+  if(!name){ toast('warn', t('toastStaffNameRequired')); return; }
   closeModal();
-  load(true, 'กำลังเพิ่มพนักงาน...');
+  load(true, t('loadingAddStaff'));
   try {
     const res = await apiCall('addStaff', { idshop: S.idshop, name: name });
     load(false);
@@ -1337,17 +1848,17 @@ async function submitStaff(){
     S.staff = data.staff || S.staff;
     localStorage.setItem('sp_staff_' + S.idshop, JSON.stringify(S.staff));
     renderStaff();
-    toast('ok', 'เพิ่มพนักงานเรียบร้อย');
+    toast('ok', t('toastStaffAdded'));
   } catch(e) {
     load(false);
-    showAlert('&#x274C;', 'ผิดพลาด', e.message);
+    showAlert('&#x274C;', t('alertErrorShort'), e.message);
   }
 }
 
 function confirmDeleteStaff(name){
-  showConfirm('👤', 'ลบรายชื่อพนักงาน', 'ต้องการลบพนักงาน "' + name + '" ?', 'ลบ', 'btn-del', async function(ok){
+  showConfirm('👤', t('confirmDelStaffTitle'), t('confirmDelStaffMsg', name), t('btnDelete'), 'btn-del', async function(ok){
     if(!ok) return;
-    load(true, 'กำลังลบ...');
+    load(true, t('loadingDel'));
     try {
       const res = await apiCall('deleteStaff', { idshop: S.idshop, name: name });
       load(false);
@@ -1355,10 +1866,10 @@ function confirmDeleteStaff(name){
       S.staff = data.staff || S.staff;
       localStorage.setItem('sp_staff_' + S.idshop, JSON.stringify(S.staff));
       renderStaff();
-      toast('ok', 'ลบพนักงานเรียบร้อย');
+      toast('ok', t('toastStaffDeleted'));
     } catch(e) {
       load(false);
-      showAlert('&#x274C;', 'ผิดพลาด', e.message);
+      showAlert('&#x274C;', t('alertErrorShort'), e.message);
     }
   });
 }
@@ -1379,22 +1890,10 @@ function toggleDashSort(type) {
 }
 
 function showHelp(type) {
-  let body = '';
   if (type === 'suggest') {
-    body = '<div style="font-size:14px; line-height:1.6; color:var(--txt2);">' +
-           '<p style="margin-bottom:12px;"><strong style="color:var(--txt); font-size:15px;">เกณฑ์การแสดงผล</strong><br>ระบบจะแสดงวัตถุดิบที่ <span style="color:var(--pri); font-weight:bold;">สต็อกคงเหลือน้อยกว่า 2 เท่า</span> ของยอดที่ถูกเบิกออกไปทำอาหารในช่วงเวลาที่คุณเลือก</p>' +
-           '<p><strong style="color:var(--txt); font-size:15px;">ตัวเลข "แนะนำ +..."</strong><br>คือจำนวนขั้นต่ำที่ระบบแนะนำให้สั่งซื้อมาเติมสต็อก เพื่อให้เพียงพอกับอัตราการใช้ในรอบถัดไป</p>' +
-           '</div>';
-    openModal('&#x2139;&#xFE0F; ข้อมูลแนะนำสั่งซื้อ', body, '<button class="btn-cancel" style="width:100%" onclick="closeModal()">ปิดหน้าต่าง</button>', null);
+    openModal(t('helpSuggestTitle'), t('helpSuggestBody'), '<button class="btn-cancel" style="width:100%" onclick="closeModal()">' + t('btnCloseModal') + '</button>', null);
   } else if (type === 'stock') {
-    body = '<div style="font-size:14px; line-height:1.6; color:var(--txt2);">' +
-           '<p style="margin-bottom:12px;"><strong style="color:var(--txt); font-size:15px;">ความหมายของแถบสี</strong><br>' +
-           '<span style="color:var(--grn); font-size:18px;">&#x25A0;</span> <strong style="color:var(--grn)">สีเขียว:</strong> ปลอดภัย (มี 5 หน่วยขึ้นไป)<br>' +
-           '<span style="color:var(--amb); font-size:18px;">&#x25A0;</span> <strong style="color:var(--amb)">สีเหลือง:</strong> ใกล้หมด (น้อยกว่า 5 หน่วย)<br>' +
-           '<span style="color:var(--red); font-size:18px;">&#x25A0;</span> <strong style="color:var(--red)">สีแดง:</strong> หมดสต็อก (0 หน่วยหรือติดลบ)</p>' +
-           '<p><strong style="color:var(--txt); font-size:15px;">ความยาวของแถบ</strong><br>วัดสัดส่วนเปรียบเทียบกับวัตถุดิบที่มีปริมาณในสต็อกมากที่สุดในร้าน</p>' +
-           '</div>';
-    openModal('&#x2139;&#xFE0F; ข้อมูลสต็อกคงเหลือ', body, '<button class="btn-cancel" style="width:100%" onclick="closeModal()">ปิดหน้าต่าง</button>', null);
+    openModal(t('helpStockTitle'), t('helpStockBody'), '<button class="btn-cancel" style="width:100%" onclick="closeModal()">' + t('btnCloseModal') + '</button>', null);
   }
 }
 
@@ -1411,7 +1910,7 @@ function resetDashFilter(){
 async function renderDash(){
   if(S.dashCache){ renderDashData(S.dashCache); return; }
   const range = ge('d-range') ? ge('d-range').value : 'thismonth';
-  load(true, 'กำลังวิเคราะห์ข้อมูลสต็อก...');
+  load(true, t('loadingDash'));
   try {
     const res = await apiCall('getDashboard', { idshop: S.idshop, range: range });
     load(false);
@@ -1420,7 +1919,7 @@ async function renderDash(){
     renderDashData(d);
   } catch(e) {
     load(false);
-    showAlert('&#x274C;', 'ผิดพลาด', e.message);
+    showAlert('&#x274C;', t('alertErrorShort'), e.message);
   }
 }
 
@@ -1434,7 +1933,7 @@ function renderDashData(d){
   if(d.suggestions && d.suggestions.length){
     sugHtml = '<div class="sec-hd" style="margin-top:4px;">'
            + '<div style="display:flex; align-items:center; gap:6px;">'
-           + '<h3 style="margin:0;">&#x26A0;&#xFE0F; แนะนำสั่งซื้อ</h3>'
+           + '<h3 style="margin:0;">' + t('suggestTitle') + '</h3>'
            + '<button onclick="showHelp(\'suggest\')" style="background:none; border:none; color:var(--txt3); display:flex; align-items:center; padding:0;">'
            + '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg></button>'
            + '</div></div>';
@@ -1443,8 +1942,8 @@ function renderDashData(d){
       const sg = d.suggestions[i];
       sugHtml += '<div class="suggest-row">'
         + '<div><div style="font-size:14px;font-weight:600;color:#92400e">' + sg.name + '</div>'
-        + '<div style="font-size:12px;color:#92400e">คงเหลือ ' + sg.stock + ' ' + (sg.unit || '') + '</div></div>'
-        + '<div style="font-size:14px;font-weight:700;color:var(--amb)">แนะนำ +' + sg.suggest + ' ' + (sg.unit || '') + '</div>'
+        + '<div style="font-size:12px;color:#92400e">' + t('suggestStock') + sg.stock + ' ' + (sg.unit || '') + '</div></div>'
+        + '<div style="font-size:14px;font-weight:700;color:var(--amb)">' + t('suggestRec') + sg.suggest + ' ' + (sg.unit || '') + '</div>'
         + '</div>';
     }
   }
@@ -1467,8 +1966,8 @@ function renderDashData(d){
   const btnOutClass = currentDashSort.startsWith('out') ? 'btn-pri' : 'btn-ghost';
 
   const sortButtonsHtml = '<div style="display:flex; gap:8px; margin:10px 0 14px; flex-wrap:wrap;">'
-    + '<button class="btn-sm ' + btnStockClass + '" onclick="toggleDashSort(\'stock\')" style="padding:6px 12px; font-size:12px; display:flex; align-items:center; gap:5px;">วัตถุดิบคงเหลือ <span>' + stockIcon + '</span></button>'
-    + '<button class="btn-sm ' + btnOutClass + '" onclick="toggleDashSort(\'out\')" style="padding:6px 12px; font-size:12px; display:flex; align-items:center; gap:5px;">เบิกใช้บ่อยสุด <span>' + outIcon + '</span></button>'
+    + '<button class="btn-sm ' + btnStockClass + '" onclick="toggleDashSort(\'stock\')" style="padding:6px 12px; font-size:12px; display:flex; align-items:center; gap:5px;">' + t('sortByStock') + ' <span>' + stockIcon + '</span></button>'
+    + '<button class="btn-sm ' + btnOutClass + '" onclick="toggleDashSort(\'out\')" style="padding:6px 12px; font-size:12px; display:flex; align-items:center; gap:5px;">' + t('sortByOut') + ' <span>' + outIcon + '</span></button>'
     + '</div>';
 
   let stockHtml = '';
@@ -1481,24 +1980,24 @@ function renderDashData(d){
     stockHtml += '<div class="stock-row">'
       + '<img class="stock-thumb" src="' + simg + '" onerror="this.src=\'https://via.placeholder.com/38\'">'
       + '<div class="sbw">'
-      + '<div class="sbl"><span>' + st.name + '</span><span style="color:' + clr + '">คงเหลือ ' + fmtNum(st.stock) + ' ' + (st.unit || '') + '</span></div>'
+      + '<div class="sbl"><span>' + st.name + '</span><span style="color:' + clr + '">' + t('stockRemaining') + fmtNum(st.stock) + ' ' + (st.unit || '') + '</span></div>'
       + '<div class="sbb"><div class="sbf" style="width:' + pct + '%;background:' + clr + '"></div></div>'
-      + '<div style="font-size:11px;color:var(--txt3);margin-top:3px">เบิกไปทำอาหาร ' + fmtNum(st.outFreq) + ' ' + (st.unit || '') + '</div>'
+      + '<div style="font-size:11px;color:var(--txt3);margin-top:3px">' + t('stockUsedCooking') + fmtNum(st.outFreq) + ' ' + (st.unit || '') + '</div>'
       + '</div>'
       + '</div>';
   }
 
   const stockHeaderHtml = '<div class="sec-hd" style="margin-top:14px; margin-bottom: 2px;">'
     + '<div style="display:flex; align-items:center; gap:6px;">'
-    + '<h3 style="margin:0;">&#x1F4E6; สต็อกวัตถุดิบคงเหลือ</h3>'
+    + '<h3 style="margin:0;">' + t('stockTitle') + '</h3>'
     + '<button onclick="showHelp(\'stock\')" style="background:none; border:none; color:var(--txt3); display:flex; align-items:center; padding:0;">'
     + '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg></button>'
     + '</div></div>';
 
   ge('dash-body').innerHTML =
     '<div class="dash-grid">'
-    + '<div class="dash-card" style="position:relative;"><h4>รับเข้า (ซื้อเข้า)</h4><div class="dash-big c-pri">' + fmtNum(d.costIn) + ' <span style="font-size:16px;font-weight:400;color:var(--txt3)">บ.</span></div><div class="dash-sub">รวม ' + fmtNum(d.totIn) + ' รายการ</div><button onclick="openChart(\'IN\')" style="position:absolute;top:14px;right:16px;background:var(--pri-l);color:var(--pri);border:none;padding:5px 8px;border-radius:6px;font-size:11px;font-weight:700;">ดูกราฟ</button></div>'
-    + '<div class="dash-card" style="position:relative;"><h4>เบิกออก (ใช้ทำอาหาร)</h4><div class="dash-big c-red">' + fmtNum(d.costOut) + ' <span style="font-size:16px;font-weight:400;color:var(--txt3)">บ.</span></div><div class="dash-sub">รวม ' + fmtNum(d.totOut) + ' รายการ</div><button onclick="openChart(\'OUT\')" style="position:absolute;top:14px;right:16px;background:var(--red-l);color:var(--red);border:none;padding:5px 8px;border-radius:6px;font-size:11px;font-weight:700;">ดูกราฟ</button></div>'
+    + '<div class="dash-card" style="position:relative;"><h4>' + t('dashInCard') + '</h4><div class="dash-big c-pri">' + fmtNum(d.costIn) + ' <span style="font-size:16px;font-weight:400;color:var(--txt3)">' + t('currBaht') + '</span></div><div class="dash-sub">' + t('dashTotalPrefix') + fmtNum(d.totIn) + t('dashTotalSuffix') + '</div><button onclick="openChart(\'IN\')" style="position:absolute;top:14px;right:16px;background:var(--pri-l);color:var(--pri);border:none;padding:5px 8px;border-radius:6px;font-size:11px;font-weight:700;">' + t('viewChart') + '</button></div>'
+    + '<div class="dash-card" style="position:relative;"><h4>' + t('dashOutCard') + '</h4><div class="dash-big c-red">' + fmtNum(d.costOut) + ' <span style="font-size:16px;font-weight:400;color:var(--txt3)">' + t('currBaht') + '</span></div><div class="dash-sub">' + t('dashTotalPrefix') + fmtNum(d.totOut) + t('dashTotalSuffix') + '</div><button onclick="openChart(\'OUT\')" style="position:absolute;top:14px;right:16px;background:var(--red-l);color:var(--red);border:none;padding:5px 8px;border-radius:6px;font-size:11px;font-weight:700;">' + t('viewChart') + '</button></div>'
     + '</div>'
     + sugHtml
     + stockHeaderHtml
@@ -1509,7 +2008,7 @@ function renderDashData(d){
 function openChart(type) {
   const d = S.dashCache;
   if(!d || !d.chart) return;
-  ge('chart-title').textContent = type === 'IN' ? 'กราฟมูลค่าซื้อวัตถุดิบรับเข้า' : 'กราฟมูลค่าเบิกวัตถุดิบไปใช้';
+  ge('chart-title').textContent = type === 'IN' ? t('chartInTitle') : t('chartOutTitle');
   ge('chart-modal').classList.add('show');
   
   const ctx = document.getElementById('myChart').getContext('2d');
@@ -1524,7 +2023,7 @@ function openChart(type) {
     data: {
       labels: d.chart.labels,
       datasets: [{
-        label: 'มูลค่า (บาท)',
+        label: t('chartValLabel'),
         data: dataVals,
         backgroundColor: clrBg,
         borderColor: clr,
