@@ -1467,7 +1467,8 @@ function renderLogs(){
   for(let j = 0; j < rows.length; j++){
     const l = rows[j];
     const isIn = l.type === 'IN';
-    const _lsrc = l.img || '';
+    const prodObj = S.prods.find(p => p.name && p.name.trim() === (l.item || '').trim());
+    const _lsrc = (prodObj && prodObj.img) ? prodObj.img : (l.img || '');
     html += '<div class="log-item">'
       + '<div class="log-ic ' + (isIn ? 'in' : 'out') + '">'
       + (_lsrc ? '<img src="' + _lsrc + '" style="width:100%;height:100%;object-fit:cover;border-radius:10px" onerror="this.style.display=\'none\'">' : (isIn ? '&#x1F4E5;' : '&#x1F4E4;'))
@@ -1727,10 +1728,23 @@ function submitProduct(id){
   const file = ge('p-img') ? ge('p-img').files[0] : null;
   let p = null;
   for(let i = 0; i < S.prods.length; i++) if(S.prods[i].id === cleanId){ p = S.prods[i]; break; }
+  const oldName = p ? (p.name || '').trim() : '';
   const existImg = p ? p.img || '' : '';
 
   const obj = { id: cleanId, name: name, price: Number(ge('p-price').value) || 0, unit: ge('p-unit').value, img: existImg };
   closeModal();
+
+  function syncLocalLogs(updatedName, updatedImg){
+    if(oldName && updatedName && oldName !== updatedName){
+      for(let k = 0; k < S.logs.length; k++){
+        if((S.logs[k].item || '').trim() === oldName){
+          S.logs[k].item = updatedName;
+          if(updatedImg) S.logs[k].img = updatedImg;
+        }
+      }
+    }
+    localStorage.setItem('sp_logs_' + S.idshop, JSON.stringify(S.logs));
+  }
 
   if(file){
     load(true, t('loadingUploadImg'));
@@ -1749,6 +1763,7 @@ function submitProduct(id){
         const allData = res.allData || res;
         S.prods = allData.products || allData;
         if (allData.logs) S.logs = allData.logs;
+        syncLocalLogs(name, url);
         S.dashCache = null;
         localStorage.setItem('sp_prods_' + S.idshop, JSON.stringify(S.prods));
         renderProds();
@@ -1767,6 +1782,7 @@ function submitProduct(id){
         const allData = res.allData || res;
         S.prods = allData.products || allData;
         if (allData.logs) S.logs = allData.logs;
+        syncLocalLogs(name, obj.img);
         S.dashCache = null;
         localStorage.setItem('sp_prods_' + S.idshop, JSON.stringify(S.prods));
         renderProds();
@@ -1999,8 +2015,22 @@ function renderDashData(d){
 
   ge('dash-body').innerHTML =
     '<div class="dash-grid">'
-    + '<div class="dash-card" style="position:relative;"><h4>' + t('dashInCard') + '</h4><div class="dash-big c-pri">' + fmtNum(d.costIn) + ' <span style="font-size:16px;font-weight:400;color:var(--txt3)">' + t('currBaht') + '</span></div><div class="dash-sub">' + t('dashTotalPrefix') + fmtNum(d.totIn) + t('dashTotalSuffix') + '</div><button onclick="openChart(\'IN\')" style="position:absolute;top:14px;right:16px;background:var(--pri-l);color:var(--pri);border:none;padding:5px 8px;border-radius:6px;font-size:11px;font-weight:700;">' + t('viewChart') + '</button></div>'
-    + '<div class="dash-card" style="position:relative;"><h4>' + t('dashOutCard') + '</h4><div class="dash-big c-red">' + fmtNum(d.costOut) + ' <span style="font-size:16px;font-weight:400;color:var(--txt3)">' + t('currBaht') + '</span></div><div class="dash-sub">' + t('dashTotalPrefix') + fmtNum(d.totOut) + t('dashTotalSuffix') + '</div><button onclick="openChart(\'OUT\')" style="position:absolute;top:14px;right:16px;background:var(--red-l);color:var(--red);border:none;padding:5px 8px;border-radius:6px;font-size:11px;font-weight:700;">' + t('viewChart') + '</button></div>'
+    + '<div class="dash-card">'
+    + '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:6px;margin-bottom:6px;">'
+    + '<h4 style="margin:0;font-size:11px;font-weight:600;color:var(--txt2);text-transform:uppercase;letter-spacing:.4px;line-height:1.3;flex:1;">' + t('dashInCard') + '</h4>'
+    + '<button onclick="openChart(\'IN\')" style="background:var(--pri-l);color:var(--pri);border:none;padding:4px 8px;border-radius:6px;font-size:11px;font-weight:700;white-space:nowrap;flex-shrink:0;cursor:pointer;">' + t('viewChart') + '</button>'
+    + '</div>'
+    + '<div class="dash-big c-pri">' + fmtNum(d.costIn) + ' <span style="font-size:16px;font-weight:400;color:var(--txt3)">' + t('currBaht') + '</span></div>'
+    + '<div class="dash-sub">' + t('dashTotalPrefix') + fmtNum(d.totIn) + t('dashTotalSuffix') + '</div>'
+    + '</div>'
+    + '<div class="dash-card">'
+    + '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:6px;margin-bottom:6px;">'
+    + '<h4 style="margin:0;font-size:11px;font-weight:600;color:var(--txt2);text-transform:uppercase;letter-spacing:.4px;line-height:1.3;flex:1;">' + t('dashOutCard') + '</h4>'
+    + '<button onclick="openChart(\'OUT\')" style="background:var(--red-l);color:var(--red);border:none;padding:4px 8px;border-radius:6px;font-size:11px;font-weight:700;white-space:nowrap;flex-shrink:0;cursor:pointer;">' + t('viewChart') + '</button>'
+    + '</div>'
+    + '<div class="dash-big c-red">' + fmtNum(d.costOut) + ' <span style="font-size:16px;font-weight:400;color:var(--txt3)">' + t('currBaht') + '</span></div>'
+    + '<div class="dash-sub">' + t('dashTotalPrefix') + fmtNum(d.totOut) + t('dashTotalSuffix') + '</div>'
+    + '</div>'
     + '</div>'
     + sugHtml
     + stockHeaderHtml
