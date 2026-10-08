@@ -551,12 +551,13 @@ const I18N = {
     btnLogout: "ออกจากระบบ",
     
     addLogTitle: "บันทึกรับเข้า / เบิกออก",
+    logTypeDefaultOpt: "-- โปรดเลือกประเภท --",
     logTypeLabel: "ประเภทรายการ",
     logTypeInOpt: "📥 รับเข้า (ซื้อเข้า/รับสต็อก)",
     logTypeOutOpt: "📤 เบิกออก (ขาย/เบิกใช้งาน)",
     logItemLabel: "เลือกสินค้า",
     logQtyLabel: "จำนวน",
-    logPriceLabel: "ราคาต้นทุน/หน่วย",
+    logPriceLabel: "ราคาต้นทุน (บาท)",
     logStaffLabel: "ผู้บันทึก (พนักงาน)",
     btnCancel: "ยกเลิก",
     btnSubmitLog: "บันทึกรายการ",
@@ -620,6 +621,11 @@ const I18N = {
     toastAddProdFirst: "กรุณาเพิ่มรายการสินค้าในตั้งค่าก่อน",
     toastStoreNameRequired: "กรุณากรอกชื่อร้าน",
     toastProdNameRequired: "กรุณากรอกชื่อสินค้า",
+    toastProdPriceRequired: "กรุณากรอกราคาต้นทุนสินค้า",
+    toastProdUnitRequired: "กรุณากรอกหน่วยนับสินค้า",
+    toastLogTypeRequired: "กรุณาเลือกประเภทรายการ (รับเข้า/เบิกออก)",
+    toastLogItemRequired: "กรุณาเลือกสินค้า",
+    toastLogPriceRequired: "กรุณากรอกราคาต้นทุน",
     toastStaffNameRequired: "กรุณากรอกชื่อพนักงาน",
     toastStaffPwRequired: "กรุณากำหนดรหัสผ่านให้พนักงาน",
     toastSaved: "บันทึกเรียบร้อย",
@@ -742,12 +748,13 @@ const I18N = {
     btnLogout: "Log Out",
     
     addLogTitle: "Record Stock In / Out",
+    logTypeDefaultOpt: "-- Select Type --",
     logTypeLabel: "Transaction Type",
     logTypeInOpt: "📥 Stock In (Purchase / Restock)",
     logTypeOutOpt: "📤 Stock Out (Sales / Usage)",
     logItemLabel: "Select Product",
     logQtyLabel: "Quantity",
-    logPriceLabel: "Cost Price / Unit",
+    logPriceLabel: "Cost Price (THB)",
     logStaffLabel: "Staff Member",
     btnCancel: "Cancel",
     btnSubmitLog: "Save Record",
@@ -811,6 +818,11 @@ const I18N = {
     toastAddProdFirst: "Please add products in Settings first",
     toastStoreNameRequired: "Please enter store name",
     toastProdNameRequired: "Please enter product name",
+    toastProdPriceRequired: "Please enter product cost price",
+    toastProdUnitRequired: "Please enter product unit",
+    toastLogTypeRequired: "Please select transaction type (In/Out)",
+    toastLogItemRequired: "Please select a product",
+    toastLogPriceRequired: "Please enter cost price",
     toastStaffNameRequired: "Please enter staff name",
     toastStaffPwRequired: "Please enter staff password",
     toastSaved: "Saved successfully",
@@ -1577,7 +1589,11 @@ function openAddLog(){
   const prevHtml = firstImg ? '<img id="m-prev" class="prod-prev-img" src="' + firstImg + '" onerror="this.style.display=\'none\'">' : '<div id="m-prev"></div>';
   
   const body = '<label class="fl">' + t('logTypeLabel') + '</label>'
-    + '<select class="fi" id="m-type" onchange="onTypeChange()"><option value="IN">' + t('logTypeInOpt') + '</option><option value="OUT">' + t('logTypeOutOpt') + '</option></select>'
+    + '<select class="fi" id="m-type" onchange="onTypeChange()">'
+    + '<option value="">' + t('logTypeDefaultOpt') + '</option>'
+    + '<option value="IN">' + t('logTypeInOpt') + '</option>'
+    + '<option value="OUT">' + t('logTypeOutOpt') + '</option>'
+    + '</select>'
     + '<label class="fl">' + t('logItemLabel') + '</label>'
     + '<select class="fi" id="m-item" onchange="onProdChange(this)">' + prodOpts + '</select>'
     + '<div style="text-align:center;margin:-6px 0 12px">' + prevHtml + '</div>'
@@ -1594,8 +1610,8 @@ function openAddLog(){
     const sel = ge('m-item');
     if(sel) onProdChange(sel);
     onTypeChange();
-    const inp = ge('m-qty');
-    if(inp) inp.focus();
+    const typeSel = ge('m-type');
+    if(typeSel) typeSel.focus();
   }, 50);
 }
 
@@ -1605,13 +1621,13 @@ function onProdChange(sel){
   const opt = sel.options[sel.selectedIndex];
   const prev = ge('m-prev');
   const priceEl = ge('m-price');
-  if(prev && opt.getAttribute('data-img')){
+  if(prev && opt && opt.getAttribute('data-img')){
     prev.src = opt.getAttribute('data-img');
     prev.style.display = 'block';
   } else if(prev && prev.tagName === 'IMG') {
     prev.style.display = 'none';
   }
-  if(priceEl) priceEl.value = opt.getAttribute('data-price') || '';
+  if(priceEl && opt) priceEl.value = opt.getAttribute('data-price') || '';
 }
 
 function onTypeChange() {
@@ -1623,16 +1639,40 @@ function onTypeChange() {
     priceEl.readOnly = true;
     priceEl.style.backgroundColor = 'var(--bg)';
     priceEl.style.color = 'var(--txt2)';
+    const sel = ge('m-item');
+    if(sel && sel.selectedIndex >= 0){
+      const opt = sel.options[sel.selectedIndex];
+      if(opt) priceEl.value = opt.getAttribute('data-price') || '0';
+    }
   } else {
     priceEl.readOnly = false;
     priceEl.style.backgroundColor = '#fff';
     priceEl.style.color = 'var(--txt)';
+    if(typeEl.value === 'IN'){
+      const sel = ge('m-item');
+      if(sel && sel.selectedIndex >= 0){
+        const opt = sel.options[sel.selectedIndex];
+        if(opt && !priceEl.value) priceEl.value = opt.getAttribute('data-price') || '';
+      }
+    }
   }
 }
 
 async function submitLog(){
-  const qty = ge('m-qty') ? ge('m-qty').value : '';
-  if(!qty || Number(qty) <= 0){ toast('warn', t('toastQtyInvalid')); return; }
+  const type = ge('m-type') ? ge('m-type').value : '';
+  if(!type){ toast('warn', t('toastLogTypeRequired')); return; }
+
+  const item = ge('m-item') ? ge('m-item').value : '';
+  if(!item){ toast('warn', t('toastLogItemRequired')); return; }
+
+  const qty = ge('m-qty') ? ge('m-qty').value.trim() : '';
+  if(!qty || isNaN(Number(qty)) || Number(qty) <= 0){ toast('warn', t('toastQtyInvalid')); return; }
+
+  const priceVal = ge('m-price') ? ge('m-price').value.trim() : '';
+  if(priceVal === '' || isNaN(Number(priceVal)) || Number(priceVal) < 0){
+    toast('warn', t('toastLogPriceRequired'));
+    return;
+  }
   
   const submitBtn = ge('btn-submit-log');
   if (submitBtn) submitBtn.disabled = true;
@@ -1640,10 +1680,10 @@ async function submitLog(){
   const staffNameVal = S.staffName || (S.role === 'staff' ? 'พนักงาน' : 'เจ้าของร้าน');
 
   const obj = {
-    item:  ge('m-item').value,
-    type:  ge('m-type').value,
+    item:  item,
+    type:  type,
     qty:   Number(qty),
-    price: Number(ge('m-price').value) || 0,
+    price: Number(priceVal),
     staff: staffNameVal
   };
   
@@ -1775,13 +1815,23 @@ function submitProduct(id){
   const cleanId = (id === 'null' || id === 'undefined' || !id) ? '' : id;
   const name = ge('p-name') ? ge('p-name').value.trim() : '';
   if(!name){ toast('warn', t('toastProdNameRequired')); return; }
+
+  const priceVal = ge('p-price') ? ge('p-price').value.trim() : '';
+  if(priceVal === '' || isNaN(Number(priceVal)) || Number(priceVal) < 0){
+    toast('warn', t('toastProdPriceRequired'));
+    return;
+  }
+
+  const unit = ge('p-unit') ? ge('p-unit').value.trim() : '';
+  if(!unit){ toast('warn', t('toastProdUnitRequired')); return; }
+
   const file = ge('p-img') ? ge('p-img').files[0] : null;
   let p = null;
   for(let i = 0; i < S.prods.length; i++) if(S.prods[i].id === cleanId){ p = S.prods[i]; break; }
   const oldName = p ? (p.name || '').trim() : '';
   const existImg = p ? p.img || '' : '';
 
-  const obj = { id: cleanId, name: name, price: Number(ge('p-price').value) || 0, unit: ge('p-unit').value, img: existImg };
+  const obj = { id: cleanId, name: name, price: Number(priceVal), unit: unit, img: existImg };
   closeModal();
 
   function syncLocalLogs(updatedName, updatedImg){
