@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title id="page-title">Harry Store-จัดการสต็อกสินค้าและวัตถุดิบ</title>
+<title id="page-title">Harry Store - ระบบจัดการสต็อกสินค้า</title>
 <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
@@ -280,7 +280,7 @@ select.fi {
       <img src="https://drive.google.com/thumbnail?id=16Lub5ejZNh0SKnbwvDp9YzIR1bhZqLOM&sz=w400" style="width:100%;height:100%;object-fit:cover;border-radius:18px;">
     </div>
     <h1 id="txt-login-title">Harry Store</h1>
-    <p class="login-sub" id="txt-login-sub">ระบบจัดการสต็อกวัตถุดิบและสินค้า</p>
+    <p class="login-sub" id="txt-login-sub">ระบบจัดการสต็อกและสินค้าคงคลัง</p>
     
     <div class="iw" id="phone-wrapper">
       <label id="lbl-phone">เบอร์โทรศัพท์เข้าสู่ระบบ หรือ เบอร์โทรศัพท์สมัครใช้งาน</label>
@@ -456,9 +456,9 @@ select.fi {
 ==================================================== */
 const I18N = {
   th: {
-    appTitle: "Harry Store-จัดการสต็อกสินค้าและวัตถุดิบ",
+    appTitle: "Harry Store - ระบบจัดการสต็อกสินค้า",
     loginTitle: "Harry Store",
-    loginSub: "ระบบจัดการสต็อกวัตถุดิบและสินค้า",
+    loginSub: "ระบบจัดการสต็อกและสินค้าคงคลัง",
     phoneLabel: "เบอร์โทรศัพท์เข้าสู่ระบบ หรือ เบอร์โทรศัพท์สมัครใช้งาน",
     phonePlaceholder: "0XX-XXX-XXXX",
     pwLabel: "รหัสผ่านสำหรับเข้าสู่ระบบ",
@@ -496,40 +496,40 @@ const I18N = {
     dashRange7Days: "7 วันที่ผ่านมา",
     dashRange30Days: "30 วันที่ผ่านมา",
     
-    dashInCard: "รับเข้า (ซื้อเข้า)",
-    dashOutCard: "เบิกออก (ใช้ทำอาหาร)",
+    dashInCard: "รับเข้า (ซื้อเข้า/รับสต็อก)",
+    dashOutCard: "เบิกออก (ขาย/เบิกใช้)",
     dashTotalPrefix: "รวม ",
     dashTotalSuffix: " รายการ",
     viewChart: "ดูกราฟ",
     
-    suggestTitle: "⚠️ แนะนำสั่งซื้อ",
+    suggestTitle: "⚠️ แนะนำสั่งซื้อเพิ่ม",
     suggestStock: "คงเหลือ ",
     suggestRec: "แนะนำ +",
     
-    stockTitle: "📦 สต็อกวัตถุดิบคงเหลือ",
-    sortByStock: "วัตถุดิบคงเหลือ",
-    sortByOut: "เบิกใช้บ่อยสุด",
+    stockTitle: "📦 สต็อกสินค้าคงเหลือ",
+    sortByStock: "สินค้าคงเหลือ",
+    sortByOut: "เบิก/ขายบ่อยสุด",
     stockRemaining: "คงเหลือ ",
-    stockUsedCooking: "เบิกไปทำอาหาร ",
+    stockUsedCooking: "เบิกออก/ขายแล้ว ",
     
     chartSummary: "กราฟสรุปยอด",
-    chartInTitle: "กราฟมูลค่าซื้อวัตถุดิบรับเข้า",
-    chartOutTitle: "กราฟมูลค่าเบิกวัตถุดิบไปใช้",
+    chartInTitle: "กราฟมูลค่าสินค้ารับเข้า",
+    chartOutTitle: "กราฟมูลค่าสินค้าเบิกออก/ขาย",
     chartValLabel: "มูลค่า (บาท)",
     
-    helpSuggestTitle: "ℹ️ ข้อมูลแนะนำสั่งซื้อ",
+    helpSuggestTitle: "ℹ️ ข้อมูลแนะนำสั่งซื้อเพิ่ม",
     helpSuggestBody: '<div style="font-size:14px; line-height:1.6; color:var(--txt2);">' +
-      '<p style="margin-bottom:12px;"><strong style="color:var(--txt); font-size:15px;">เกณฑ์การแสดงผล</strong><br>ระบบจะแสดงวัตถุดิบที่ <span style="color:var(--pri); font-weight:bold;">สต็อกคงเหลือน้อยกว่า 2 เท่า</span> ของยอดที่ถูกเบิกออกไปทำอาหารในช่วงเวลาที่คุณเลือก</p>' +
-      '<p><strong style="color:var(--txt); font-size:15px;">ตัวเลข "แนะนำ +..."</strong><br>คือจำนวนขั้นต่ำที่ระบบแนะนำให้สั่งซื้อมาเติมสต็อก เพื่อให้เพียงพอกับอัตราการใช้ในรอบถัดไป</p>' +
+      '<p style="margin-bottom:12px;"><strong style="color:var(--txt); font-size:15px;">เกณฑ์การแสดงผล</strong><br>ระบบจะแสดงสินค้าที่ <span style="color:var(--pri); font-weight:bold;">สต็อกคงเหลือน้อยกว่า 2 เท่า</span> ของยอดที่ถูกเบิกออกหรือขายในช่วงเวลาที่คุณเลือก</p>' +
+      '<p><strong style="color:var(--txt); font-size:15px;">ตัวเลข "แนะนำ +..."</strong><br>คือจำนวนขั้นต่ำที่ระบบแนะนำให้สั่งซื้อมาเติมสต็อก เพื่อให้เพียงพอกับอัตราการใช้งาน/ขายในรอบถัดไป</p>' +
       '</div>',
     
-    helpStockTitle: "ℹ️ ข้อมูลสต็อกคงเหลือ",
+    helpStockTitle: "ℹ️ ข้อมูลสต็อกสินค้าคงเหลือ",
     helpStockBody: '<div style="font-size:14px; line-height:1.6; color:var(--txt2);">' +
       '<p style="margin-bottom:12px;"><strong style="color:var(--txt); font-size:15px;">ความหมายของแถบสี</strong><br>' +
       '<span style="color:var(--grn); font-size:18px;">&#x25A0;</span> <strong style="color:var(--grn)">สีเขียว:</strong> ปลอดภัย (มี 5 หน่วยขึ้นไป)<br>' +
       '<span style="color:var(--amb); font-size:18px;">&#x25A0;</span> <strong style="color:var(--amb)">สีเหลือง:</strong> ใกล้หมด (น้อยกว่า 5 หน่วย)<br>' +
       '<span style="color:var(--red); font-size:18px;">&#x25A0;</span> <strong style="color:var(--red)">สีแดง:</strong> หมดสต็อก (0 หน่วยหรือติดลบ)</p>' +
-      '<p><strong style="color:var(--txt); font-size:15px;">ความยาวของแถบ</strong><br>วัดสัดส่วนเปรียบเทียบกับวัตถุดิบที่มีปริมาณในสต็อกมากที่สุดในร้าน</p>' +
+      '<p><strong style="color:var(--txt); font-size:15px;">ความยาวของแถบ</strong><br>วัดสัดส่วนเปรียบเทียบกับสินค้าที่มีปริมาณในสต็อกมากที่สุดในร้าน</p>' +
       '</div>',
     
     settingsTitle: "ตั้งค่าระบบ",
@@ -542,9 +542,9 @@ const I18N = {
     trialBadge: "(บัญชีทดลอง)",
     activeBadge: "(ใช้งานปกติ)",
     
-    prodSectionTitle: "รายการวัตถุดิบ/สินค้า",
+    prodSectionTitle: "รายการสินค้าในสต็อก",
     btnAdd: "+ เพิ่ม",
-    noProdsYet: "ยังไม่มีสินค้า/วัตถุดิบ",
+    noProdsYet: "ยังไม่มีรายการสินค้า (กด + เพิ่มได้เลย)",
     
     staffSectionTitle: "รายชื่อผู้บันทึก (พนักงาน)",
     noStaffYet: "ยังไม่มีรายชื่อพนักงาน (กด + เพิ่มได้เลย)",
@@ -552,9 +552,9 @@ const I18N = {
     
     addLogTitle: "บันทึกรับเข้า / เบิกออก",
     logTypeLabel: "ประเภทรายการ",
-    logTypeInOpt: "📥 รับเข้า (ซื้อวัตถุดิบ)",
-    logTypeOutOpt: "📤 เบิกออก (ทำอาหาร)",
-    logItemLabel: "เลือกวัตถุดิบ / สินค้า",
+    logTypeInOpt: "📥 รับเข้า (ซื้อเข้า/รับสต็อก)",
+    logTypeOutOpt: "📤 เบิกออก (ขาย/เบิกใช้งาน)",
+    logItemLabel: "เลือกสินค้า",
     logQtyLabel: "จำนวน",
     logPriceLabel: "ราคาต้นทุน/หน่วย",
     logStaffLabel: "ผู้บันทึก (พนักงาน)",
@@ -566,13 +566,13 @@ const I18N = {
     storeLogoLabel: "โลโก้ร้าน (รูปภาพ)",
     btnSave: "บันทึก",
     
-    newProdTitle: "เพิ่มวัตถุดิบใหม่",
-    editProdTitle: "แก้ไขวัตถุดิบ",
-    prodNameLabel: "ชื่อวัตถุดิบ / สินค้า",
-    prodNamePlaceholder: "เช่น สันคอหมู, นมสด, ไข่ไก่",
+    newProdTitle: "เพิ่มสินค้าใหม่",
+    editProdTitle: "แก้ไขข้อมูลสินค้า",
+    prodNameLabel: "ชื่อสินค้า",
+    prodNamePlaceholder: "เช่น สินค้า A, น้ำดื่ม, นมสด, ข้าวสาร",
     prodPriceLabel: "ราคาต้นทุน (บาท)",
     prodUnitLabel: "หน่วยนับ",
-    prodUnitPlaceholder: "กก./ฟอง/ขวด",
+    prodUnitPlaceholder: "ชิ้น/ขวด/แพ็ค/กล่อง/กก.",
     prodImgLabel: "รูปสินค้า",
     btnDelete: "ลบ",
     
@@ -581,20 +581,20 @@ const I18N = {
     
     addStaffTitle: "เพิ่มรายชื่อพนักงาน",
     staffNameLabel: "ชื่อพนักงาน / ผู้บันทึก",
-    staffNamePlaceholder: "เช่น เชฟต้น, น้องพลอย, แคชเชียร์บิว",
+    staffNamePlaceholder: "เช่น แคชเชียร์ A, พนักงาน 1, เชฟต้น",
     staffPwLabel: "รหัสผ่านพนักงาน (สำหรับเข้าสู่ระบบ)",
     staffPwPlaceholder: "กำหนดรหัสผ่าน (ไม่ซ้ำกับคนอื่น)",
     confirmDelStaffTitle: "ลบรายชื่อพนักงาน",
     confirmDelStaffMsg: 'ต้องการลบพนักงาน "{0}" ?',
     
-    prodHistoryTitle: "ประวัติการใช้วัตถุดิบ",
+    prodHistoryTitle: "ประวัติการเคลื่อนไหวสินค้า",
     prodHistoryEmpty: "ยังไม่มีประวัติการรับเข้าหรือเบิกออกสำหรับสินค้านี้",
     clickForHistory: "แตะเพื่อดูประวัติ",
     roleOwnerBadge: "(เจ้าของร้าน)",
     roleStaffBadge: "(พนักงาน: {0})",
     staffPwTag: "รหัสผ่าน: ",
-    dashInCountCard: "รับเข้าวัตถุดิบ",
-    dashOutCountCard: "เบิกไปทำอาหาร",
+    dashInCountCard: "รับเข้าสินค้า",
+    dashOutCountCard: "เบิกออก / ขายสินค้า",
     
     btnOk: "ตกลง",
     btnCloseModal: "ปิดหน้าต่าง",
@@ -617,7 +617,7 @@ const I18N = {
     toastPhoneInvalid: "กรุณากรอกเบอร์โทรให้ครบ",
     toastPwRequired: "กรุณากรอกรหัสผ่าน",
     toastQtyInvalid: "กรุณากรอกจำนวนให้ถูกต้อง",
-    toastAddProdFirst: "กรุณาเพิ่มรายการวัตถุดิบในตั้งค่าก่อน",
+    toastAddProdFirst: "กรุณาเพิ่มรายการสินค้าในตั้งค่าก่อน",
     toastStoreNameRequired: "กรุณากรอกชื่อร้าน",
     toastProdNameRequired: "กรุณากรอกชื่อสินค้า",
     toastStaffNameRequired: "กรุณากรอกชื่อพนักงาน",
@@ -634,7 +634,7 @@ const I18N = {
     alertErrorShort: "ผิดพลาด",
     alertLoginFailed: "ล็อกอินไม่สำเร็จ",
     alertWelcomeTitle: "ยินดีต้อนรับสู่ Harry Store",
-    alertWelcomeMsg: "คุณสามารถทดลองใช้งานระบบได้ 30 วัน<br>สำหรับบันทึกรับเข้า-เบิกออกวัตถุดิบอาหารและดูแดชบอร์ดสรุป",
+    alertWelcomeMsg: "คุณสามารถทดลองใช้งานระบบได้ 30 วัน<br>สำหรับบันทึกรับเข้า-เบิกออก/ขายสินค้า และดูแดชบอร์ดสรุป",
     alertStartBtn: "เริ่มใช้งาน",
     alertExpTitle: "แจ้งเตือนการหมดอายุ",
     alertExpToday: "รหัสของคุณจะหมดอายุ<b>วันนี้</b>!",
@@ -647,9 +647,9 @@ const I18N = {
     alertUploadFailed: "อัปโหลดไม่สำเร็จ"
   },
   en: {
-    appTitle: "Harry Store - Stock & Ingredient Management",
+    appTitle: "Harry Store - Inventory & Stock Management",
     loginTitle: "Harry Store",
-    loginSub: "Stock & Ingredient Management System",
+    loginSub: "Inventory & Stock Management System",
     phoneLabel: "Phone Number to Login or Register",
     phonePlaceholder: "0XX-XXX-XXXX",
     pwLabel: "Account Password",
@@ -687,8 +687,8 @@ const I18N = {
     dashRange7Days: "Past 7 Days",
     dashRange30Days: "Past 30 Days",
     
-    dashInCard: "Stock In (Purchases)",
-    dashOutCard: "Stock Out (Cooking Usage)",
+    dashInCard: "Stock In (Purchase / Restock)",
+    dashOutCard: "Stock Out (Sales / Usage)",
     dashTotalPrefix: "Total ",
     dashTotalSuffix: " items",
     viewChart: "View Chart",
@@ -699,19 +699,19 @@ const I18N = {
     
     stockTitle: "📦 Remaining Stock",
     sortByStock: "Remaining Stock",
-    sortByOut: "Most Used",
+    sortByOut: "Most Out / Sold",
     stockRemaining: "Stock: ",
-    stockUsedCooking: "Used for cooking: ",
+    stockUsedCooking: "Out / Sold: ",
     
     chartSummary: "Summary Chart",
     chartInTitle: "Stock In Purchase Value",
-    chartOutTitle: "Stock Out Cooking Usage Value",
+    chartOutTitle: "Stock Out / Sales Value",
     chartValLabel: "Value (THB)",
     
     helpSuggestTitle: "ℹ️ Reorder Suggestions Guide",
     helpSuggestBody: '<div style="font-size:14px; line-height:1.6; color:var(--txt2);">' +
-      '<p style="margin-bottom:12px;"><strong style="color:var(--txt); font-size:15px;">Display Criteria</strong><br>Displays ingredients where <span style="color:var(--pri); font-weight:bold;">remaining stock is less than 2x</span> the amount used during the selected timeframe.</p>' +
-      '<p><strong style="color:var(--txt); font-size:15px;">"Suggest +..." Figure</strong><br>The recommended minimum quantity to purchase to cover upcoming usage rate.</p>' +
+      '<p style="margin-bottom:12px;"><strong style="color:var(--txt); font-size:15px;">Display Criteria</strong><br>Displays products where <span style="color:var(--pri); font-weight:bold;">remaining stock is less than 2x</span> the amount sold or used during the selected timeframe.</p>' +
+      '<p><strong style="color:var(--txt); font-size:15px;">"Suggest +..." Figure</strong><br>The recommended minimum quantity to purchase to replenish upcoming stock.</p>' +
       '</div>',
     
     helpStockTitle: "ℹ️ Remaining Stock Guide",
@@ -720,7 +720,7 @@ const I18N = {
       '<span style="color:var(--grn); font-size:18px;">&#x25A0;</span> <strong style="color:var(--grn)">Green:</strong> Safe level (5+ units)<br>' +
       '<span style="color:var(--amb); font-size:18px;">&#x25A0;</span> <strong style="color:var(--amb)">Yellow:</strong> Low stock (less than 5 units)<br>' +
       '<span style="color:var(--red); font-size:18px;">&#x25A0;</span> <strong style="color:var(--red)">Red:</strong> Out of stock (0 or negative)</p>' +
-      '<p><strong style="color:var(--txt); font-size:15px;">Bar Length</strong><br>Proportional comparison to the highest-stocked ingredient in the store.</p>' +
+      '<p><strong style="color:var(--txt); font-size:15px;">Bar Length</strong><br>Proportional comparison to the highest-stocked product in the store.</p>' +
       '</div>',
     
     settingsTitle: "Settings",
@@ -733,9 +733,9 @@ const I18N = {
     trialBadge: "(Trial Account)",
     activeBadge: "(Active)",
     
-    prodSectionTitle: "Ingredients & Products",
+    prodSectionTitle: "Product Inventory",
     btnAdd: "+ Add",
-    noProdsYet: "No ingredients or products yet",
+    noProdsYet: "No products in stock yet (Click + Add)",
     
     staffSectionTitle: "Staff Members",
     noStaffYet: "No staff members yet (Click + Add)",
@@ -743,9 +743,9 @@ const I18N = {
     
     addLogTitle: "Record Stock In / Out",
     logTypeLabel: "Transaction Type",
-    logTypeInOpt: "📥 Stock In (Purchase)",
-    logTypeOutOpt: "📤 Stock Out (Cooking / Usage)",
-    logItemLabel: "Select Ingredient / Product",
+    logTypeInOpt: "📥 Stock In (Purchase / Restock)",
+    logTypeOutOpt: "📤 Stock Out (Sales / Usage)",
+    logItemLabel: "Select Product",
     logQtyLabel: "Quantity",
     logPriceLabel: "Cost Price / Unit",
     logStaffLabel: "Staff Member",
@@ -757,14 +757,14 @@ const I18N = {
     storeLogoLabel: "Store Logo (Image)",
     btnSave: "Save",
     
-    newProdTitle: "Add New Ingredient",
-    editProdTitle: "Edit Ingredient",
-    prodNameLabel: "Ingredient / Item Name",
-    prodNamePlaceholder: "e.g. Pork Neck, Milk, Eggs",
+    newProdTitle: "Add New Product",
+    editProdTitle: "Edit Product",
+    prodNameLabel: "Product Name",
+    prodNamePlaceholder: "e.g. Product A, Water, Milk, Snacks",
     prodPriceLabel: "Cost Price (THB)",
     prodUnitLabel: "Unit",
-    prodUnitPlaceholder: "kg/pcs/bottle",
-    prodImgLabel: "Item Image",
+    prodUnitPlaceholder: "pcs/bottle/pack/box/kg",
+    prodImgLabel: "Product Image",
     btnDelete: "Delete",
     
     confirmDelTitle: "Confirm Deletion",
@@ -772,20 +772,20 @@ const I18N = {
     
     addStaffTitle: "Add Staff Member",
     staffNameLabel: "Staff Name",
-    staffNamePlaceholder: "e.g. Chef Ton, Ploy, Cashier",
+    staffNamePlaceholder: "e.g. Cashier A, Staff 1, Alex",
     staffPwLabel: "Staff Password (for login)",
     staffPwPlaceholder: "Set password (must be unique)",
     confirmDelStaffTitle: "Delete Staff Member",
     confirmDelStaffMsg: 'Delete staff member "{0}"?',
     
-    prodHistoryTitle: "Stock Movement History",
+    prodHistoryTitle: "Product Movement History",
     prodHistoryEmpty: "No transaction history for this item yet",
     clickForHistory: "Tap to view history",
     roleOwnerBadge: "(Owner)",
     roleStaffBadge: "(Staff: {0})",
     staffPwTag: "Password: ",
     dashInCountCard: "Stock In",
-    dashOutCountCard: "Stock Out",
+    dashOutCountCard: "Stock Out / Sales",
     
     btnOk: "OK",
     btnCloseModal: "Close",
@@ -808,7 +808,7 @@ const I18N = {
     toastPhoneInvalid: "Please enter a valid phone number",
     toastPwRequired: "Please enter your password",
     toastQtyInvalid: "Please enter a valid quantity",
-    toastAddProdFirst: "Please add ingredient items in Settings first",
+    toastAddProdFirst: "Please add products in Settings first",
     toastStoreNameRequired: "Please enter store name",
     toastProdNameRequired: "Please enter product name",
     toastStaffNameRequired: "Please enter staff name",
@@ -825,7 +825,7 @@ const I18N = {
     alertErrorShort: "Error",
     alertLoginFailed: "Login Failed",
     alertWelcomeTitle: "Welcome to Harry Store",
-    alertWelcomeMsg: "You can try the system free for 30 days<br>to track stock in/out and view summary dashboards.",
+    alertWelcomeMsg: "You can try the system free for 30 days<br>to track inventory in/out and view summary dashboards.",
     alertStartBtn: "Get Started",
     alertExpTitle: "Expiration Notice",
     alertExpToday: "Your account will expire <b>today</b>!",
