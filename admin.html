@@ -299,7 +299,16 @@ async function fetchData() {
   try {
     const res = await apiCall('getAdminData');
     showLoad(false);
-    DB = res.adminData || res;
+    if (!res || res.success === false) {
+      alert('Error: ' + ((res && res.error) ? res.error : 'ไม่สามารถโหลดข้อมูลผู้ดูแลระบบได้'));
+      return;
+    }
+    const adminData = res.adminData || res;
+    DB = {
+      shops: Array.isArray(adminData.shops) ? adminData.shops : [],
+      products: Array.isArray(adminData.products) ? adminData.products : [],
+      logs: Array.isArray(adminData.logs) ? adminData.logs : []
+    };
     renderShops();
     updateLogFilterOptions();
     if(SELECTED_SHOP) openShopDetail(SELECTED_SHOP.idshop);
@@ -330,7 +339,8 @@ function renderShops() {
   const container = document.getElementById('shop-list-container');
   container.innerHTML = '';
   
-  const filtered = DB.shops.filter(s => s.storeName.toLowerCase().includes(query) || s.phone.includes(query) || s.idshop.toLowerCase().includes(query));
+  const shops = Array.isArray(DB.shops) ? DB.shops : [];
+  const filtered = shops.filter(s => (s.storeName || '').toLowerCase().includes(query) || (s.phone || '').includes(query) || (s.idshop || '').toLowerCase().includes(query));
   
   if(filtered.length === 0) {
     container.innerHTML = '<div style="text-align:center; padding:20px; color:var(--txt3);">ไม่พบข้อมูลที่ค้นหา</div>';
@@ -403,7 +413,7 @@ function openShopDetail(idshop) {
   `;
 
   // -- HTML BLOCK 2: สินค้า --
-  const pds = DB.products.filter(p => p.idshop === idshop);
+  const pds = (Array.isArray(DB.products) ? DB.products : []).filter(p => p.idshop === idshop);
   let pList = '';
   if(pds.length===0) pList = '<div style="text-align:center;color:var(--txt3);font-size:13px;padding:10px;">ไม่มีสินค้า</div>';
   else {
@@ -414,7 +424,7 @@ function openShopDetail(idshop) {
           ${img}
           <div class="p-info">
             <div class="p-name">${p.name}</div>
-            <div class="p-price">${p.price.toLocaleString()} บ. / ${p.unit}</div>
+            <div class="p-price">${(p.price || 0).toLocaleString()} บ. / ${p.unit || '-'}</div>
           </div>
         </div>
       `;
@@ -423,7 +433,7 @@ function openShopDetail(idshop) {
   const b2 = `<div class="d-block"><div class="d-title"><span>📦 รายการสินค้า (${pds.length})</span></div>${pList}</div>`;
 
   // -- HTML BLOCK 3: ประวัติ LOG ของร้านนี้ --
-  const lgs = DB.logs.filter(l => l.idshop === idshop).slice(0, 30);
+  const lgs = (Array.isArray(DB.logs) ? DB.logs : []).filter(l => l.idshop === idshop).slice(0, 30);
   let lList = '';
   if(lgs.length===0) lList = '<div style="text-align:center;color:var(--txt3);font-size:13px;padding:10px;">ยังไม่มีความเคลื่อนไหว</div>';
   else {
@@ -484,7 +494,8 @@ async function saveShopData(idshop) {
 function updateLogFilterOptions() {
   const sel = document.getElementById('log-filter');
   sel.innerHTML = '<option value="ALL">แสดงความเคลื่อนไหวทุกร้าน</option>';
-  DB.shops.forEach(s => {
+  const shops = Array.isArray(DB.shops) ? DB.shops : [];
+  shops.forEach(s => {
     sel.innerHTML += `<option value="${s.idshop}">${s.storeName}</option>`;
   });
 }
@@ -494,7 +505,8 @@ function renderGlobalLogs() {
   const container = document.getElementById('global-log-container');
   container.innerHTML = '';
   
-  let targetLogs = DB.logs;
+  const logs = Array.isArray(DB.logs) ? DB.logs : [];
+  let targetLogs = logs;
   if(filter !== 'ALL') targetLogs = targetLogs.filter(l => l.idshop === filter);
   
   if(targetLogs.length === 0) {
@@ -503,7 +515,8 @@ function renderGlobalLogs() {
   }
   
   const shopNames = {};
-  DB.shops.forEach(s => { shopNames[s.idshop] = s.storeName; });
+  const shops = Array.isArray(DB.shops) ? DB.shops : [];
+  shops.forEach(s => { shopNames[s.idshop] = s.storeName; });
   
   targetLogs.slice(0, 100).forEach(l => {
     const isIn = l.type === 'IN';
