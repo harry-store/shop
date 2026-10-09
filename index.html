@@ -2413,13 +2413,42 @@ function closeChart() { ge('chart-modal').classList.remove('show'); }
 /* ====================================================
    SALES & EXPENSES MANAGEMENT
 ==================================================== */
+function getSalesDateRaw(s){
+  if(!s) return '';
+  if(s.dateRaw && /^\d{4}-\d{2}-\d{2}$/.test(s.dateRaw)) return s.dateRaw;
+  const dStr = String(s.date || s.dateRaw || '').trim();
+  if(/^\d{4}-\d{2}-\d{2}$/.test(dStr)) return dStr;
+  if(/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(dStr)){
+    const p = dStr.split('/');
+    return `${p[2]}-${p[1].padStart(2,'0')}-${p[0].padStart(2,'0')}`;
+  }
+  if(s.rawTimestamp){
+    return s.rawTimestamp.split('T')[0];
+  }
+  return dStr;
+}
+
+function getSalesDateDisplay(s){
+  if(!s) return '-';
+  if(s.dateDisplay) return s.dateDisplay;
+  const dStr = String(s.date || s.dateRaw || '').trim();
+  if(/^\d{4}-\d{2}-\d{2}$/.test(dStr)){
+    const p = dStr.split('-');
+    return `${p[2]}/${p[1]}/${p[0]}`;
+  }
+  if(/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(dStr)){
+    return dStr;
+  }
+  return dStr || '-';
+}
+
 function getFilteredSales(){
   let list = (S.sales || []).slice();
   
   // Specific date filter
   const fDate = ge('s-filter-date') ? ge('s-filter-date').value : '';
   if(fDate){
-    return list.filter(s => s.date === fDate);
+    return list.filter(s => getSalesDateRaw(s) === fDate);
   }
 
   // Owner Range filter
@@ -2429,25 +2458,25 @@ function getFilteredSales(){
     const todayStr = now.getFullYear() + '-' + ('0' + (now.getMonth() + 1)).slice(-2) + '-' + ('0' + now.getDate()).slice(-2);
     
     if(range === 'today'){
-      list = list.filter(s => s.date === todayStr);
+      list = list.filter(s => getSalesDateRaw(s) === todayStr);
     } else if(range === 'yesterday'){
       const y = new Date();
       y.setDate(y.getDate() - 1);
       const yStr = y.getFullYear() + '-' + ('0' + (y.getMonth() + 1)).slice(-2) + '-' + ('0' + y.getDate()).slice(-2);
-      list = list.filter(s => s.date === yStr);
+      list = list.filter(s => getSalesDateRaw(s) === yStr);
     } else if(range === '7days'){
       const limit = new Date();
       limit.setDate(limit.getDate() - 7);
       const limitStr = limit.getFullYear() + '-' + ('0' + (limit.getMonth() + 1)).slice(-2) + '-' + ('0' + limit.getDate()).slice(-2);
-      list = list.filter(s => s.date >= limitStr);
+      list = list.filter(s => getSalesDateRaw(s) >= limitStr);
     } else if(range === '30days'){
       const limit = new Date();
       limit.setDate(limit.getDate() - 30);
       const limitStr = limit.getFullYear() + '-' + ('0' + (limit.getMonth() + 1)).slice(-2) + '-' + ('0' + limit.getDate()).slice(-2);
-      list = list.filter(s => s.date >= limitStr);
+      list = list.filter(s => getSalesDateRaw(s) >= limitStr);
     } else if(range === 'thismonth'){
       const ym = now.getFullYear() + '-' + ('0' + (now.getMonth() + 1)).slice(-2);
-      list = list.filter(s => s.date && s.date.startsWith(ym));
+      list = list.filter(s => getSalesDateRaw(s).startsWith(ym));
     }
   }
   return list;
@@ -2459,10 +2488,12 @@ function renderSales(){
 
   // Sort newest first
   filtered.sort((a, b) => {
-    if(b.date === a.date){
+    const da = getSalesDateRaw(a);
+    const db = getSalesDateRaw(b);
+    if(db === da){
       return String(b.timestamp || b.id || '').localeCompare(String(a.timestamp || a.id || ''));
     }
-    return String(b.date || '').localeCompare(String(a.date || ''));
+    return db.localeCompare(da);
   });
 
   // Aggregate totals
@@ -2518,7 +2549,7 @@ function renderSales(){
       <div class="card" onclick="openSalesDetail('${safeId}')" style="cursor:pointer; margin-bottom:10px; padding:12px 14px; transition:all 0.15s ease;">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
           <div style="display:flex; align-items:center;">
-            <span style="font-size:14px; font-weight:700; color:var(--txt);">📅 ${s.date}</span>
+            <span style="font-size:14px; font-weight:700; color:var(--txt);">📅 ${getSalesDateDisplay(s)}</span>
             ${staffBadge}
           </div>
           <div style="font-size:14px; font-weight:800; color:${net >= 0 ? 'var(--pri)' : 'var(--red)'};">
@@ -2770,7 +2801,7 @@ function openSalesDetail(timestampId){
     <div style="display:flex; flex-direction:column; gap:12px;">
       <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 12px; background:var(--bg); border-radius:10px;">
         <div>
-          <div style="font-size:15px; font-weight:700; color:var(--txt);">📅 ${sale.date}</div>
+          <div style="font-size:15px; font-weight:700; color:var(--txt);">📅 ${getSalesDateDisplay(sale)}</div>
           <div style="font-size:11px; color:var(--txt3); margin-top:2px;">👤 ${sale.staff ? t('staffSectionTitle') + ': ' + sale.staff : ''}</div>
         </div>
         <div style="text-align:right;">
@@ -2816,7 +2847,7 @@ function openSalesDetail(timestampId){
     `;
   }
 
-  openModal(t('navSales') + ' - ' + sale.date, body, footer, null);
+  openModal(t('navSales') + ' - ' + getSalesDateDisplay(sale), body, footer, null);
 }
 
 function openSalesChart(){
@@ -2836,7 +2867,7 @@ function openSalesChart(){
   // Aggregate by date (sorted chronological)
   const salesByDate = {};
   filteredSales.forEach(s => {
-    const d = s.date || 'Unknown';
+    const d = getSalesDateDisplay(s);
     if(!salesByDate[d]) {
       salesByDate[d] = { sales: 0, expenses: 0 };
     }
