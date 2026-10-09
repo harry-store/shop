@@ -349,7 +349,60 @@ select.fi {
     <div id="log-list"></div>
   </div>
 
-  <!-- Page 2: Dashboard Analytics -->
+  <!-- Page 2: Sales & Expenses (ยอดขายและค่าใช้จ่าย) -->
+  <div id="page-sales" class="page">
+    <!-- Owner Analytics Header Block (Hidden for staff) -->
+    <div id="sales-owner-panel">
+      <div class="filter-bar">
+        <select id="s-range" onchange="applySalesFilter()">
+          <option value="thismonth">เดือนนี้</option>
+          <option value="today">วันนี้</option>
+          <option value="yesterday">เมื่อวาน</option>
+          <option value="7days">7 วันที่ผ่านมา</option>
+          <option value="30days">30 วันที่ผ่านมา</option>
+          <option value="all">ทั้งหมด</option>
+        </select>
+        <button class="btn-reset" id="btn-sales-chart" onclick="openSalesChart()" style="background:var(--pri-l); color:var(--pri); font-weight:700;">📊 ดูกราฟยอดขาย</button>
+      </div>
+      <div class="stats-row" style="grid-template-columns:1fr 1fr; margin-bottom:10px;">
+        <div class="stat in" style="padding:12px 14px;">
+          <div class="stat-lbl" id="lbl-sales-tot">💰 ยอดขายรวม</div>
+          <div class="stat-num" id="sales-sum-tot" style="font-size:22px; color:var(--grn);">0</div>
+          <div class="stat-sub" id="sales-sub-breakdown" style="font-size:10px; color:var(--txt2); line-height:1.4; margin-top:4px;">สด: 0 | โอน: 0 | เครดิต: 0</div>
+        </div>
+        <div class="stat out" style="padding:12px 14px;">
+          <div class="stat-lbl" id="lbl-sales-exp">🧾 ค่าใช้จ่ายรวม</div>
+          <div class="stat-num" id="sales-sum-exp" style="font-size:22px; color:var(--red);">0</div>
+          <div class="stat-sub" id="sales-sub-net" style="font-size:10px; font-weight:700; color:var(--pri); margin-top:4px;">สุทธิ: 0 บาท</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Staff Notice Banner (Shown for staff only) -->
+    <div id="sales-staff-panel" style="display:none; margin-bottom:12px;">
+      <div style="background:var(--bg); border:1px solid var(--border); border-radius:12px; padding:12px 14px; display:flex; align-items:center; justify-content:space-between;">
+        <div>
+          <div style="font-weight:700; font-size:13px; color:var(--txt);" id="lbl-staff-sales-title">📝 บันทึกยอดขายรายวัน</div>
+          <div style="font-size:11px; color:var(--txt3); margin-top:2px;" id="lbl-staff-sales-desc">แสดงประวัติย้อนหลัง 30 วัน</div>
+        </div>
+        <button class="btn-sm btn-grn" onclick="openAddSales()">+ บันทึกยอดขาย</button>
+      </div>
+    </div>
+
+    <!-- Filter & Search for Sales -->
+    <div class="filter-bar">
+      <input type="date" id="s-filter-date" onchange="renderSales()" style="flex:1;">
+      <button class="btn-reset" id="btn-reset-sales-filter" onclick="clearSalesFilter()">รีเซ็ต</button>
+    </div>
+
+    <div class="sec-hd">
+      <h3 id="txt-sales-history-hd">ประวัติการบันทึกยอดขาย</h3>
+      <span id="sales-count"></span>
+    </div>
+    <div id="sales-list"></div>
+  </div>
+
+  <!-- Page 3: Dashboard Analytics -->
   <div id="page-dash" class="page">
     <div class="filter-bar">
       <select id="d-range" onchange="applyDashFilter()">
@@ -385,6 +438,9 @@ select.fi {
   <nav class="nav">
     <button class="nav-item on" id="nav-stock" onclick="switchPage('stock')">
       <span class="nav-icon">&#x1F4CB;</span><span id="nav-txt-stock">รายการ</span><div class="nav-bar"></div>
+    </button>
+    <button class="nav-item" id="nav-sales" onclick="switchPage('sales')">
+      <span class="nav-icon">&#x1F4B0;</span><span id="nav-txt-sales">ยอดขาย</span><div class="nav-bar"></div>
     </button>
     <button class="nav-item" id="nav-dash" onclick="switchPage('dash')">
       <span class="nav-icon">&#x1F4CA;</span><span id="nav-txt-dash">Dashboard</span><div class="nav-bar"></div>
@@ -636,6 +692,28 @@ const I18N = {
     toastStaffAdded: "เพิ่มพนักงานเรียบร้อย",
     toastStaffDeleted: "ลบพนักงานเรียบร้อย",
     
+    navSales: "ยอดขาย",
+    addSalesTitle: "บันทึกยอดขายรายวัน",
+    salesDateLabel: "วันที่บันทึกยอดขาย",
+    salesCashLabel: "💵 เงินสด (บาท)",
+    salesTransferLabel: "📱 เงินโอน (บาท)",
+    salesCreditLabel: "💳 เครดิต (บาท)",
+    salesTotalLabel: "ยอดขายรวม",
+    expenseTitle: "🧾 รายการค่าใช้จ่าย",
+    btnAddExpense: "+ เพิ่มค่าใช้จ่าย",
+    expenseNamePlaceholder: "ชื่อค่าใช้จ่าย (เช่น ค่าไฟ, ค่าน้ำแข็ง)",
+    expenseAmountPlaceholder: "จำนวนเงิน",
+    totalExpenseLabel: "ค่าใช้จ่ายรวม",
+    netSalesLabel: "กำไร/เงินสุทธิ",
+    salesNoteLabel: "หมายเหตุ",
+    salesNotePlaceholder: "บันทึกเพิ่มเติม (ถ้ามี)...",
+    btnSubmitSales: "บันทึกยอดขาย",
+    salesHistoryHd: "ประวัติการบันทึกยอดขาย",
+    staffSalesNotice: "แสดงประวัติย้อนหลัง 30 วัน",
+    viewSalesChart: "ดูกราฟยอดขาย",
+    toastSalesSaved: "บันทึกยอดขายเรียบร้อย",
+    toastSalesDateRequired: "กรุณาระบุวันที่บันทึกยอดขาย",
+    
     alertErrorTitle: "เกิดข้อผิดพลาด",
     alertErrorShort: "ผิดพลาด",
     alertLoginFailed: "ล็อกอินไม่สำเร็จ",
@@ -669,6 +747,7 @@ const I18N = {
     btnRegister: "Create New Account",
     
     navStock: "Transactions",
+    navSales: "Sales",
     navDash: "Dashboard",
     
     defaultStoreName: "My Store",
@@ -794,6 +873,28 @@ const I18N = {
     dashInCountCard: "Stock In",
     dashOutCountCard: "Stock Out / Sales",
     
+    navSales: "Sales",
+    addSalesTitle: "Record Daily Sales",
+    salesDateLabel: "Sales Date",
+    salesCashLabel: "💵 Cash (THB)",
+    salesTransferLabel: "📱 Bank Transfer (THB)",
+    salesCreditLabel: "💳 Credit (THB)",
+    salesTotalLabel: "Total Sales",
+    expenseTitle: "🧾 Expenses Breakdown",
+    btnAddExpense: "+ Add Expense",
+    expenseNamePlaceholder: "Expense name (e.g. Utility, Ice)",
+    expenseAmountPlaceholder: "Amount",
+    totalExpenseLabel: "Total Expenses",
+    netSalesLabel: "Net Profit / Total",
+    salesNoteLabel: "Note",
+    salesNotePlaceholder: "Additional notes (optional)...",
+    btnSubmitSales: "Save Sales Record",
+    salesHistoryHd: "Sales Records History",
+    staffSalesNotice: "Viewing past 30 days history",
+    viewSalesChart: "View Sales Chart",
+    toastSalesSaved: "Sales record saved successfully",
+    toastSalesDateRequired: "Please select sales date",
+    
     btnOk: "OK",
     btnCloseModal: "Close",
     btnConfirm: "Confirm",
@@ -901,6 +1002,7 @@ function setLanguage(lang) {
 
   // Update Navigation Bar
   if (ge('nav-txt-stock')) ge('nav-txt-stock').textContent = t('navStock');
+  if (ge('nav-txt-sales')) ge('nav-txt-sales').textContent = t('navSales');
   if (ge('nav-txt-dash')) ge('nav-txt-dash').textContent = t('navDash');
 
   // Update Stock Page Stat Subtitles & Reset Button
@@ -908,6 +1010,26 @@ function setLanguage(lang) {
   if (ge('lbl-sub-out')) ge('lbl-sub-out').textContent = t('itemsUnit');
   if (ge('btn-reset-filter')) ge('btn-reset-filter').textContent = t('btnReset');
   if (ge('txt-history-hd')) ge('txt-history-hd').textContent = t('historyTitle');
+
+  // Update Sales Page Text
+  if (ge('lbl-sales-tot')) ge('lbl-sales-tot').textContent = '💰 ' + t('salesTotalLabel');
+  if (ge('lbl-sales-exp')) ge('lbl-sales-exp').textContent = '🧾 ' + t('totalExpenseLabel');
+  if (ge('btn-sales-chart')) ge('btn-sales-chart').textContent = '📊 ' + t('viewSalesChart');
+  if (ge('lbl-staff-sales-title')) ge('lbl-staff-sales-title').textContent = '📝 ' + t('addSalesTitle');
+  if (ge('lbl-staff-sales-desc')) ge('lbl-staff-sales-desc').textContent = t('staffSalesNotice');
+  if (ge('btn-reset-sales-filter')) ge('btn-reset-sales-filter').textContent = t('btnReset');
+  if (ge('txt-sales-history-hd')) ge('txt-sales-history-hd').textContent = t('salesHistoryHd');
+
+  // Update Sales Range Dropdown
+  const sRange = ge('s-range');
+  if (sRange && sRange.options && sRange.options.length >= 6) {
+    sRange.options[0].text = t('dashRangeThisMonth');
+    sRange.options[1].text = t('dashRangeToday');
+    sRange.options[2].text = t('dashRangeYesterday');
+    sRange.options[3].text = t('dashRange7Days');
+    sRange.options[4].text = t('dashRange30Days');
+    sRange.options[5].text = t('filterAll');
+  }
 
   // Update Filter Select Options
   const fType = ge('f-type');
@@ -946,6 +1068,7 @@ function setLanguage(lang) {
 
   // Re-render Dynamic Content
   renderLogs();
+  renderSales();
   renderProds();
   renderStaff();
   if (S.dashCache) {
@@ -971,8 +1094,9 @@ const GAS_API_URL = "https://script.google.com/macros/s/AKfycbzlfVhF7P9_pUB4ShIj
 const S = {
   idshop: '', phone: '', password: '', role: 'owner', staffName: '',
   active: false, daysLeft: 0, expireStr: '',
-  prods: [], logs: [], staff: [],
+  prods: [], logs: [], staff: [], sales: [],
   filterType: 'ALL', filterDate: '',
+  salesRange: 'thismonth', salesFilterDate: '',
   blockUI: false,
   dashCache: null,
   lang: localStorage.getItem('sp_lang') || 'th'
@@ -990,9 +1114,12 @@ async function apiCall(action, payload = {}, method = 'POST') {
 
       if (action === 'checkPhoneStep1') runner.checkPhoneStep1(payload.phone);
       else if (action === 'checkPhoneStep2') runner.checkPhoneStep2(payload.phone, payload.password, payload.autoCreate);
-      else if (action === 'getAllData') runner.getAllData(payload.idshop);
+      else if (action === 'getAllData') runner.getAllData(payload.idshop, payload.role || S.role);
       else if (action === 'getProducts') runner.getProducts(payload.idshop);
       else if (action === 'getLogs') runner.getLogs(payload.idshop);
+      else if (action === 'getSales') runner.getSales(payload.idshop, payload.role || S.role);
+      else if (action === 'saveSales') runner.saveSales(payload.idshop, payload.sales || payload);
+      else if (action === 'deleteSales') runner.deleteSales(payload.idshop, payload.id || payload.timestampId);
       else if (action === 'saveLog') runner.saveLog(payload.idshop, payload.log || payload);
       else if (action === 'saveProduct') runner.saveProduct(payload.idshop, payload.product || payload);
       else if (action === 'deleteProduct') runner.deleteProduct(payload.idshop, payload.id || payload.productId);
@@ -1147,6 +1274,14 @@ function updateRoleUI() {
   if (setBtn) {
     setBtn.style.display = (S.role === 'owner') ? 'inline-flex' : 'none';
   }
+  const ownerSalesPanel = ge('sales-owner-panel');
+  if (ownerSalesPanel) {
+    ownerSalesPanel.style.display = (S.role === 'owner') ? 'block' : 'none';
+  }
+  const staffSalesPanel = ge('sales-staff-panel');
+  if (staffSalesPanel) {
+    staffSalesPanel.style.display = (S.role === 'staff') ? 'block' : 'none';
+  }
 }
 
 /* ====================================================
@@ -1174,12 +1309,14 @@ window.onload = function(){
     const cachedStore = localStorage.getItem('sp_store_' + S.idshop);
     const cachedLogs  = localStorage.getItem('sp_logs_' + S.idshop);
     const cachedStaff = localStorage.getItem('sp_staff_' + S.idshop);
+    const cachedSales = localStorage.getItem('sp_sales_' + S.idshop);
 
     if (cachedProds && cachedStore) {
       try {
         S.prods = JSON.parse(cachedProds);
-        S.logs = cachedLogs ? JSON.parse(cachedLogs) : [];
+        S.logs  = cachedLogs ? JSON.parse(cachedLogs) : [];
         S.staff = cachedStaff ? JSON.parse(cachedStaff) : [];
+        S.sales = cachedSales ? JSON.parse(cachedSales) : [];
         const storeInfo = JSON.parse(cachedStore);
         
         ge('login-screen').classList.remove('show');
@@ -1187,6 +1324,7 @@ window.onload = function(){
         updateStoreUI(storeInfo, localStorage.getItem('sp_status_' + S.idshop) || 'Active');
         renderProds();
         renderLogs();
+        renderSales();
         renderStaff();
       } catch (err) {
         console.warn('Cache parse error', err);
@@ -1307,10 +1445,13 @@ function onAuth(res){
     S.prods = res.allData.products || [];
     S.logs  = res.allData.logs || [];
     S.staff = res.allData.staff || [];
+    S.sales = res.allData.sales || [];
     localStorage.setItem('sp_prods_' + S.idshop, JSON.stringify(S.prods));
     localStorage.setItem('sp_logs_' + S.idshop, JSON.stringify(S.logs));
     localStorage.setItem('sp_staff_' + S.idshop, JSON.stringify(S.staff));
+    localStorage.setItem('sp_sales_' + S.idshop, JSON.stringify(S.sales));
     renderLogs();
+    renderSales();
     renderProds();
     renderStaff();
   }
@@ -1344,6 +1485,7 @@ function clearLocalCache() {
     localStorage.removeItem('sp_prods_' + S.idshop);
     localStorage.removeItem('sp_logs_' + S.idshop);
     localStorage.removeItem('sp_staff_' + S.idshop);
+    localStorage.removeItem('sp_sales_' + S.idshop);
     localStorage.removeItem('sp_store_' + S.idshop);
     localStorage.removeItem('sp_ver_' + S.idshop);
   }
@@ -1417,16 +1559,27 @@ function updateStoreUI(si, status){
    PAGES NAVIGATION
 ==================================================== */
 function switchPage(p){
-  const pages = ['stock', 'dash'];
+  const pages = ['stock', 'sales', 'dash'];
   for(let i = 0; i < pages.length; i++){
-    ge('page-' + pages[i]).classList.toggle('active', pages[i] === p);
-    ge('nav-' + pages[i]).classList.toggle('on', pages[i] === p);
+    if(ge('page-' + pages[i])) ge('page-' + pages[i]).classList.toggle('active', pages[i] === p);
+    if(ge('nav-' + pages[i])) ge('nav-' + pages[i]).classList.toggle('on', pages[i] === p);
   }
   
   if(ge('fab')) {
-    ge('fab').style.display = (p === 'stock' && S.active) ? 'flex' : 'none';
+    if(!S.active) {
+      ge('fab').style.display = 'none';
+    } else if(p === 'stock') {
+      ge('fab').style.display = 'flex';
+      ge('fab').onclick = openAddLog;
+    } else if(p === 'sales') {
+      ge('fab').style.display = 'flex';
+      ge('fab').onclick = openAddSales;
+    } else {
+      ge('fab').style.display = 'none';
+    }
   }
   
+  if(p === 'sales'){ renderSales(); }
   if(p === 'dash'){ renderDash(); }
 }
 
@@ -2256,6 +2409,481 @@ function openChart(type) {
 }
 
 function closeChart() { ge('chart-modal').classList.remove('show'); }
+
+/* ====================================================
+   SALES & EXPENSES MANAGEMENT
+==================================================== */
+function getFilteredSales(){
+  let list = (S.sales || []).slice();
+  
+  // Specific date filter
+  const fDate = ge('s-filter-date') ? ge('s-filter-date').value : '';
+  if(fDate){
+    return list.filter(s => s.date === fDate);
+  }
+
+  // Owner Range filter
+  if(S.role === 'owner'){
+    const range = ge('s-range') ? ge('s-range').value : 'thismonth';
+    const now = new Date();
+    const todayStr = now.getFullYear() + '-' + ('0' + (now.getMonth() + 1)).slice(-2) + '-' + ('0' + now.getDate()).slice(-2);
+    
+    if(range === 'today'){
+      list = list.filter(s => s.date === todayStr);
+    } else if(range === 'yesterday'){
+      const y = new Date();
+      y.setDate(y.getDate() - 1);
+      const yStr = y.getFullYear() + '-' + ('0' + (y.getMonth() + 1)).slice(-2) + '-' + ('0' + y.getDate()).slice(-2);
+      list = list.filter(s => s.date === yStr);
+    } else if(range === '7days'){
+      const limit = new Date();
+      limit.setDate(limit.getDate() - 7);
+      const limitStr = limit.getFullYear() + '-' + ('0' + (limit.getMonth() + 1)).slice(-2) + '-' + ('0' + limit.getDate()).slice(-2);
+      list = list.filter(s => s.date >= limitStr);
+    } else if(range === '30days'){
+      const limit = new Date();
+      limit.setDate(limit.getDate() - 30);
+      const limitStr = limit.getFullYear() + '-' + ('0' + (limit.getMonth() + 1)).slice(-2) + '-' + ('0' + limit.getDate()).slice(-2);
+      list = list.filter(s => s.date >= limitStr);
+    } else if(range === 'thismonth'){
+      const ym = now.getFullYear() + '-' + ('0' + (now.getMonth() + 1)).slice(-2);
+      list = list.filter(s => s.date && s.date.startsWith(ym));
+    }
+  }
+  return list;
+}
+
+function renderSales(){
+  const isOwner = (S.role === 'owner');
+  const filtered = getFilteredSales();
+
+  // Sort newest first
+  filtered.sort((a, b) => {
+    if(b.date === a.date){
+      return String(b.timestamp || b.id || '').localeCompare(String(a.timestamp || a.id || ''));
+    }
+    return String(b.date || '').localeCompare(String(a.date || ''));
+  });
+
+  // Aggregate totals
+  let totSales = 0, totCash = 0, totTransfer = 0, totCredit = 0, totExp = 0;
+  for(let i = 0; i < filtered.length; i++){
+    const s = filtered[i];
+    totSales += (Number(s.totalSales) || 0);
+    totCash += (Number(s.cash) || 0);
+    totTransfer += (Number(s.transfer) || 0);
+    totCredit += (Number(s.credit) || 0);
+    totExp += (Number(s.totalExpenses) || 0);
+  }
+  const netProfit = totSales - totExp;
+
+  // Update Owner Summary stats
+  if(isOwner){
+    if(ge('sales-sum-tot')) ge('sales-sum-tot').textContent = fmtNum(totSales) + ' ' + t('currBaht');
+    if(ge('sales-sub-breakdown')) {
+      const cLabel = S.lang === 'en' ? 'Cash' : 'สด';
+      const tLabel = S.lang === 'en' ? 'Transfer' : 'โอน';
+      const crLabel = S.lang === 'en' ? 'Credit' : 'เครดิต';
+      ge('sales-sub-breakdown').textContent = `${cLabel}: ${fmtNum(totCash)} | ${tLabel}: ${fmtNum(totTransfer)} | ${crLabel}: ${fmtNum(totCredit)}`;
+    }
+    if(ge('sales-sum-exp')) ge('sales-sum-exp').textContent = fmtNum(totExp) + ' ' + t('currBaht');
+    if(ge('sales-sub-net')) {
+      const netLabel = S.lang === 'en' ? 'Net' : 'สุทธิ';
+      ge('sales-sub-net').textContent = `${netLabel}: ${fmtNum(netProfit)} ${t('currBaht')}`;
+      ge('sales-sub-net').style.color = netProfit >= 0 ? 'var(--pri)' : 'var(--red)';
+    }
+  }
+
+  // Count indicator
+  if(ge('sales-count')) {
+    ge('sales-count').textContent = filtered.length ? filtered.length + ' ' + (S.lang === 'en' ? 'records' : 'รายการ') : '';
+  }
+
+  const listEl = ge('sales-list');
+  if(!listEl) return;
+
+  if(!filtered.length){
+    listEl.innerHTML = `<div style="text-align:center; padding:32px 16px; color:var(--txt3); font-size:14px;">${S.lang === 'en' ? 'No sales records found' : 'ยังไม่มีประวัติการบันทึกยอดขาย'}</div>`;
+    return;
+  }
+
+  let html = '';
+  for(let i = 0; i < filtered.length; i++){
+    const s = filtered[i];
+    const net = (s.netTotal !== undefined) ? Number(s.netTotal) : ((Number(s.totalSales) || 0) - (Number(s.totalExpenses) || 0));
+    const safeId = String(s.timestamp || s.id || i);
+    const staffBadge = s.staff ? `<span style="font-size:11px; color:var(--txt3); margin-left:6px;">👤 ${s.staff}</span>` : '';
+
+    html += `
+      <div class="card" onclick="openSalesDetail('${safeId}')" style="cursor:pointer; margin-bottom:10px; padding:12px 14px; transition:all 0.15s ease;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+          <div style="display:flex; align-items:center;">
+            <span style="font-size:14px; font-weight:700; color:var(--txt);">📅 ${s.date}</span>
+            ${staffBadge}
+          </div>
+          <div style="font-size:14px; font-weight:800; color:${net >= 0 ? 'var(--pri)' : 'var(--red)'};">
+            ${net >= 0 ? '+' : ''}${fmtNum(net)} ${t('currBaht')}
+          </div>
+        </div>
+
+        <div style="display:flex; justify-content:space-between; align-items:center; font-size:12px; color:var(--txt2); background:var(--bg); border-radius:8px; padding:8px 10px;">
+          <div>
+            <span style="color:var(--txt3);">${t('salesTotalLabel')}:</span>
+            <span style="font-weight:700; color:var(--grn); margin-left:4px;">${fmtNum(s.totalSales)}</span>
+          </div>
+          <div>
+            <span style="color:var(--txt3);">${t('totalExpenseLabel')}:</span>
+            <span style="font-weight:700; color:var(--red); margin-left:4px;">${fmtNum(s.totalExpenses)}</span>
+          </div>
+        </div>
+        ${s.note ? `<div style="font-size:11px; color:var(--txt3); margin-top:6px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">💬 ${s.note}</div>` : ''}
+      </div>
+    `;
+  }
+
+  listEl.innerHTML = html;
+}
+
+function applySalesFilter(){
+  renderSales();
+}
+
+function clearSalesFilter(){
+  if(ge('s-filter-date')) ge('s-filter-date').value = '';
+  if(ge('s-range')) ge('s-range').value = 'thismonth';
+  renderSales();
+}
+
+function openAddSales(){
+  if(actionGuard()) return;
+  const now = new Date();
+  const todayStr = now.getFullYear() + '-' + ('0' + (now.getMonth() + 1)).slice(-2) + '-' + ('0' + now.getDate()).slice(-2);
+
+  const bodyHtml = `
+    <div style="display:flex; flex-direction:column; gap:12px;">
+      <div>
+        <label style="font-size:12px; font-weight:600; color:var(--txt2); display:block; margin-bottom:4px;">${t('salesDateLabel')} <span style="color:var(--red);">*</span></label>
+        <input type="date" id="sales-form-date" value="${todayStr}" style="width:100%;">
+      </div>
+      
+      <div style="background:var(--bg); border:1px solid var(--border); border-radius:12px; padding:12px;">
+        <div style="font-size:13px; font-weight:700; color:var(--txt); margin-bottom:8px;">💰 ${t('navSales')}</div>
+        <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px;">
+          <div>
+            <label style="font-size:11px; color:var(--txt2); display:block; margin-bottom:2px;">${t('salesCashLabel')}</label>
+            <input type="number" id="sales-form-cash" placeholder="0" min="0" step="any" oninput="calcSalesForm()" style="width:100%;">
+          </div>
+          <div>
+            <label style="font-size:11px; color:var(--txt2); display:block; margin-bottom:2px;">${t('salesTransferLabel')}</label>
+            <input type="number" id="sales-form-transfer" placeholder="0" min="0" step="any" oninput="calcSalesForm()" style="width:100%;">
+          </div>
+          <div>
+            <label style="font-size:11px; color:var(--txt2); display:block; margin-bottom:2px;">${t('salesCreditLabel')}</label>
+            <input type="number" id="sales-form-credit" placeholder="0" min="0" step="any" oninput="calcSalesForm()" style="width:100%;">
+          </div>
+        </div>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px; padding-top:8px; border-top:1px dashed var(--border);">
+          <span style="font-size:12px; font-weight:600; color:var(--txt2);">${t('salesTotalLabel')}</span>
+          <span id="sales-calc-tot" style="font-size:15px; font-weight:700; color:var(--grn);">0 ${t('currBaht')}</span>
+        </div>
+      </div>
+
+      <div style="background:var(--bg); border:1px solid var(--border); border-radius:12px; padding:12px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+          <div style="font-size:13px; font-weight:700; color:var(--txt);">${t('expenseTitle')}</div>
+          <button type="button" onclick="addExpenseRow()" style="background:var(--pri-l); color:var(--pri); font-weight:700; border:none; padding:4px 10px; border-radius:6px; font-size:12px; cursor:pointer;">${t('btnAddExpense')}</button>
+        </div>
+        
+        <div id="sales-expense-container"></div>
+
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px; padding-top:8px; border-top:1px dashed var(--border);">
+          <span style="font-size:12px; font-weight:600; color:var(--txt2);">${t('totalExpenseLabel')}</span>
+          <span id="sales-calc-exp" style="font-size:15px; font-weight:700; color:var(--red);">0 ${t('currBaht')}</span>
+        </div>
+      </div>
+
+      <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 14px; background:var(--pri-l); border-radius:10px;">
+        <span style="font-size:13px; font-weight:700; color:var(--pri);">${t('netSalesLabel')}</span>
+        <span id="sales-calc-net" style="font-size:18px; font-weight:800; color:var(--pri);">0 ${t('currBaht')}</span>
+      </div>
+
+      <div>
+        <label style="font-size:12px; font-weight:600; color:var(--txt2); display:block; margin-bottom:4px;">${t('salesNoteLabel')}</label>
+        <input type="text" id="sales-form-note" placeholder="${t('salesNotePlaceholder')}" style="width:100%;">
+      </div>
+    </div>
+  `;
+
+  const footerHtml = `
+    <button class="btn-cancel" onclick="closeModal()">${t('btnCancel')}</button>
+    <button class="btn-pri" onclick="submitSales()">${t('btnSubmitSales')}</button>
+  `;
+
+  openModal(t('addSalesTitle'), bodyHtml, footerHtml, null);
+}
+
+function addExpenseRow(name = '', amount = ''){
+  const container = ge('sales-expense-container');
+  if(!container) return;
+  const row = document.createElement('div');
+  row.className = 'expense-row';
+  row.style.cssText = 'display:flex; gap:8px; margin-bottom:8px; align-items:center;';
+  row.innerHTML = `
+    <input type="text" class="exp-name" placeholder="${t('expenseNamePlaceholder')}" value="${name}" style="flex:1.8;">
+    <input type="number" class="exp-amount" placeholder="${t('expenseAmountPlaceholder')}" min="0" step="any" value="${amount}" oninput="calcSalesForm()" style="flex:1;">
+    <button type="button" onclick="removeExpenseRow(this)" style="background:var(--red-l); color:var(--red); border:none; width:34px; height:38px; border-radius:8px; font-size:16px; cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0;">✕</button>
+  `;
+  container.appendChild(row);
+  calcSalesForm();
+}
+
+function removeExpenseRow(btn){
+  const row = btn.closest('.expense-row');
+  if(row){
+    row.remove();
+    calcSalesForm();
+  }
+}
+
+function calcSalesForm(){
+  const cash = parseFloat(ge('sales-form-cash')?.value) || 0;
+  const transfer = parseFloat(ge('sales-form-transfer')?.value) || 0;
+  const credit = parseFloat(ge('sales-form-credit')?.value) || 0;
+  const totalSales = cash + transfer + credit;
+
+  let totalExp = 0;
+  const expAmounts = document.querySelectorAll('#sales-expense-container .exp-amount');
+  expAmounts.forEach(input => {
+    totalExp += parseFloat(input.value) || 0;
+  });
+
+  const net = totalSales - totalExp;
+
+  if(ge('sales-calc-tot')) ge('sales-calc-tot').textContent = fmtNum(totalSales) + ' ' + t('currBaht');
+  if(ge('sales-calc-exp')) ge('sales-calc-exp').textContent = fmtNum(totalExp) + ' ' + t('currBaht');
+  if(ge('sales-calc-net')) {
+    ge('sales-calc-net').textContent = fmtNum(net) + ' ' + t('currBaht');
+    ge('sales-calc-net').style.color = net >= 0 ? 'var(--pri)' : 'var(--red)';
+  }
+}
+
+async function submitSales(){
+  const dateVal = ge('sales-form-date')?.value;
+  if(!dateVal){
+    toast('err', t('toastSalesDateRequired'));
+    return;
+  }
+  const cash = parseFloat(ge('sales-form-cash')?.value) || 0;
+  const transfer = parseFloat(ge('sales-form-transfer')?.value) || 0;
+  const credit = parseFloat(ge('sales-form-credit')?.value) || 0;
+  const note = (ge('sales-form-note')?.value || '').trim();
+
+  const expenses = [];
+  const rows = document.querySelectorAll('#sales-expense-container .expense-row');
+  rows.forEach(row => {
+    const name = (row.querySelector('.exp-name')?.value || '').trim();
+    const amount = parseFloat(row.querySelector('.exp-amount')?.value) || 0;
+    if(name || amount > 0){
+      expenses.push({ name: name || 'ค่าใช้จ่าย', amount: amount });
+    }
+  });
+
+  closeModal();
+  load(true, t('loadingSave') || 'กำลังบันทึก...');
+
+  try {
+    const res = await apiCall('saveSales', {
+      idshop: S.idshop,
+      date: dateVal,
+      cash: cash,
+      transfer: transfer,
+      credit: credit,
+      expenses: expenses,
+      note: note,
+      staff: S.staffName || '',
+      role: S.role || 'owner'
+    });
+    load(false);
+
+    const allData = res.allData || res;
+    if(allData.sales){
+      S.sales = allData.sales;
+      localStorage.setItem('sp_sales_' + S.idshop, JSON.stringify(S.sales));
+    }
+    renderSales();
+    toast('ok', t('toastSalesSaved'));
+  } catch(e) {
+    load(false);
+    showAlert('❌', t('alertErrorTitle'), e.message || t('alertErrorShort'));
+  }
+}
+
+async function deleteSales(timestampId){
+  if(S.role !== 'owner') return;
+  if(!confirm(S.lang === 'en' ? 'Are you sure you want to delete this sales record?' : 'คุณแน่ใจหรือไม่ว่าต้องการลบรายการยอดขายนี้?')) return;
+  load(true, t('loadingDel') || 'กำลังลบ...');
+  try {
+    const res = await apiCall('deleteSales', {
+      idshop: S.idshop,
+      id: timestampId,
+      timestampId: timestampId
+    });
+    load(false);
+    const allData = res.allData || res;
+    if(allData.sales){
+      S.sales = allData.sales;
+    } else {
+      S.sales = S.sales.filter(s => String(s.timestamp || s.id) !== String(timestampId));
+    }
+    localStorage.setItem('sp_sales_' + S.idshop, JSON.stringify(S.sales));
+    renderSales();
+    toast('ok', S.lang === 'en' ? 'Record deleted' : 'ลบรายการเรียบร้อย');
+  } catch(e) {
+    load(false);
+    showAlert('❌', t('alertErrorTitle'), e.message || t('alertErrorShort'));
+  }
+}
+
+function openSalesDetail(timestampId){
+  const sale = S.sales.find(s => String(s.timestamp || s.id) === String(timestampId));
+  if(!sale) return;
+
+  const isOwner = (S.role === 'owner');
+  let expRowsHtml = '';
+  if(sale.expenses && sale.expenses.length){
+    for(let i = 0; i < sale.expenses.length; i++){
+      const ex = sale.expenses[i];
+      expRowsHtml += `
+        <div style="display:flex; justify-content:space-between; align-items:center; padding:6px 0; border-bottom:1px dashed var(--border); font-size:13px;">
+          <span style="color:var(--txt);">${ex.name || 'ค่าใช้จ่าย'}</span>
+          <span style="font-weight:600; color:var(--red);">${fmtNum(ex.amount)} ${t('currBaht')}</span>
+        </div>
+      `;
+    }
+  } else {
+    expRowsHtml = `<div style="font-size:12px; color:var(--txt3); padding:6px 0;">${S.lang === 'en' ? 'No expenses recorded' : 'ไม่มีค่าใช้จ่าย'}</div>`;
+  }
+
+  const net = (sale.netTotal !== undefined) ? Number(sale.netTotal) : ((Number(sale.totalSales) || 0) - (Number(sale.totalExpenses) || 0));
+
+  const body = `
+    <div style="display:flex; flex-direction:column; gap:12px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 12px; background:var(--bg); border-radius:10px;">
+        <div>
+          <div style="font-size:15px; font-weight:700; color:var(--txt);">📅 ${sale.date}</div>
+          <div style="font-size:11px; color:var(--txt3); margin-top:2px;">👤 ${sale.staff ? t('staffSectionTitle') + ': ' + sale.staff : ''}</div>
+        </div>
+        <div style="text-align:right;">
+          <div style="font-size:11px; color:var(--txt3);">${t('netSalesLabel')}</div>
+          <div style="font-size:16px; font-weight:800; color:${net >= 0 ? 'var(--pri)' : 'var(--red)'};">${fmtNum(net)} ${t('currBaht')}</div>
+        </div>
+      </div>
+
+      <div style="background:var(--bg); border:1px solid var(--border); border-radius:10px; padding:12px;">
+        <div style="font-size:13px; font-weight:700; color:var(--grn); margin-bottom:8px;">💰 ${t('salesTotalLabel')}: ${fmtNum(sale.totalSales)} ${t('currBaht')}</div>
+        <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:6px; font-size:12px; color:var(--txt2);">
+          <div>💵 ${t('salesCashLabel')}: <br><b style="color:var(--txt);">${fmtNum(sale.cash)}</b></div>
+          <div>📱 ${t('salesTransferLabel')}: <br><b style="color:var(--txt);">${fmtNum(sale.transfer)}</b></div>
+          <div>💳 ${t('salesCreditLabel')}: <br><b style="color:var(--txt);">${fmtNum(sale.credit)}</b></div>
+        </div>
+      </div>
+
+      <div style="background:var(--bg); border:1px solid var(--border); border-radius:10px; padding:12px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+          <div style="font-size:13px; font-weight:700; color:var(--red);">${t('expenseTitle')}</div>
+          <div style="font-size:13px; font-weight:700; color:var(--red);">${fmtNum(sale.totalExpenses)} ${t('currBaht')}</div>
+        </div>
+        <div style="max-height:160px; overflow-y:auto;">
+          ${expRowsHtml}
+        </div>
+      </div>
+
+      ${sale.note ? `
+        <div style="font-size:12px; color:var(--txt2); background:var(--bg); padding:10px; border-radius:8px;">
+          <b>${t('salesNoteLabel')}:</b> ${sale.note}
+        </div>
+      ` : ''}
+    </div>
+  `;
+
+  let footer = `<button class="btn-cancel" style="width:100%;" onclick="closeModal()">${t('btnCloseModal')}</button>`;
+  if(isOwner){
+    footer = `
+      <div style="display:flex; gap:8px; width:100%;">
+        <button class="btn-cancel" style="flex:1;" onclick="closeModal()">${t('btnCloseModal')}</button>
+        <button class="btn-red" style="padding:0 14px;" onclick="closeModal(); deleteSales('${sale.timestamp || sale.id}');">🗑️</button>
+      </div>
+    `;
+  }
+
+  openModal(t('navSales') + ' - ' + sale.date, body, footer, null);
+}
+
+function openSalesChart(){
+  if(S.role === 'staff') return;
+  const filteredSales = getFilteredSales();
+  if(!filteredSales.length){
+    showAlert('📊', t('viewSalesChart'), S.lang === 'en' ? 'No sales data for the selected period' : 'ไม่มีข้อมูลยอดขายในช่วงเวลาที่เลือก');
+    return;
+  }
+
+  ge('chart-title').textContent = t('viewSalesChart');
+  ge('chart-modal').classList.add('show');
+  
+  const ctx = document.getElementById('myChart').getContext('2d');
+  if(myChartInstance) myChartInstance.destroy();
+
+  // Aggregate by date (sorted chronological)
+  const salesByDate = {};
+  filteredSales.forEach(s => {
+    const d = s.date || 'Unknown';
+    if(!salesByDate[d]) {
+      salesByDate[d] = { sales: 0, expenses: 0 };
+    }
+    salesByDate[d].sales += (Number(s.totalSales) || 0);
+    salesByDate[d].expenses += (Number(s.totalExpenses) || 0);
+  });
+
+  const labels = Object.keys(salesByDate).sort();
+  const salesData = labels.map(d => salesByDate[d].sales);
+  const expData = labels.map(d => salesByDate[d].expenses);
+
+  myChartInstance = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: labels,
+      datasets: [
+        {
+          label: t('salesTotalLabel'),
+          data: salesData,
+          backgroundColor: 'rgba(16, 185, 129, 0.6)',
+          borderColor: '#10b981',
+          borderWidth: 1.5,
+          borderRadius: 4
+        },
+        {
+          label: t('totalExpenseLabel'),
+          data: expData,
+          backgroundColor: 'rgba(239, 68, 68, 0.6)',
+          borderColor: '#ef4444',
+          borderWidth: 1.5,
+          borderRadius: 4
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        y: { beginAtZero: true, ticks: { font: { family: 'Sarabun' } } },
+        x: { ticks: { font: { family: 'Sarabun' } } }
+      },
+      plugins: {
+        legend: { labels: { font: { family: 'Sarabun' } } }
+      }
+    }
+  });
+}
 </script>
 </body>
 </html>
