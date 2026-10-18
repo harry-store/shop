@@ -1,0 +1,1756 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Harry Store - ระบบจัดการสต็อกและสินค้าคงคลังยุคใหม่</title>
+  <meta name="description" content="Harry Store ระบบจัดการสต็อก สินค้าคงคลัง และยอดขายรายวัน ใช้งานง่าย รองรับมือถือและคอมพิวเตอร์ ข้อมูล Real-Time สำหรับร้านค้า ร้านอาหาร ของชำ ทดลองใช้ฟรี 30 วัน">
+  
+  <link rel="icon" type="image/png" href="favicon.png">
+  <link rel="apple-touch-icon" href="favicon.png">
+
+  <!-- Google Fonts: Sarabun & Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Sarabun:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --pri: #1d75bb;
+      --pri-dark: #155a96;
+      --pri-light: #eff6ff;
+      --pri-hover: #1765a3;
+      --accent: #0ea5e9;
+      --grn: #10b981;
+      --grn-light: #ecfdf5;
+      --red: #ef4444;
+      --red-light: #fef2f2;
+      --amb: #f59e0b;
+      --amb-light: #fffbeb;
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --border: #e2e8f0;
+      --border-dark: #cbd5e1;
+      --txt: #0f172a;
+      --txt2: #475569;
+      --txt3: #94a3b8;
+      --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+      --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+      --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+      --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+      --radius: 16px;
+      --radius-sm: 10px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Sarabun', 'Inter', sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--txt);
+      font-size: 16px;
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    a {
+      text-decoration: none;
+      color: inherit;
+    }
+
+    /* Container */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    /* Top Navigation */
+    .navbar {
+      position: sticky;
+      top: 0;
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      z-index: 1000;
+      transition: all 0.3s ease;
+    }
+    .nav-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 72px;
+    }
+    .brand-logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 800;
+      font-size: 22px;
+      color: var(--pri);
+    }
+    .brand-logo img {
+      width: 42px;
+      height: 42px;
+      border-radius: 10px;
+      object-fit: cover;
+      box-shadow: 0 2px 8px rgba(29, 117, 187, 0.2);
+    }
+    .brand-logo span.tag {
+      font-size: 11px;
+      font-weight: 700;
+      background: var(--pri-light);
+      color: var(--pri);
+      padding: 2px 8px;
+      border-radius: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      list-style: none;
+    }
+    .nav-links a {
+      font-size: 15px;
+      font-weight: 500;
+      color: var(--txt2);
+      transition: color 0.2s;
+    }
+    .nav-links a:hover {
+      color: var(--pri);
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    /* Language Switcher */
+    .lang-switcher {
+      display: inline-flex;
+      background: #f1f5f9;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 3px;
+      gap: 2px;
+    }
+    .lang-btn {
+      border: none;
+      background: transparent;
+      padding: 4px 12px;
+      font-size: 12px;
+      font-weight: 700;
+      border-radius: 16px;
+      color: var(--txt3);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .lang-btn.active {
+      background: var(--pri);
+      color: #fff;
+      box-shadow: var(--shadow-sm);
+    }
+
+    /* Common Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 12px 24px;
+      font-size: 15px;
+      font-weight: 700;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      border: none;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--pri), var(--pri-dark));
+      color: #fff;
+      box-shadow: 0 4px 14px rgba(29, 117, 187, 0.35);
+    }
+    .btn-primary:hover {
+      background: linear-gradient(135deg, var(--pri-hover), var(--pri-dark));
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(29, 117, 187, 0.45);
+    }
+    .btn-secondary {
+      background: #fff;
+      color: var(--pri);
+      border: 2px solid var(--pri-light);
+    }
+    .btn-secondary:hover {
+      background: var(--pri-light);
+      border-color: var(--pri);
+    }
+    .btn-lg {
+      padding: 16px 34px;
+      font-size: 17px;
+      border-radius: 14px;
+    }
+
+    /* Hero Section */
+    .hero {
+      padding: 70px 0 60px;
+      position: relative;
+      background: radial-gradient(circle at 80% 20%, rgba(29, 117, 187, 0.08) 0%, transparent 60%),
+                  radial-gradient(circle at 10% 80%, rgba(14, 165, 233, 0.06) 0%, transparent 60%);
+    }
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 40px;
+      align-items: center;
+    }
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #dbeafe;
+      color: var(--pri-dark);
+      padding: 6px 16px;
+      border-radius: 30px;
+      font-size: 13px;
+      font-weight: 700;
+      margin-bottom: 20px;
+    }
+    .hero-badge span.dot {
+      width: 8px;
+      height: 8px;
+      background: var(--grn);
+      border-radius: 50%;
+      box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.25);
+    }
+    .hero h1 {
+      font-size: 44px;
+      font-weight: 800;
+      line-height: 1.25;
+      color: var(--txt);
+      margin-bottom: 20px;
+      letter-spacing: -0.5px;
+    }
+    .hero h1 span.highlight {
+      background: linear-gradient(135deg, var(--pri), var(--accent));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .hero p.lead {
+      font-size: 18px;
+      color: var(--txt2);
+      margin-bottom: 32px;
+      line-height: 1.7;
+    }
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-bottom: 30px;
+    }
+    .hero-trust {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      font-size: 13px;
+      color: var(--txt2);
+      padding-top: 10px;
+      border-top: 1px dashed var(--border);
+    }
+    .hero-trust-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 600;
+    }
+    .hero-trust-item svg {
+      color: var(--grn);
+      flex-shrink: 0;
+    }
+
+    /* Image Placeholder / Mockup Area */
+    .img-placeholder-card {
+      background: #fff;
+      border: 2px dashed var(--border-dark);
+      border-radius: 20px;
+      padding: 24px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      box-shadow: var(--shadow-lg);
+      transition: border-color 0.3s;
+    }
+    .img-placeholder-card:hover {
+      border-color: var(--pri);
+    }
+    .img-box {
+      background: #f1f5f9;
+      border-radius: 14px;
+      min-height: 380px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 30px 20px;
+      color: var(--txt3);
+      position: relative;
+    }
+    .img-box .icon {
+      font-size: 48px;
+      margin-bottom: 12px;
+      color: var(--pri);
+    }
+    .img-box .slot-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--txt);
+      margin-bottom: 6px;
+    }
+    .img-box .slot-hint {
+      font-size: 12px;
+      color: var(--txt3);
+      max-width: 280px;
+      line-height: 1.5;
+    }
+
+    /* Stats strip */
+    .stats-strip {
+      background: #fff;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      padding: 36px 0;
+      margin: 40px 0 70px;
+    }
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+      text-align: center;
+    }
+    .stat-item h3 {
+      font-size: 36px;
+      font-weight: 800;
+      color: var(--pri);
+      margin-bottom: 4px;
+    }
+    .stat-item p {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--txt2);
+    }
+
+    /* Section Title */
+    .sec-header {
+      text-align: center;
+      max-width: 720px;
+      margin: 0 auto 50px;
+    }
+    .sec-tag {
+      display: inline-block;
+      font-size: 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--pri);
+      background: var(--pri-light);
+      padding: 4px 14px;
+      border-radius: 20px;
+      margin-bottom: 12px;
+    }
+    .sec-title {
+      font-size: 34px;
+      font-weight: 800;
+      color: var(--txt);
+      margin-bottom: 16px;
+      line-height: 1.3;
+    }
+    .sec-sub {
+      font-size: 16px;
+      color: var(--txt2);
+    }
+
+    /* Businesses Cards */
+    .biz-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+      margin-bottom: 80px;
+    }
+    .biz-card {
+      background: #fff;
+      border-radius: var(--radius);
+      padding: 26px 20px;
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-sm);
+      text-align: center;
+      transition: all 0.3s;
+    }
+    .biz-card:hover {
+      transform: translateY(-5px);
+      box-shadow: var(--shadow-lg);
+      border-color: var(--pri-light);
+    }
+    .biz-icon {
+      width: 60px;
+      height: 60px;
+      margin: 0 auto 16px;
+      background: var(--pri-light);
+      color: var(--pri);
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+    }
+    .biz-card h4 {
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--txt);
+      margin-bottom: 8px;
+    }
+    .biz-card p {
+      font-size: 13px;
+      color: var(--txt2);
+      line-height: 1.5;
+    }
+
+    /* Comparison Section: Old vs Harry Store */
+    .compare-section {
+      background: #fff;
+      padding: 70px 0;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 80px;
+    }
+    .compare-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 30px;
+    }
+    .compare-box {
+      border-radius: var(--radius);
+      padding: 34px 28px;
+      border: 1px solid var(--border);
+    }
+    .compare-box.old {
+      background: #fafafa;
+      border-color: #f1f5f9;
+    }
+    .compare-box.new {
+      background: linear-gradient(180deg, #f0fdf4 0%, #ffffff 100%);
+      border: 2px solid #bbf7d0;
+      box-shadow: var(--shadow-md);
+      position: relative;
+    }
+    .compare-badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 800;
+      margin-bottom: 16px;
+    }
+    .compare-box.old .compare-badge {
+      background: #fee2e2;
+      color: var(--red);
+    }
+    .compare-box.new .compare-badge {
+      background: #dcfce7;
+      color: var(--grn);
+    }
+    .compare-box h3 {
+      font-size: 22px;
+      font-weight: 800;
+      margin-bottom: 20px;
+    }
+    .compare-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .compare-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      font-size: 15px;
+    }
+    .compare-box.old .compare-item svg {
+      color: var(--red);
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    .compare-box.new .compare-item svg {
+      color: var(--grn);
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    /* Core Features Grid */
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      margin-bottom: 80px;
+    }
+    .feat-card {
+      background: #fff;
+      border-radius: var(--radius);
+      padding: 30px 24px;
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-sm);
+      transition: all 0.3s;
+    }
+    .feat-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-lg);
+      border-color: var(--pri);
+    }
+    .feat-icon {
+      width: 52px;
+      height: 52px;
+      background: var(--pri-light);
+      color: var(--pri);
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      margin-bottom: 18px;
+    }
+    .feat-card h4 {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 10px;
+      color: var(--txt);
+    }
+    .feat-card p {
+      font-size: 14px;
+      color: var(--txt2);
+      line-height: 1.6;
+    }
+
+    /* Roles Breakdown Section */
+    .roles-section {
+      margin-bottom: 90px;
+    }
+    .roles-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 30px;
+    }
+    .role-card {
+      background: #fff;
+      border-radius: var(--radius);
+      padding: 34px 28px;
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-md);
+      position: relative;
+    }
+    .role-card.owner {
+      border-top: 5px solid var(--pri);
+    }
+    .role-card.staff {
+      border-top: 5px solid var(--accent);
+    }
+    .role-tag {
+      font-size: 12px;
+      font-weight: 700;
+      padding: 4px 12px;
+      border-radius: 20px;
+      display: inline-block;
+      margin-bottom: 14px;
+    }
+    .role-card.owner .role-tag {
+      background: var(--pri-light);
+      color: var(--pri-dark);
+    }
+    .role-card.staff .role-tag {
+      background: #e0f2fe;
+      color: #0369a1;
+    }
+    .role-card h3 {
+      font-size: 22px;
+      font-weight: 800;
+      margin-bottom: 16px;
+      color: var(--txt);
+    }
+    .role-points {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .role-points li {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      font-size: 14px;
+      color: var(--txt2);
+    }
+    .role-points li svg {
+      color: var(--pri);
+      flex-shrink: 0;
+      margin-top: 3px;
+    }
+
+    /* Workflow Steps with Image Slots */
+    .steps-section {
+      margin-bottom: 90px;
+    }
+    .step-item {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 40px;
+      align-items: center;
+      margin-bottom: 50px;
+    }
+    .step-item.reverse {
+      direction: rtl;
+    }
+    .step-item.reverse .step-content {
+      direction: ltr;
+    }
+    .step-num {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: var(--pri);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 18px;
+      margin-bottom: 14px;
+    }
+    .step-content h3 {
+      font-size: 24px;
+      font-weight: 800;
+      margin-bottom: 12px;
+      color: var(--txt);
+    }
+    .step-content p {
+      font-size: 15px;
+      color: var(--txt2);
+      line-height: 1.7;
+      margin-bottom: 16px;
+    }
+    .step-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      font-size: 14px;
+      color: var(--txt);
+      font-weight: 500;
+    }
+    .step-list li::before {
+      content: "✓ ";
+      color: var(--grn);
+      font-weight: bold;
+    }
+
+    /* Pricing Section */
+    .pricing-section {
+      background: linear-gradient(180deg, #f8fafc 0%, #eff6ff 100%);
+      padding: 80px 0;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 80px;
+    }
+    .pricing-card-wrap {
+      max-width: 520px;
+      margin: 0 auto;
+    }
+    .pricing-card {
+      background: #fff;
+      border-radius: 24px;
+      padding: 44px 36px;
+      border: 2px solid var(--pri);
+      box-shadow: var(--shadow-xl);
+      text-align: center;
+      position: relative;
+    }
+    .pricing-pill {
+      position: absolute;
+      top: -16px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: linear-gradient(135deg, var(--amb), #d97706);
+      color: #fff;
+      padding: 6px 20px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      box-shadow: 0 4px 10px rgba(245, 158, 11, 0.4);
+    }
+    .pricing-title {
+      font-size: 22px;
+      font-weight: 800;
+      margin-bottom: 12px;
+    }
+    .pricing-price {
+      display: flex;
+      align-items: baseline;
+      justify-content: center;
+      gap: 6px;
+      margin-bottom: 16px;
+    }
+    .pricing-price .currency {
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--txt);
+    }
+    .pricing-price .amount {
+      font-size: 58px;
+      font-weight: 800;
+      color: var(--pri);
+      line-height: 1;
+    }
+    .pricing-price .period {
+      font-size: 16px;
+      color: var(--txt3);
+      font-weight: 600;
+    }
+    .pricing-trial {
+      background: var(--grn-light);
+      color: var(--grn);
+      padding: 8px 16px;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 700;
+      display: inline-block;
+      margin-bottom: 26px;
+    }
+    .pricing-features {
+      list-style: none;
+      text-align: left;
+      margin-bottom: 32px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .pricing-features li {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 15px;
+      color: var(--txt2);
+    }
+    .pricing-features li svg {
+      color: var(--grn);
+      flex-shrink: 0;
+    }
+
+    /* FAQ Section */
+    .faq-section {
+      max-width: 800px;
+      margin: 0 auto 90px;
+    }
+    .faq-item {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      margin-bottom: 12px;
+      overflow: hidden;
+      transition: all 0.2s;
+    }
+    .faq-question {
+      padding: 18px 22px;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      user-select: none;
+    }
+    .faq-question:hover {
+      background: #f8fafc;
+    }
+    .faq-question span.arrow {
+      font-size: 18px;
+      transition: transform 0.3s;
+      color: var(--pri);
+    }
+    .faq-answer {
+      display: none;
+      padding: 0 22px 20px;
+      font-size: 14px;
+      color: var(--txt2);
+      line-height: 1.7;
+      border-top: 1px dashed var(--border);
+      padding-top: 14px;
+    }
+    .faq-item.open .faq-answer {
+      display: block;
+    }
+    .faq-item.open .faq-question span.arrow {
+      transform: rotate(180deg);
+    }
+
+    /* CTA Bottom Bar */
+    .cta-banner {
+      background: linear-gradient(135deg, var(--pri-dark) 0%, var(--pri) 100%);
+      border-radius: 24px;
+      padding: 60px 40px;
+      text-align: center;
+      color: #fff;
+      margin-bottom: 80px;
+      position: relative;
+      overflow: hidden;
+    }
+    .cta-banner h2 {
+      font-size: 36px;
+      font-weight: 800;
+      margin-bottom: 16px;
+    }
+    .cta-banner p {
+      font-size: 18px;
+      color: rgba(255, 255, 255, 0.9);
+      max-width: 620px;
+      margin: 0 auto 30px;
+    }
+    .cta-banner .btn-cta {
+      background: #fff;
+      color: var(--pri-dark);
+      padding: 16px 36px;
+      font-size: 17px;
+      font-weight: 800;
+      border-radius: 14px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    }
+    .cta-banner .btn-cta:hover {
+      background: #f8fafc;
+      transform: translateY(-3px);
+    }
+
+    /* Footer */
+    footer {
+      background: #fff;
+      border-top: 1px solid var(--border);
+      padding: 40px 0 30px;
+      font-size: 14px;
+      color: var(--txt3);
+    }
+    .footer-inner {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+    .footer-logo {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 700;
+      color: var(--txt);
+    }
+
+    /* Responsive Design */
+    @media (max-width: 992px) {
+      .hero-grid { grid-template-columns: 1fr; text-align: center; }
+      .hero-badge, .hero-actions, .hero-trust { justify-content: center; }
+      .biz-grid { grid-template-columns: repeat(2, 1fr); }
+      .features-grid { grid-template-columns: repeat(2, 1fr); }
+      .step-item, .step-item.reverse { grid-template-columns: 1fr; }
+      .step-item.reverse { direction: ltr; }
+      .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 24px; }
+      .compare-grid, .roles-grid { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 640px) {
+      .hero h1 { font-size: 32px; }
+      .sec-title { font-size: 26px; }
+      .biz-grid, .features-grid { grid-template-columns: 1fr; }
+      .nav-links { display: none; }
+      .stats-grid { grid-template-columns: 1fr 1fr; }
+      .cta-banner { padding: 40px 20px; }
+      .cta-banner h2 { font-size: 28px; }
+      .pricing-card { padding: 34px 20px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navigation Bar -->
+  <nav class="navbar">
+    <div class="container nav-inner">
+      <a href="https://harry-store.github.io/shop/" class="brand-logo" target="_blank">
+        <img src="favicon.png" alt="Harry Store Logo" onerror="this.src='https://via.placeholder.com/42?text=H'">
+        <div>
+          <span>Harry Store</span>
+          <span class="tag">Inventory</span>
+        </div>
+      </a>
+
+      <ul class="nav-links">
+        <li><a href="#features" data-i18n="navFeatures">จุดเด่น</a></li>
+        <li><a href="#businesses" data-i18n="navBusinesses">เหมาะกับใคร</a></li>
+        <li><a href="#roles" data-i18n="navRoles">สิทธิ์ผู้ใช้งาน</a></li>
+        <li><a href="#how-it-works" data-i18n="navSteps">วิธีใช้งาน</a></li>
+        <li><a href="#pricing" data-i18n="navPricing">ราคา</a></li>
+        <li><a href="#faq" data-i18n="navFaq">คำถามที่พบบ่อย</a></li>
+      </ul>
+
+      <div class="nav-actions">
+        <!-- Language Switcher -->
+        <div class="lang-switcher">
+          <button class="lang-btn active" id="btn-th" onclick="setLang('th')">TH</button>
+          <button class="lang-btn" id="btn-en" onclick="setLang('en')">EN</button>
+        </div>
+
+        <a href="https://harry-store.github.io/shop/" target="_blank" class="btn btn-primary" data-i18n="btnTryFree">
+          ทดลองใช้ฟรี 30 วัน
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="container hero-grid">
+      <div class="hero-text">
+        <div class="hero-badge">
+          <span class="dot"></span>
+          <span data-i18n="heroBadge">ระบบจัดการสต็อกและสินค้าคงคลังยุคใหม่</span>
+        </div>
+        <h1 data-i18n="heroTitle">
+          คุมสต็อกง่าย รู้กำไรทันที <br>
+          <span class="highlight">สต็อกไม่ขาด ทุนไม่จม</span>
+        </h1>
+        <p class="lead" data-i18n="heroLead">
+          Harry Store เว็บแอปพลิเคชันจัดการสต็อกสินค้า รับเข้า-เบิกออก และบันทึกยอดขายรายวัน 
+          ออกแบบมาสำหรับร้านค้า ร้านอาหาร และธุรกิจทุกขนาด ใช้งานง่ายบนมือถือและคอมพิวเตอร์ ข้อมูลซิงค์ Real-Time
+        </p>
+
+        <div class="hero-actions">
+          <a href="https://harry-store.github.io/shop/" target="_blank" class="btn btn-primary btn-lg" data-i18n="heroCtaPrimary">
+            🚀 เริ่มต้นใช้งานฟรี 30 วัน
+          </a>
+          <a href="#how-it-works" class="btn btn-secondary btn-lg" data-i18n="heroCtaSecondary">
+            📖 ดูหน้าตาระบบ & ขั้นตอน
+          </a>
+        </div>
+
+        <div class="hero-trust">
+          <div class="hero-trust-item">
+            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            <span data-i18n="trust1">ไม่ต้องติดตั้งแอป</span>
+          </div>
+          <div class="hero-trust-item">
+            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            <span data-i18n="trust2">เพียง 200 บ./เดือน</span>
+          </div>
+          <div class="hero-trust-item">
+            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            <span data-i18n="trust3">แยกสิทธิ์เจ้าของ/พนักงาน</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Hero Mockup Slot (เว้นพื้นที่ใส่รูปภาพตัวอย่างแอป) -->
+      <div class="hero-visual">
+        <div class="img-placeholder-card">
+          <!-- คุณสามารถแทนที่กล่องนี้ด้วยแท็ก <img src="ชื่อรูปภาพ.png" alt="Harry Store Overview" style="width:100%; border-radius:14px;"> ได้ทันที -->
+          <div class="img-box" style="min-height: 420px;">
+            <div class="icon">📱💻</div>
+            <div class="slot-title" data-i18n="slotHeroTitle">พื้นที่สำหรับใส่รูปภาพหน้าจอระบบหลัก (Overview)</div>
+            <div class="slot-hint" data-i18n="slotHeroHint">
+              [แนะนำ: แคปเจอร์หน้าจอระบบ Harry Store บนมือถือหรือเดสก์ท็อป ขนาดประมาณ 1000x800 px แล้วนำไฟล์ภาพมาใส่แทนที่แท็กนี้]
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Stats Strip -->
+  <section class="stats-strip">
+    <div class="container stats-grid">
+      <div class="stat-item">
+        <h3>100%</h3>
+        <p data-i18n="statRealtime">ข้อมูลอัปเดต Real-Time</p>
+      </div>
+      <div class="stat-item">
+        <h3>30 วัน</h3>
+        <p data-i18n="statTrial">ทดลองใช้ฟรีเต็มรูปแบบ</p>
+      </div>
+      <div class="stat-item">
+        <h3>200 บ.</h3>
+        <p data-i18n="statPrice">คุ้มค่าเพียงเดือนละ 200 บาท</p>
+      </div>
+      <div class="stat-item">
+        <h3>2 สิทธิ์</h3>
+        <p data-i18n="statRoles">แยกสิทธิ์เจ้าของร้าน & พนักงาน</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Who is it for (ธุรกิจที่รองรับ) -->
+  <section id="businesses" class="container" style="padding: 20px 0 60px;">
+    <div class="sec-header">
+      <span class="sec-tag" data-i18n="bizTag">รองรับทุกธุรกิจ</span>
+      <h2 class="sec-title" data-i18n="bizTitle">ระบบเดียว ครอบคลุมทุกขนาดธุรกิจที่มีสินค้าหรือวัตถุดิบ</h2>
+      <p class="sec-sub" data-i18n="bizSub">ออกแบบคำศัพท์และระบบกลางๆ ให้ใช้งานได้กับทุกรูปแบบธุรกิจ ทั้งหน้าร้าน คาเฟ่ ร้านอาหาร หรือคลังสินค้า</p>
+    </div>
+
+    <div class="biz-grid">
+      <div class="biz-card">
+        <div class="biz-icon">🏪</div>
+        <h4 data-i18n="bizGrocery">ร้านขายของชำ / มินิมาร์ท</h4>
+        <p data-i18n="bizGroceryDesc">คุมของเข้า-ออก เช็คสต็อกคงเหลือ สินค้าไหนขายดี สินค้าไหนใกล้หมดรู้ทันที</p>
+      </div>
+
+      <div class="biz-card">
+        <div class="biz-icon">☕</div>
+        <h4 data-i18n="bizCafe">ร้านอาหาร / คาเฟ่ / ชานม</h4>
+        <p data-i18n="bizCafeDesc">ควบคุมสต็อกวัตถุดิบ แป้ง นม เมล็ดกาแฟ คุมต้นทุนอาหาร เบิกใช้แม่นยำ ไม่สูญหาย</p>
+      </div>
+
+      <div class="biz-card">
+        <div class="biz-icon">📦</div>
+        <h4 data-i18n="bizOnline">ร้านค้าออนไลน์ / ไลฟ์สด</h4>
+        <p data-i18n="bizOnlineDesc">ตัดสต็อกทันใจเมื่อแพ็คของส่ง เช็คสถานะสินค้าพร้อมส่ง วางแผนเติมของล่วงหน้า</p>
+      </div>
+
+      <div class="biz-card">
+        <div class="biz-icon">🏭</div>
+        <h4 data-i18n="bizSme">ธุรกิจขนาดย่อม (SMEs)</h4>
+        <p data-i18n="bizSmeDesc">บริหารชิ้นงาน อะไหล่ หรือสินค้าสำเร็จรูป มีพนักงานช่วยบันทึก เจ้าของร้านตรวจสอบได้</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Comparison: Old Method vs Harry Store -->
+  <section class="compare-section">
+    <div class="container">
+      <div class="sec-header">
+        <span class="sec-tag" data-i18n="compTag">ทำไมต้องเลือก Harry Store</span>
+        <h2 class="sec-title" data-i18n="compTitle">เปลี่ยนความวุ่นวายแบบเดิม สู่ระบบดิจิทัลที่ง่ายกว่า</h2>
+        <p class="sec-sub" data-i18n="compSub">เปรียบเทียบข้อแตกต่างระหว่างการจดสมุด/Excel กับการใช้ Harry Store</p>
+      </div>
+
+      <div class="compare-grid">
+        <div class="compare-box old">
+          <span class="compare-badge" data-i18n="compOldBadge">❌ การทำงานแบบเดิม (สมุด / กระดาษ / Excel)</span>
+          <h3 data-i18n="compOldTitle">ยุ่งยาก เสียเวลา ข้อมูลไม่ตรง</h3>
+          <ul class="compare-list">
+            <li class="compare-item">
+              <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>
+              <span data-i18n="compOld1">จดมือลงสมุด เอกสารหาย ยอดตกหล่น ลายมืออ่านยาก</span>
+            </li>
+            <li class="compare-item">
+              <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>
+              <span data-i18n="compOld2">ไม่รู้ว่าของหมดเมื่อไหร่ ของขาดตอนลูกค้าสั่ง เสียโอกาสการขาย</span>
+            </li>
+            <li class="compare-item">
+              <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>
+              <span data-i18n="compOld3">ตรวจสอบไม่ได้ว่าใครเป็นคนเบิกของออกไป หรือใครบันทึกรับเข้า</span>
+            </li>
+            <li class="compare-item">
+              <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>
+              <span data-i18n="compOld4">คำนวณต้นทุน-กำไรด้วยมือ เสี่ยงคำนวณผิด ไม่เห็นภาพรวมธุรกิจ</span>
+            </li>
+          </ul>
+        </div>
+
+        <div class="compare-box new">
+          <span class="compare-badge" data-i18n="compNewBadge">✨ ระบบ Harry Store</span>
+          <h3 data-i18n="compNewTitle">ง่าย เร็ว แม่นยำ ครบจบในมือถือ</h3>
+          <ul class="compare-list">
+            <li class="compare-item">
+              <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+              <span data-i18n="compNew1">บันทึกผ่านมือถือได้ทันที อัปเดตสต็อกคงเหลือ Real-Time</span>
+            </li>
+            <li class="compare-item">
+              <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+              <span data-i18n="compNew2"><b>แดชบอร์ดอัจฉริยะ:</b> เตือนสินค้าใกล้หมด พร้อมปุ่มแนะนำจำนวนสั่งซื้อเพิ่ม</span>
+            </li>
+            <li class="compare-item">
+              <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+              <span data-i18n="compNew3">บันทึกชื่อพนักงานผู้ทำรายการในทุกประวัติ ป้องกันการทุจริต</span>
+            </li>
+            <li class="compare-item">
+              <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+              <span data-i18n="compNew4">เมนูยอดขาย & บันทึกค่าใช้จ่าย สรุปกำไรสุทธิและกราฟวิเคราะห์ครบครัน</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Core Features -->
+  <section id="features" class="container" style="padding-bottom: 80px;">
+    <div class="sec-header">
+      <span class="sec-tag" data-i18n="featTag">ฟังก์ชันการทำงาน</span>
+      <h2 class="sec-title" data-i18n="featTitle">ฟีเจอร์ครบครัน ใช้งานง่าย ไม่ซับซ้อน</h2>
+      <p class="sec-sub" data-i18n="featSub">พัฒนาจากความต้องการจริงของผู้ประกอบการ เพื่อให้การบริหารสต็อกสะดวกและปลอดภัยที่สุด</p>
+    </div>
+
+    <div class="features-grid">
+      <div class="feat-card">
+        <div class="feat-icon">📥📤</div>
+        <h4 data-i18n="feat1Title">บันทึกรับเข้า / เบิกออก</h4>
+        <p data-i18n="feat1Desc">บันทึกสินค้าซื้อเข้า หรือเบิกออก/ขาย ได้อย่างรวดเร็ว ดึงราคาต้นทุนอัตโนมัติ บังคับเลือกประเภทเพื่อลดความผิดพลาด</p>
+      </div>
+
+      <div class="feat-card">
+        <div class="feat-icon">📊</div>
+        <h4 data-i18n="feat2Title">Dashboard อัจฉริยะ</h4>
+        <p data-i18n="feat2Desc">กราฟแท่งและสถิติเปรียบเทียบมูลค่ารับเข้า-เบิกออก พร้อมระบบ <b>"แนะนำสั่งซื้อเพิ่ม"</b> คำนวณตามอัตราการเบิกใช้จริง</p>
+      </div>
+
+      <div class="feat-card">
+        <div class="feat-icon">💰</div>
+        <h4 data-i18n="feat3Title">บันทึกยอดขาย & รายจ่าย</h4>
+        <p data-i18n="feat3Desc">แยกช่องทางเงินสด เงินโอน เครดิต และกดเพิ่มแถวค่าใช้จ่ายได้ไม่จำกัด สรุปกำไรสุทธิรายวัน รายเดือนได้ทันที</p>
+      </div>
+
+      <div class="feat-card">
+        <div class="feat-icon">👥</div>
+        <h4 data-i18n="feat4Title">แยก 2 สิทธิ์การเข้าถึง</h4>
+        <p data-i18n="feat4Desc">สิทธิ์เจ้าของร้านดูต้นทุน กำไร และตั้งค่าได้เต็มรูปแบบ / สิทธิ์พนักงานช่วยคีย์ข้อมูลและดูจำนวนคงเหลือโดยไม่เห็นยอดเงินลับ</p>
+      </div>
+
+      <div class="feat-card">
+        <div class="feat-icon">🔍</div>
+        <h4 data-i18n="feat5Title">เจาะลึกประวัติสินค้า</h4>
+        <p data-i18n="feat5Desc">คลิกที่สินค้าบนแดชบอร์ดเพื่อเปิด Popup ดูประวัติการรับเข้า-เบิกออกย้อนหลัง พร้อมชื่อพนักงานที่ทำรายการ</p>
+      </div>
+
+      <div class="feat-card">
+        <div class="feat-icon">🌐</div>
+        <h4 data-i18n="feat6Title">รองรับ 2 ภาษา (TH / EN)</h4>
+        <p data-i18n="feat6Desc">สลับภาษาไทยและอังกฤษได้ทันทีในคลิกเดียว เหมาะสำหรับร้านที่มีพนักงานต่างชาติ หรือต้องการใช้งานมาตรฐานสากล</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- User Roles Breakdown -->
+  <section id="roles" class="container roles-section">
+    <div class="sec-header">
+      <span class="sec-tag" data-i18n="rolesTag">การควบคุมสิทธิ์</span>
+      <h2 class="sec-title" data-i18n="rolesTitle">จัดสัดส่วนชัดเจน ปลอดภัย สบายใจเจ้าของร้าน</h2>
+      <p class="sec-sub" data-i18n="rolesSub">ล็อกอินด้วยเบอร์โทรและรหัสผ่าน โดยพนักงานใช้รหัสที่เจ้าของร้านเป็นผู้กำหนดให้</p>
+    </div>
+
+    <div class="roles-grid">
+      <div class="role-card owner">
+        <span class="role-tag" data-i18n="roleOwnerTag">👑 สำหรับเจ้าของร้าน (Owner)</span>
+        <h3 data-i18n="roleOwnerTitle">เข้าถึงได้ 100% บริหารจัดการเต็มระบบ</h3>
+        <ul class="role-points">
+          <li>
+            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            <span data-i18n="roleOwner1"><b>เมนูตั้งค่า:</b> เปลี่ยนชื่อร้าน, อัปโหลดโลโก้ร้าน, จัดการรายการสินค้าไม่จำกัด</span>
+          </li>
+          <li>
+            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            <span data-i18n="roleOwner2"><b>จัดการพนักงาน:</b> เพิ่ม/ลบรายชื่อพนักงาน และกำหนดรหัสผ่านได้ไม่จำกัด</span>
+          </li>
+          <li>
+            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            <span data-i18n="roleOwner3"><b>แดชบอร์ดการเงิน:</b> ดูมูลค่าต้นทุนรับเข้า ยอดเบิกออก กำไร และดูกราฟสถิติ</span>
+          </li>
+          <li>
+            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            <span data-i18n="roleOwner4"><b>ประวัติยอดขาย:</b> ดูย้อนหลังได้ตลอดเวลา กรองตามช่วงเวลา ลบรายการได้</span>
+          </li>
+        </ul>
+      </div>
+
+      <div class="role-card staff">
+        <span class="role-tag" data-i18n="roleStaffTag">👤 สำหรับพนักงาน (Staff)</span>
+        <h3 data-i18n="roleStaffTitle">เน้นการทำงานหน้างาน ข้อมูลเงินไม่รั่วไหล</h3>
+        <ul class="role-points">
+          <li>
+            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            <span data-i18n="roleStaff1"><b>ไม่มีเมนูตั้งค่า:</b> ป้องกันการแก้ไขชื่อร้าน สินค้า หรือลบระบบ</span>
+          </li>
+          <li>
+            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            <span data-i18n="roleStaff2"><b>บันทึกรับเข้า-เบิกออก:</b> ทำรายการได้ปกติ บันทึกชื่อพนักงานอัตโนมัติ</span>
+          </li>
+          <li>
+            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            <span data-i18n="roleStaff3"><b>แดชบอร์ดแบบจำกัด:</b> เห็นเฉพาะจำนวนสต็อกคงเหลือ ไม่เห็นยอดเงินหรือมูลค่ารวม</span>
+          </li>
+          <li>
+            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            <span data-i18n="roleStaff4"><b>ประวัติยอดขาย:</b> คีย์ยอดขายรายวันได้ และดูประวัติย้อนหลังได้สูงสุด 30 วัน</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- How It Works / Steps with Image Slots -->
+  <section id="how-it-works" class="container steps-section">
+    <div class="sec-header">
+      <span class="sec-tag" data-i18n="stepsTag">ภาพรวมการใช้งาน</span>
+      <h2 class="sec-title" data-i18n="stepsTitle">เริ่มต้นง่ายใน 4 ขั้นตอน</h2>
+      <p class="sec-sub" data-i18n="stepsSub">ออกแบบมาให้ไม่ต้องเรียนรู้เยอะ แค่มีเบอร์โทรศัพท์ก็เริ่มจัดการสต็อกได้ทันที</p>
+    </div>
+
+    <!-- Step 1 -->
+    <div class="step-item">
+      <div class="step-content">
+        <div class="step-num">1</div>
+        <h3 data-i18n="step1Title">สมัครและเข้าสู่ระบบง่ายๆ ด้วยเบอร์โทร</h3>
+        <p data-i18n="step1Desc">
+          เพียงกรอกเบอร์โทรศัพท์ของร้านและตั้งรหัสผ่าน ระบบจะสร้างบัญชีร้านค้าให้คุณทันที พร้อมสิทธิ์ทดลองใช้งานฟรี 30 วันเต็ม ไม่ต้องผูกบัตรเครดิต
+        </p>
+        <ul class="step-list">
+          <li data-i18n="step1Point1">รองรับทั้งมือถือ แท็บเล็ต และคอมพิวเตอร์</li>
+          <li data-i18n="step1Point2">บันทึกรหัสผ่านในเครื่องเพื่อเปิดใช้งานสะดวก</li>
+        </ul>
+      </div>
+      <div class="step-visual">
+        <div class="img-placeholder-card">
+          <!-- คุณสามารถใส่รูปหน้าจอล็อกอิน <img src="step1-login.png" style="width:100%; border-radius:14px;"> ตรงนี้ได้ -->
+          <div class="img-box">
+            <div class="icon">🔐</div>
+            <div class="slot-title" data-i18n="slotStep1Title">พื้นที่ใส่ภาพ: หน้าเข้าสู่ระบบ (Login Screen)</div>
+            <div class="slot-hint" data-i18n="slotStep1Hint">[ใส่รูปภาพหน้าจอ Login / Register พร้อมกล่องสลับภาษา]</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 2 -->
+    <div class="step-item reverse">
+      <div class="step-content">
+        <div class="step-num">2</div>
+        <h3 data-i18n="step2Title">เพิ่มสินค้าและกำหนดราคาต้นทุน</h3>
+        <p data-i18n="step2Desc">
+          สร้างรายการสินค้าได้ไม่จำกัด ใส่ชื่อสินค้า หน่วยนับ (ชิ้น, กล่อง, ขวด, กก.) ราคาต้นทุน และอัปโหลดรูปภาพสินค้าได้ง่ายๆ
+        </p>
+        <ul class="step-list">
+          <li data-i18n="step2Point1">แก้ไขหรือลบรายการสินค้าได้ตลอดเวลา</li>
+          <li data-i18n="step2Point2">เพิ่มรายชื่อพนักงานพร้อมรหัสผ่านส่วนตัวได้จากหน้านี้</li>
+        </ul>
+      </div>
+      <div class="step-visual">
+        <div class="img-placeholder-card">
+          <!-- คุณสามารถใส่รูปหน้าตั้งค่าสินค้า <img src="step2-product.png" style="width:100%; border-radius:14px;"> ตรงนี้ได้ -->
+          <div class="img-box">
+            <div class="icon">🏷️</div>
+            <div class="slot-title" data-i18n="slotStep2Title">พื้นที่ใส่ภาพ: หน้าตั้งค่าและเพิ่มรายการสินค้า</div>
+            <div class="slot-hint" data-i18n="slotStep2Hint">[ใส่รูปภาพหน้าจอ Settings, จัดการสินค้า และจัดการพนักงาน]</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 3 -->
+    <div class="step-item">
+      <div class="step-content">
+        <div class="step-num">3</div>
+        <h3 data-i18n="step3Title">บันทึกรับเข้า-เบิกออก & ยอดขายรายวัน</h3>
+        <p data-i18n="step3Desc">
+          กดปุ่มบวกเพื่อทำรายการรับเข้า (ซื้อเข้า) หรือเบิกออก (ขาย/ใช้งาน) ราคาต้นทุนจะดึงขึ้นมาอัตโนมัติ พร้อมบันทึกยอดขายแยกเงินสด เงินโอน เครดิต และค่าใช้จ่าย
+        </p>
+        <ul class="step-list">
+          <li data-i18n="step3Point1">มีตัวเลือกเริ่มต้นเพื่อป้องกันการกดพลาด</li>
+          <li data-i18n="step3Point2">ประวัติระบุวัน เวลา และชื่อผู้บันทึกอย่างชัดเจน</li>
+        </ul>
+      </div>
+      <div class="step-visual">
+        <div class="img-placeholder-card">
+          <!-- คุณสามารถใส่รูปหน้าบันทึกรายการ <img src="step3-record.png" style="width:100%; border-radius:14px;"> ตรงนี้ได้ -->
+          <div class="img-box">
+            <div class="icon">📝</div>
+            <div class="slot-title" data-i18n="slotStep3Title">พื้นที่ใส่ภาพ: หน้าบันทึกรับเข้า/เบิกออก และยอดขาย</div>
+            <div class="slot-hint" data-i18n="slotStep3Hint">[ใส่รูปภาพ Popup บันทึกรับเข้า-เบิกออก หรือหน้าบันทึกยอดขายรายวัน]</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 4 -->
+    <div class="step-item reverse">
+      <div class="step-content">
+        <div class="step-num">4</div>
+        <h3 data-i18n="step4Title">ดูแดชบอร์ด วางแผนสต็อก และรู้กำไรทันที</h3>
+        <p data-i18n="step4Desc">
+          แถบสีแสดงสถานะสต็อก (เขียว/เหลือง/แดง) ป้องกันสินค้าขาดมือ พร้อมระบบคำนวณสั่งซื้อเพิ่มแนะนำ และดูกราฟเปรียบเทียบยอดขายต่อวัน
+        </p>
+        <ul class="step-list">
+          <li data-i18n="step4Point1">คลิกที่สินค้าเพื่อดูประวัติย้อนหลังได้ทันที</li>
+          <li data-i18n="step4Point2">ดูกราฟแท่งเปรียบเทียบยอดรับเข้าและเบิกออก</li>
+        </ul>
+      </div>
+      <div class="step-visual">
+        <div class="img-placeholder-card">
+          <!-- คุณสามารถใส่รูปหน้าแดชบอร์ด <img src="step4-dashboard.png" style="width:100%; border-radius:14px;"> ตรงนี้ได้ -->
+          <div class="img-box">
+            <div class="icon">📊</div>
+            <div class="slot-title" data-i18n="slotStep4Title">พื้นที่ใส่ภาพ: แดชบอร์ดสรุปผลและกราฟ (Dashboard)</div>
+            <div class="slot-hint" data-i18n="slotStep4Hint">[ใส่รูปภาพหน้า Dashboard สรุปยอด รายการแนะนำสั่งซื้อ และแถบสีสต็อก]</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Pricing Section -->
+  <section id="pricing" class="pricing-section">
+    <div class="container">
+      <div class="sec-header">
+        <span class="sec-tag" data-i18n="priceTag">แพ็กเกจราคาเดียว</span>
+        <h2 class="sec-title" data-i18n="priceTitle">ราคาประหยัด จ่ายสบาย ได้ครบทุกฟีเจอร์</h2>
+        <p class="sec-sub" data-i18n="priceSub">ไม่มีคิดค่าธรรมเนียมแอบแฝง ไม่มีจำกัดจำนวนสินค้าหรือพนักงาน</p>
+      </div>
+
+      <div class="pricing-card-wrap">
+        <div class="pricing-card">
+          <div class="pricing-pill" data-i18n="pricePill">⭐ แนะนำ คุ้มค่าที่สุด</div>
+          <h3 class="pricing-title" data-i18n="pricePlanName">แพ็กเกจ Standard (ใช้งานเต็มระบบ)</h3>
+          
+          <div class="pricing-price">
+            <span class="currency">฿</span>
+            <span class="amount">200</span>
+            <span class="period" data-i18n="pricePeriod">/ เดือน</span>
+          </div>
+
+          <div class="pricing-trial" data-i18n="priceTrialBanner">
+            🎁 สิทธิพิเศษ: ทดลองใช้งานฟรี 30 วันแรกทันที!
+          </div>
+
+          <ul class="pricing-features">
+            <li>
+              <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>
+              <span data-i18n="priceFeat1">เพิ่มสินค้าได้ไม่จำกัดจำนวนรายการ</span>
+            </li>
+            <li>
+              <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>
+              <span data-i18n="priceFeat2">เพิ่มพนักงานช่วยบันทึกได้ไม่จำกัดคน</span>
+            </li>
+            <li>
+              <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>
+              <span data-i18n="priceFeat3">ระบบแดชบอร์ดวิเคราะห์สต็อก & กราฟยอดขาย</span>
+            </li>
+            <li>
+              <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>
+              <span data-i18n="priceFeat4">ระบบแนะนำสั่งซื้อเพิ่มอัจฉริยะ (Reorder Suggestion)</span>
+            </li>
+            <li>
+              <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>
+              <span data-i18n="priceFeat5">เข้าใช้งานได้ทุกอุปกรณ์ (มือถือ, แท็บเล็ต, PC)</span>
+            </li>
+            <li>
+              <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>
+              <span data-i18n="priceFeat6">สลับใช้งานได้ทั้ง 2 ภาษา (ไทย & อังกฤษ)</span>
+            </li>
+          </ul>
+
+          <a href="https://harry-store.github.io/shop/" target="_blank" class="btn btn-primary btn-lg" style="width: 100%;" data-i18n="btnStartTrial">
+            ทดลองใช้งานฟรี 30 วันตอนนี้
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ Section -->
+  <section id="faq" class="container">
+    <div class="sec-header">
+      <span class="sec-tag" data-i18n="faqTag">คำถามที่พบบ่อย</span>
+      <h2 class="sec-title" data-i18n="faqTitle">ข้อสงสัยเกี่ยวกับการใช้งาน Harry Store</h2>
+    </div>
+
+    <div class="faq-section">
+      <div class="faq-item open">
+        <div class="faq-question" onclick="toggleFaq(this)">
+          <span data-i18n="faq1Q">1. ต้องดาวน์โหลดหรือติดตั้งแอปพลิเคชันลงเครื่องหรือไม่?</span>
+          <span class="arrow">▼</span>
+        </div>
+        <div class="faq-answer" data-i18n="faq1A">
+          ไม่ต้องติดตั้งแอปพลิเคชันครับ! สามารถเปิดใช้งานผ่านเว็บเบราว์เซอร์ (Chrome, Safari, Edge) ได้ทันทีบนทุกอุปกรณ์ ทั้งมือถือ iOS, Android, แท็บเล็ต และคอมพิวเตอร์ หรือจะกด "Add to Home Screen" เพื่อสร้างไอคอนบนหน้าจอมือถือได้เหมือนแอปจริง
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-question" onclick="toggleFaq(this)">
+          <span data-i18n="faq2Q">2. ช่วงทดลองใช้ 30 วัน มีข้อจำกัดฟีเจอร์หรือไม่?</span>
+          <span class="arrow">▼</span>
+        </div>
+        <div class="faq-answer" data-i18n="faq2A">
+          ไม่มีข้อจำกัดใดๆ ทั้งสิ้นครับ สามารถใช้งานได้ทุกฟีเจอร์เหมือนบัญชีปกติ ทั้งการเพิ่มสินค้า บันทึกรับเข้า-เบิกออก ยอดขาย แดชบอร์ด และเพิ่มพนักงาน
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-question" onclick="toggleFaq(this)">
+          <span data-i18n="faq3Q">3. ถ้ามีพนักงานหลายคน ข้อมูลจะตรงกันหรือไม่?</span>
+          <span class="arrow">▼</span>
+        </div>
+        <div class="faq-answer" data-i18n="faq3A">
+          ข้อมูลซิงค์ตรงกันแบบ Real-Time ครับ เมื่อพนักงานคนใดคนหนึ่งกดรับเข้าหรือเบิกออกสินค้า ยอดสต็อกคงเหลือในระบบจะอัปเดตให้ทุกคนเห็นตรงกันทันที พร้อมระบุชื่อพนักงานที่ทำรายการในประวัติ
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-question" onclick="toggleFaq(this)">
+          <span data-i18n="faq4Q">4. พนักงานจะเห็นยอดเงินและต้นทุนของร้านหรือไม่?</span>
+          <span class="arrow">▼</span>
+        </div>
+        <div class="faq-answer" data-i18n="faq4A">
+          ไม่เห็นครับ ระบบถูกออกแบบให้แยกสิทธิ์ชัดเจน พนักงานจะเห็นเฉพาะจำนวนรายการสินค้าและจำนวนสต็อกคงเหลือเท่านั้น จะไม่สามารถดูราคาต้นทุน ยอดเงินรวม หรือเข้าถึงหน้าตั้งค่าของร้านได้
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-question" onclick="toggleFaq(this)">
+          <span data-i18n="faq5Q">5. ถ้าหมดอายุทดลองใช้ ข้อมูลที่เคยบันทึกไว้จะหายหรือไม่?</span>
+          <span class="arrow">▼</span>
+        </div>
+        <div class="faq-answer" data-i18n="faq5A">
+          ข้อมูลจะไม่หายครับ เมื่อหมดอายุคุณยังสามารถล็อกอินเข้าไปดูข้อมูลประวัติเดิมได้ เพียงแต่จะไม่สามารถกดเพิ่มหรือแก้ไขข้อมูลใหม่ได้ จนกว่าจะต่ออายุการใช้งานในราคา 200 บาท/เดือน
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Banner Bottom -->
+  <div class="container">
+    <div class="cta-banner">
+      <h2 data-i18n="ctaTitle">พร้อมยกระดับการจัดการสต็อกร้านของคุณแล้วหรือยัง?</h2>
+      <p data-i18n="ctaDesc">เริ่มใช้งานระบบ Harry Store วันนี้ บริหารง่าย สบายใจ ไม่ต้องกังวลเรื่องของหายหรือของขาดอีกต่อไป</p>
+      <a href="https://harry-store.github.io/shop/" target="_blank" class="btn btn-cta" data-i18n="btnCtaBottom">
+        🎁 ทดลองใช้งานฟรี 30 วัน (คลิกที่นี่)
+      </a>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer>
+    <div class="container footer-inner">
+      <div class="footer-logo">
+        <img src="favicon.png" alt="Logo" width="24" height="24" style="border-radius: 6px;">
+        <span>Harry Store Inventory Management System</span>
+      </div>
+      <div>
+        <span>Web Application: <a href="https://harry-store.github.io/shop/" target="_blank" style="color:var(--pri); font-weight:600;">harry-store.github.io/shop</a></span>
+      </div>
+      <div>
+        <span>&copy; 2026 Harry Store. All rights reserved.</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Script: Language Translation & Interaction -->
+  <script>
+    const I18N = {
+      th: {
+        navFeatures: "จุดเด่น",
+        navBusinesses: "เหมาะกับใคร",
+        navRoles: "สิทธิ์ผู้ใช้งาน",
+        navSteps: "วิธีใช้งาน",
+        navPricing: "ราคา",
+        navFaq: "คำถามที่พบบ่อย",
+        btnTryFree: "ทดลองใช้ฟรี 30 วัน",
+        heroBadge: "ระบบจัดการสต็อกและสินค้าคงคลังยุคใหม่",
+        heroTitle: 'คุมสต็อกง่าย รู้กำไรทันที <br><span class="highlight">สต็อกไม่ขาด ทุนไม่จม</span>',
+        heroLead: "Harry Store เว็บแอปพลิเคชันจัดการสต็อกสินค้า รับเข้า-เบิกออก และบันทึกยอดขายรายวัน ออกแบบมาสำหรับร้านค้า ร้านอาหาร และธุรกิจทุกขนาด ใช้งานง่ายบนมือถือและคอมพิวเตอร์ ข้อมูลซิงค์ Real-Time",
+        heroCtaPrimary: "🚀 เริ่มต้นใช้งานฟรี 30 วัน",
+        heroCtaSecondary: "📖 ดูหน้าตาระบบ & ขั้นตอน",
+        trust1: "ไม่ต้องติดตั้งแอป",
+        trust2: "เพียง 200 บ./เดือน",
+        trust3: "แยกสิทธิ์เจ้าของ/พนักงาน",
+        slotHeroTitle: "พื้นที่สำหรับใส่รูปภาพหน้าจอระบบหลัก (Overview)",
+        slotHeroHint: "[แนะนำ: แคปเจอร์หน้าจอระบบ Harry Store บนมือถือหรือเดสก์ท็อป ขนาดประมาณ 1000x800 px แล้วนำไฟล์ภาพมาใส่แทนที่แท็กนี้]",
+        statRealtime: "ข้อมูลอัปเดต Real-Time",
+        statTrial: "ทดลองใช้ฟรีเต็มรูปแบบ",
+        statPrice: "คุ้มค่าเพียงเดือนละ 200 บาท",
+        statRoles: "แยกสิทธิ์เจ้าของร้าน & พนักงาน",
+        bizTag: "รองรับทุกธุรกิจ",
+        bizTitle: "ระบบเดียว ครอบคลุมทุกขนาดธุรกิจที่มีสินค้าหรือวัตถุดิบ",
+        bizSub: "ออกแบบคำศัพท์และระบบกลางๆ ให้ใช้งานได้กับทุกรูปแบบธุรกิจ ทั้งหน้าร้าน คาเฟ่ ร้านอาหาร หรือคลังสินค้า",
+        bizGrocery: "ร้านขายของชำ / มินิมาร์ท",
+        bizGroceryDesc: "คุมของเข้า-ออก เช็คสต็อกคงเหลือ สินค้าไหนขายดี สินค้าไหนใกล้หมดรู้ทันที",
+        bizCafe: "ร้านอาหาร / คาเฟ่ / ชานม",
+        bizCafeDesc: "ควบคุมสต็อกวัตถุดิบ แป้ง นม เมล็ดกาแฟ คุมต้นทุนอาหาร เบิกใช้แม่นยำ ไม่สูญหาย",
+        bizOnline: "ร้านค้าออนไลน์ / ไลฟ์สด",
+        bizOnlineDesc: "ตัดสต็อกทันใจเมื่อแพ็คของส่ง เช็คสถานะสินค้าพร้อมส่ง วางแผนเติมของล่วงหน้า",
+        bizSme: "ธุรกิจขนาดย่อม (SMEs)",
+        bizSmeDesc: "บริหารชิ้นงาน อะไหล่ หรือสินค้าสำเร็จรูป มีพนักงานช่วยบันทึก เจ้าของร้านตรวจสอบได้",
+        compTag: "ทำไมต้องเลือก Harry Store",
+        compTitle: "เปลี่ยนความวุ่นวายแบบเดิม สู่ระบบดิจิทัลที่ง่ายกว่า",
+        compSub: "เปรียบเทียบข้อแตกต่างระหว่างการจดสมุด/Excel กับการใช้ Harry Store",
+        compOldBadge: "❌ การทำงานแบบเดิม (สมุด / กระดาษ / Excel)",
+        compOldTitle: "ยุ่งยาก เสียเวลา ข้อมูลไม่ตรง",
+        compOld1: "จดมือลงสมุด เอกสารหาย ยอดตกหล่น ลายมืออ่านยาก",
+        compOld2: "ไม่รู้ว่าของหมดเมื่อไหร่ ของขาดตอนลูกค้าสั่ง เสียโอกาสการขาย",
+        compOld3: "ตรวจสอบไม่ได้ว่าใครเป็นคนเบิกของออกไป หรือใครบันทึกรับเข้า",
+        compOld4: "คำนวณต้นทุน-กำไรด้วยมือ เสี่ยงคำนวณผิด ไม่เห็นภาพรวมธุรกิจ",
+        compNewBadge: "✨ ระบบ Harry Store",
+        compNewTitle: "ง่าย เร็ว แม่นยำ ครบจบในมือถือ",
+        compNew1: "บันทึกผ่านมือถือได้ทันที อัปเดตสต็อกคงเหลือ Real-Time",
+        compNew2: "<b>แดชบอร์ดอัจฉริยะ:</b> เตือนสินค้าใกล้หมด พร้อมปุ่มแนะนำจำนวนสั่งซื้อเพิ่ม",
+        compNew3: "บันทึกชื่อพนักงานผู้ทำรายการในทุกประวัติ ป้องกันการทุจริต",
+        compNew4: "เมนูยอดขาย & บันทึกค่าใช้จ่าย สรุปกำไรสุทธิและกราฟวิเคราะห์ครบครัน",
+        featTag: "ฟังก์ชันการทำงาน",
+        featTitle: "ฟีเจอร์ครบครัน ใช้งานง่าย ไม่ซับซ้อน",
+        featSub: "พัฒนาจากความต้องการจริงของผู้ประกอบการ เพื่อให้การบริหารสต็อกสะดวกและปลอดภัยที่สุด",
+        feat1Title: "บันทึกรับเข้า / เบิกออก",
+        feat1Desc: "บันทึกสินค้าซื้อเข้า หรือเบิกออก/ขาย ได้อย่างรวดเร็ว ดึงราคาต้นทุนอัตโนมัติ บังคับเลือกประเภทเพื่อลดความผิดพลาด",
+        feat2Title: "Dashboard อัจฉริยะ",
+        feat2Desc: "กราฟแท่งและสถิติเปรียบเทียบมูลค่ารับเข้า-เบิกออก พร้อมระบบ <b>แนะนำสั่งซื้อเพิ่ม</b> คำนวณตามอัตราการเบิกใช้จริง",
+        feat3Title: "บันทึกยอดขาย & รายจ่าย",
+        feat3Desc: "แยกช่องทางเงินสด เงินโอน เครดิต และกดเพิ่มแถวค่าใช้จ่ายได้ไม่จำกัด สรุปกำไรสุทธิรายวัน รายเดือนได้ทันที",
+        feat4Title: "แยก 2 สิทธิ์การเข้าถึง",
+        feat4Desc: "สิทธิ์เจ้าของร้านดูต้นทุน กำไร และตั้งค่าได้เต็มรูปแบบ / สิทธิ์พนักงานช่วยคีย์ข้อมูลและดูจำนวนคงเหลือโดยไม่เห็นยอดเงินลับ",
+        feat5Title: "เจาะลึกประวัติสินค้า",
+        feat5Desc: "คลิกที่สินค้าบนแดชบอร์ดเพื่อเปิด Popup ดูประวัติการรับเข้า-เบิกออกย้อนหลัง พร้อมชื่อพนักงานที่ทำรายการ",
+        feat6Title: "รองรับ 2 ภาษา (TH / EN)",
+        feat6Desc: "สลับภาษาไทยและอังกฤษได้ทันทีในคลิกเดียว เหมาะสำหรับร้านที่มีพนักงานต่างชาติ หรือต้องการใช้งานมาตรฐานสากล",
+        rolesTag: "การควบคุมสิทธิ์",
+        rolesTitle: "จัดสัดส่วนชัดเจน ปลอดภัย สบายใจเจ้าของร้าน",
+        rolesSub: "ล็อกอินด้วยเบอร์โทรและรหัสผ่าน โดยพนักงานใช้รหัสที่เจ้าของร้านเป็นผู้กำหนดให้",
+        roleOwnerTag: "👑 สำหรับเจ้าของร้าน (Owner)",
+        roleOwnerTitle: "เข้าถึงได้ 100% บริหารจัดการเต็มระบบ",
+        roleOwner1: "<b>เมนูตั้งค่า:</b> เปลี่ยนชื่อร้าน, อัปโหลดโลโก้ร้าน, จัดการรายการสินค้าไม่จำกัด",
+        roleOwner2: "<b>จัดการพนักงาน:</b> เพิ่ม/ลบรายชื่อพนักงาน และกำหนดรหัสผ่านได้ไม่จำกัด",
+        roleOwner3: "<b>แดชบอร์ดการเงิน:</b> ดูมูลค่าต้นทุนรับเข้า ยอดเบิกออก กำไร และดูกราฟสถิติ",
+        roleOwner4: "<b>ประวัติยอดขาย:</b> ดูย้อนหลังได้ตลอดเวลา กรองตามช่วงเวลา ลบรายการได้",
+        roleStaffTag: "👤 สำหรับพนักงาน (Staff)",
+        roleStaffTitle: "เน้นการทำงานหน้างาน ข้อมูลเงินไม่รั่วไหล",
+        roleStaff1: "<b>ไม่มีเมนูตั้งค่า:</b> ป้องกันการแก้ไขชื่อร้าน สินค้า หรือลบระบบ",
+        roleStaff2: "<b>บันทึกรับเข้า-เบิกออก:</b> ทำรายการได้ปกติ บันทึกชื่อพนักงานอัตโนมัติ",
+        roleStaff3: "<b>แดชบอร์ดแบบจำกัด:</b> เห็นเฉพาะจำนวนสต็อกคงเหลือ ไม่เห็นยอดเงินหรือมูลค่ารวม",
+        roleStaff4: "<b>ประวัติยอดขาย:</b> คีย์ยอดขายรายวันได้ และดูประวัติย้อนหลังได้สูงสุด 30 วัน",
+        stepsTag: "ภาพรวมการใช้งาน",
+        stepsTitle: "เริ่มต้นง่ายใน 4 ขั้นตอน",
+        stepsSub: "ออกแบบมาให้ไม่ต้องเรียนรู้เยอะ แค่มีเบอร์โทรศัพท์ก็เริ่มจัดการสต็อกได้ทันที",
+        step1Title: "สมัครและเข้าสู่ระบบง่ายๆ ด้วยเบอร์โทร",
+        step1Desc: "เพียงกรอกเบอร์โทรศัพท์ของร้านและตั้งรหัสผ่าน ระบบจะสร้างบัญชีร้านค้าให้คุณทันที พร้อมสิทธิ์ทดลองใช้งานฟรี 30 วันเต็ม ไม่ต้องผูกบัตรเครดิต",
+        step1Point1: "รองรับทั้งมือถือ แท็บเล็ต และคอมพิวเตอร์",
+        step1Point2: "บันทึกรหัสผ่านในเครื่องเพื่อเปิดใช้งานสะดวก",
+        slotStep1Title: "พื้นที่ใส่ภาพ: หน้าเข้าสู่ระบบ (Login Screen)",
+        slotStep1Hint: "[ใส่รูปภาพหน้าจอ Login / Register พร้อมกล่องสลับภาษา]",
+        step2Title: "เพิ่มสินค้าและกำหนดราคาต้นทุน",
+        step2Desc: "สร้างรายการสินค้าได้ไม่จำกัด ใส่ชื่อสินค้า หน่วยนับ (ชิ้น, กล่อง, ขวด, กก.) ราคาต้นทุน และอัปโหลดรูปภาพสินค้าได้ง่ายๆ",
+        step2Point1: "แก้ไขหรือลบรายการสินค้าได้ตลอดเวลา",
+        step2Point2: "เพิ่มรายชื่อพนักงานพร้อมรหัสผ่านส่วนตัวได้จากหน้านี้",
+        slotStep2Title: "พื้นที่ใส่ภาพ: หน้าตั้งค่าและเพิ่มรายการสินค้า",
+        slotStep2Hint: "[ใส่รูปภาพหน้าจอ Settings, จัดการสินค้า และจัดการพนักงาน]",
+        step3Title: "บันทึกรับเข้า-เบิกออก & ยอดขายรายวัน",
+        step3Desc: "กดปุ่มบวกเพื่อทำรายการรับเข้า (ซื้อเข้า) หรือเบิกออก (ขาย/ใช้งาน) ราคาต้นทุนจะดึงขึ้นมาอัตโนมัติ พร้อมบันทึกยอดขายแยกเงินสด เงินโอน เครดิต และค่าใช้จ่าย",
+        step3Point1: "มีตัวเลือกเริ่มต้นเพื่อป้องกันการกดพลาด",
+        step3Point2: "ประวัติระบุวัน เวลา และชื่อผู้บันทึกอย่างชัดเจน",
+        slotStep3Title: "พื้นที่ใส่ภาพ: หน้าบันทึกรับเข้า/เบิกออก และยอดขาย",
+        slotStep3Hint: "[ใส่รูปภาพ Popup บันทึกรับเข้า-เบิกออก หรือหน้าบันทึกยอดขายรายวัน]",
+        step4Title: "ดูแดชบอร์ด วางแผนสต็อก และรู้กำไรทันที",
+        step4Desc: "แถบสีแสดงสถานะสต็อก (เขียว/เหลือง/แดง) ป้องกันสินค้าขาดมือ พร้อมระบบคำนวณสั่งซื้อเพิ่มแนะนำ และดูกราฟเปรียบเทียบยอดขายต่อวัน",
+        step4Point1: "คลิกที่สินค้าเพื่อดูประวัติย้อนหลังได้ทันที",
+        step4Point2: "ดูกราฟแท่งเปรียบเทียบยอดรับเข้าและเบิกออก",
+        slotStep4Title: "พื้นที่ใส่ภาพ: แดชบอร์ดสรุปผลและกราฟ (Dashboard)",
+        slotStep4Hint: "[ใส่รูปภาพหน้า Dashboard สรุปยอด รายการแนะนำสั่งซื้อ และแถบสีสต็อก]",
+        priceTag: "แพ็กเกจราคาเดียว",
+        priceTitle: "ราคาประหยัด จ่ายสบาย ได้ครบทุกฟีเจอร์",
+        priceSub: "ไม่มีคิดค่าธรรมเนียมแอบแฝง ไม่มีจำกัดจำนวนสินค้าหรือพนักงาน",
+        pricePill: "⭐ แนะนำ คุ้มค่าที่สุด",
+        pricePlanName: "แพ็กเกจ Standard (ใช้งานเต็มระบบ)",
+        pricePeriod: "/ เดือน",
+        priceTrialBanner: "🎁 สิทธิพิเศษ: ทดลองใช้งานฟรี 30 วันแรกทันที!",
+        priceFeat1: "เพิ่มสินค้าได้ไม่จำกัดจำนวนรายการ",
+        priceFeat2: "เพิ่มพนักงานช่วยบันทึกได้ไม่จำกัดคน",
+        priceFeat3: "ระบบแดชบอร์ดวิเคราะห์สต็อก & กราฟยอดขาย",
+        priceFeat4: "ระบบแนะนำสั่งซื้อเพิ่มอัจฉริยะ (Reorder Suggestion)",
+        priceFeat5: "เข้าใช้งานได้ทุกอุปกรณ์ (มือถือ, แท็บเล็ต, PC)",
+        priceFeat6: "สลับใช้งานได้ทั้ง 2 ภาษา (ไทย & อังกฤษ)",
+        btnStartTrial: "ทดลองใช้งานฟรี 30 วันตอนนี้",
+        faqTag: "คำถามที่พบบ่อย",
+        faqTitle: "ข้อสงสัยเกี่ยวกับการใช้งาน Harry Store",
+        faq1Q: "1. ต้องดาวน์โหลดหรือติดตั้งแอปพลิเคชันลงเครื่องหรือไม่?",
+        faq1A: "ไม่ต้องติดตั้งแอปพลิเคชันครับ! สามารถเปิดใช้งานผ่านเว็บเบราว์เซอร์ (Chrome, Safari, Edge) ได้ทันทีบนทุกอุปกรณ์ ทั้งมือถือ iOS, Android, แท็บเล็ต และคอมพิวเตอร์ หรือจะกด 'Add to Home Screen' เพื่อสร้างไอคอนบนหน้าจอมือถือได้เหมือนแอปจริง",
+        faq2Q: "2. ช่วงทดลองใช้ 30 วัน มีข้อจำกัดฟีเจอร์หรือไม่?",
+        faq2A: "ไม่มีข้อจำกัดใดๆ ทั้งสิ้นครับ สามารถใช้งานได้ทุกฟีเจอร์เหมือนบัญชีปกติ ทั้งการเพิ่มสินค้า บันทึกรับเข้า-เบิกออก ยอดขาย แดชบอร์ด และเพิ่มพนักงาน",
+        faq3Q: "3. ถ้ามีพนักงานหลายคน ข้อมูลจะตรงกันหรือไม่?",
+        faq3A: "ข้อมูลซิงค์ตรงกันแบบ Real-Time ครับ เมื่อพนักงานคนใดคนหนึ่งกดรับเข้าหรือเบิกออกสินค้า ยอดสต็อกคงเหลือในระบบจะอัปเดตให้ทุกคนเห็นตรงกันทันที พร้อมระบุชื่อพนักงานที่ทำรายการในประวัติ",
+        faq4Q: "4. พนักงานจะเห็นยอดเงินและต้นทุนของร้านหรือไม่?",
+        faq4A: "ไม่เห็นครับ ระบบถูกออกแบบให้แยกสิทธิ์ชัดเจน พนักงานจะเห็นเฉพาะจำนวนรายการสินค้าและจำนวนสต็อกคงเหลือเท่านั้น จะไม่สามารถดูราคาต้นทุน ยอดเงินรวม หรือเข้าถึงหน้าตั้งค่าของร้านได้",
+        faq5Q: "5. ถ้าหมดอายุทดลองใช้ ข้อมูลที่เคยบันทึกไว้จะหายหรือไม่?",
+        faq5A: "ข้อมูลจะไม่หายครับ เมื่อหมดอายุคุณยังสามารถล็อกอินเข้าไปดูข้อมูลประวัติเดิมได้ เพียงแต่จะไม่สามารถกดเพิ่มหรือแก้ไขข้อมูลใหม่ได้ จนกว่าจะต่ออายุการใช้งานในราคา 200 บาท/เดือน",
+        ctaTitle: "พร้อมยกระดับการจัดการสต็อกร้านของคุณแล้วหรือยัง?",
+        ctaDesc: "เริ่มใช้งานระบบ Harry Store วันนี้ บริหารง่าย สบายใจ ไม่ต้องกังวลเรื่องของหายหรือของขาดอีกต่อไป",
+        btnCtaBottom: "🎁 ทดลองใช้งานฟรี 30 วัน (คลิกที่นี่)"
+      },
+      en: {
+        navFeatures: "Features",
+        navBusinesses: "Who It's For",
+        navRoles: "User Roles",
+        navSteps: "How It Works",
+        navPricing: "Pricing",
+        navFaq: "FAQ",
+        btnTryFree: "Try Free for 30 Days",
+        heroBadge: "Modern Inventory & Stock Management System",
+        heroTitle: 'Effortless Stock, Real-Time Profit <br><span class="highlight">Never Run Out, Never Overstock</span>',
+        heroLead: "Harry Store is an intuitive cloud inventory and stock management web app. Track stock in/out, monitor daily sales, and plan reorders seamlessly on mobile and PC in real time.",
+        heroCtaPrimary: "🚀 Start Free 30-Day Trial",
+        heroCtaSecondary: "📖 Explore System & Steps",
+        trust1: "No app installation required",
+        trust2: "Only 200 THB/month",
+        trust3: "Role-based Owner/Staff permissions",
+        slotHeroTitle: "Placeholder for System Overview Screenshot",
+        slotHeroHint: "[Recommended: Capture Harry Store on mobile or desktop (approx 1000x800 px) and replace this container]",
+        statRealtime: "Real-Time Cloud Sync",
+        statTrial: "Full 30-Day Free Trial",
+        statPrice: "Only 200 THB / Month",
+        statRoles: "Owner & Staff Roles",
+        bizTag: "For Every Business",
+        bizTitle: "One Unified System for Any Business with Inventory",
+        bizSub: "Universally designed terminology suitable for retail stores, grocery shops, cafes, restaurants, or warehouses.",
+        bizGrocery: "Grocery Stores & Minimarts",
+        bizGroceryDesc: "Track arrivals and dispatch, view remaining stock, and know best-selling items instantly.",
+        bizCafe: "Restaurants, Cafes & Bakeries",
+        bizCafeDesc: "Manage raw ingredients, flour, milk, coffee beans. Control cooking costs and prevent waste.",
+        bizOnline: "Online & Live Commerce",
+        bizOnlineDesc: "Instantly update inventory while packing orders. Keep track of ready-to-ship quantities.",
+        bizSme: "SMEs & Workshops",
+        bizSmeDesc: "Manage parts, raw materials, or finished goods with staff logging and owner oversight.",
+        compTag: "Why Harry Store",
+        compTitle: "Say Goodbye to Paperwork, Embrace Modern Simplicity",
+        compSub: "See how Harry Store completely transforms manual notebook and spreadsheet recording.",
+        compOldBadge: "❌ Traditional Methods (Notebook / Paper / Excel)",
+        compOldTitle: "Tedious, Outdated, and Prone to Errors",
+        compOld1: "Lost notebooks, forgotten logs, unreadable handwriting.",
+        compOld2: "Unknown stockout moments causing lost sales opportunities.",
+        compOld3: "No accountability for who dispatched or received items.",
+        compOld4: "Manual math mistakes and no clear picture of total business health.",
+        compNewBadge: "✨ Harry Store System",
+        compNewTitle: "Fast, Accurate, and Accessible on Any Device",
+        compNew1: "Instant mobile recording with real-time stock balances.",
+        compNew2: "<b>Smart Dashboard:</b> Low stock alerts with automated reorder recommendations.",
+        compNew3: "Logs employee names on every action to prevent discrepancy.",
+        compNew4: "Daily sales & dynamic expense recording with profit analytics and charts.",
+        featTag: "Key Capabilities",
+        featTitle: "Powerful Features Wrapped in Elegant Simplicity",
+        featSub: "Engineered from real shop-floor needs to ensure maximum convenience and bulletproof security.",
+        feat1Title: "Stock In & Out Tracking",
+        feat1Desc: "Log purchases or sales in seconds. Automatically pulls unit cost and requires explicit type selection to eliminate errors.",
+        feat2Title: "Smart Analytics Dashboard",
+        feat2Desc: "Visual bar charts, cost comparisons, and the <b>Reorder Suggestion</b> engine based on actual consumption rates.",
+        feat3Title: "Daily Sales & Expense Logging",
+        feat3Desc: "Breakdown payments by Cash, Bank Transfer, or Credit. Add unlimited expense rows to track net profit in real time.",
+        feat4Title: "2-Tier Role Separation",
+        feat4Desc: "Store owners hold 100% control over costs, profit, and settings. Staff record items without seeing confidential financial data.",
+        feat5Title: "Detailed Product History",
+        feat5Desc: "Tap any product in the dashboard to view full chronological logs of all movements and responsible staff.",
+        feat6Title: "Dual Language (TH / EN)",
+        feat6Desc: "Switch seamlessly between Thai and English with a single tap, ideal for international staff or global stores.",
+        rolesTag: "Role Management",
+        rolesTitle: "Clean Separation, Complete Peace of Mind",
+        rolesSub: "Sign in with phone number and password. Staff log in using credentials securely created by the shop owner.",
+        roleOwnerTag: "👑 For Store Owners",
+        roleOwnerTitle: "100% Full Access & Complete Management",
+        roleOwner1: "<b>Settings:</b> Edit store name, upload logo, manage unlimited products.",
+        roleOwner2: "<b>Staff Management:</b> Add/remove employees with custom passwords.",
+        roleOwner3: "<b>Financial Dashboard:</b> View stock-in cost, stock-out sales, profit & graphs.",
+        roleOwner4: "<b>Sales History:</b> Unlimited access to sales logs with custom date filters and deletion rights.",
+        roleStaffTag: "👤 For Staff / Cashiers",
+        roleStaffTitle: "Operational Simplicity without Data Leaks",
+        roleStaff1: "<b>No Settings Menu:</b> Prevents accidental changes to products or store profiles.",
+        roleStaff2: "<b>Log In/Out:</b> Perform routine transactions with employee name auto-attached.",
+        roleStaff3: "<b>Restricted Dashboard:</b> View remaining item counts without seeing sensitive revenue numbers.",
+        roleStaff4: "<b>Daily Sales:</b> Record daily takings and view past history up to 30 days.",
+        stepsTag: "How It Works",
+        stepsTitle: "Get Started in 4 Simple Steps",
+        stepsSub: "No steep learning curve. All you need is a phone number to take control of your stock.",
+        step1Title: "Register & Log in with Phone Number",
+        step1Desc: "Enter your phone number and password. Your store account is created instantly with a full 30-day free trial. No credit card required.",
+        step1Point1: "Works seamlessly on Mobile, Tablet, and Desktop",
+        step1Point2: "Remember credentials locally for quick 1-tap access",
+        slotStep1Title: "Placeholder: Login & Register Screen",
+        slotStep1Hint: "[Insert screenshot of Login Screen with language switcher]",
+        step2Title: "Add Products & Define Cost",
+        step2Desc: "Create unlimited inventory items with name, counting unit (pcs, box, kg), cost price, and product image.",
+        step2Point1: "Edit or delete items whenever your menu changes",
+        step2Point2: "Create employee accounts with custom passwords directly here",
+        slotStep2Title: "Placeholder: Settings & Product Management Screen",
+        slotStep2Hint: "[Insert screenshot of Settings, Product List, and Staff management]",
+        step3Title: "Log Stock Movements & Daily Sales",
+        step3Desc: "Hit the plus button to record Stock In or Stock Out. Cost is automatically retrieved. Record daily sales with cash, transfer, credit, and expense rows.",
+        step3Point1: "Default dropdown prevention avoids accidental mistakes",
+        step3Point2: "Every record displays exact timestamp and staff name",
+        slotStep3Title: "Placeholder: Stock In/Out & Sales Recording Screen",
+        slotStep3Hint: "[Insert screenshot of Stock In/Out Modal or Daily Sales Form]",
+        step4Title: "Analyze Dashboard & Reorder with Confidence",
+        step4Desc: "Traffic-light color coding (Green/Yellow/Red) prevents stockouts. Reorder suggestions alert you before items run dry.",
+        step4Point1: "Click any item to view full popup transaction history",
+        step4Point2: "Interactive bar charts compare purchase vs usage value",
+        slotStep4Title: "Placeholder: Analytics Dashboard & Charts",
+        slotStep4Hint: "[Insert screenshot of Dashboard overview, suggestions, and charts]",
+        priceTag: "Simple Transparent Pricing",
+        priceTitle: "Affordable Flat Rate, Every Feature Included",
+        priceSub: "No hidden fees, no limits on products, records, or staff accounts.",
+        pricePill: "⭐ Best Value Plan",
+        pricePlanName: "Standard Plan (All Features Unlocked)",
+        pricePeriod: "/ month",
+        priceTrialBanner: "🎁 Special Offer: Free 30-Day Trial Included!",
+        priceFeat1: "Unlimited product catalog & images",
+        priceFeat2: "Unlimited staff / recorder accounts",
+        priceFeat3: "Smart analytics dashboard & sales charts",
+        priceFeat4: "Automated Reorder Recommendation engine",
+        priceFeat5: "Cross-platform access (Mobile, Tablet, PC)",
+        priceFeat6: "Dual language support (Thai & English)",
+        btnStartTrial: "Start Your Free 30-Day Trial Now",
+        faqTag: "FAQ",
+        faqTitle: "Frequently Asked Questions",
+        faq1Q: "1. Do I need to install an app from the App Store or Play Store?",
+        faq1A: "No installation is needed! You can open Harry Store instantly in any web browser (Chrome, Safari, Edge) across iOS, Android, and PC. You can also tap 'Add to Home Screen' to create an app-like shortcut icon on your phone.",
+        faq2Q: "2. Are there any feature restrictions during the 30-day free trial?",
+        faq2A: "None at all! You get 100% full access to every feature: unlimited products, stock in/out, sales, dashboard, and staff management.",
+        faq3Q: "3. If multiple employees record items simultaneously, will data stay in sync?",
+        faq3A: "Yes, data syncs in real time via cloud. When any staff logs a transaction, stock balances update immediately for everyone, with the employee's name recorded in the transaction history.",
+        faq4Q: "4. Can staff view store revenue, cost, or financial profit?",
+        faq4A: "No. Role permissions are strictly isolated. Staff only see item counts and quantities without access to cost prices, sales charts, or store settings.",
+        faq5Q: "5. What happens to my data after the free trial ends?",
+        faq5A: "Your data is completely safe and preserved! You can still log in to view your past records. Adding or modifying data will simply resume once you renew for just 200 THB/month.",
+        ctaTitle: "Ready to Transform Your Store's Inventory?",
+        ctaDesc: "Join Harry Store today. Streamlined, intuitive, and worry-free stock control at your fingertips.",
+        btnCtaBottom: "🎁 Start Free 30-Day Trial (Click Here)"
+      }
+    };
+
+    let currentLang = 'th';
+
+    function setLang(lang) {
+      currentLang = lang;
+      document.getElementById('btn-th').classList.toggle('active', lang === 'th');
+      document.getElementById('btn-en').classList.toggle('active', lang === 'en');
+      document.documentElement.lang = lang;
+
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (I18N[lang] && I18N[lang][key]) {
+          el.innerHTML = I18N[lang][key];
+        }
+      });
+    }
+
+    function toggleFaq(el) {
+      const parent = el.closest('.faq-item');
+      parent.classList.toggle('open');
+    }
+  </script>
+</body>
+</html>
